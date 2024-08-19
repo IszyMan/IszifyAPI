@@ -1,0 +1,13 @@
+services:
+  api:
+    image: iszifyapi
+    container_name: iszify_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 7000:7000
+    volumes:
+      - .:/app
+    env_file:
+      - .env
