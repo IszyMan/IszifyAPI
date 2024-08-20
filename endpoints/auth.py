@@ -343,8 +343,8 @@ def reset_password(reset_p):
     try:
         data = request.get_json()
 
-        old_password = data.get("old_password")
         new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
 
         if not reset_p:
             return return_response(
@@ -370,28 +370,35 @@ def reset_password(reset_p):
                 message="Reset password token has expired",
             )
 
-        if reset_p and (not old_password and not new_password):
+        if reset_p and (not confirm_password and not new_password):
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Please provide old and new password",
             )
 
-        if not old_password and new_password:
+        if not confirm_password and new_password:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
-                message="Old password is required",
+                message="Confirm password is required",
             )
 
-        if old_password and not new_password:
+        if confirm_password and not new_password:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="New password is required",
             )
 
-        pass_change = change_password(user, old_password, new_password)
+        if new_password != confirm_password:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Passwords do not match",
+            )
+
+        pass_change = change_password(user, new_password)
 
         if pass_change:
             return return_response(

@@ -161,9 +161,7 @@ def update_user_role(user_id, is_admin, is_super_admin):
     return user
 
 
-def change_password(current_user, old_password, new_password):
-    if not hasher.verify(old_password, current_user.password):
-        return "Old password is incorrect"
+def change_password(current_user, new_password):
     pass_val = validate_password(new_password)
     if pass_val:
         return pass_val
