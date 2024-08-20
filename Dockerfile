@@ -3,15 +3,17 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apk update && apk add --no-cache \
+# Use apt-get instead of apk since this is a Debian-based image
+RUN apt-get update && apt-get install -y \
     postgresql-dev \
     gcc \
     python3-dev \
+    libpq-dev \
     musl-dev \
     tzdata \
     libc-dev \
     libffi-dev \
-    openssl-dev
+    openssl
 
 WORKDIR /app
 
@@ -23,4 +25,4 @@ COPY . .
 
 EXPOSE 7000
 
-CMD ["python", "runserver.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7000", "runserver:app"]
