@@ -363,7 +363,7 @@ def reset_password(reset_p):
             )
 
         # if the reset password token has expired
-        if user.reset_p_expiry < datetime.now():
+        if user.user_session.reset_p_expiry < datetime.now():
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
