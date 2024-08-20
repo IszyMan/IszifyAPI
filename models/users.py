@@ -37,13 +37,13 @@ class Users(db.Model):
 
 class UserSession(db.Model):
     __tablename__ = 'user_session'
-
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     user_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
     reset_p = db.Column(db.String(50), nullable=True, unique=True)
     otp = db.Column(db.String(6), nullable=True)
     otp_expiry = db.Column(db.DateTime, nullable=True)
     reset_p_expiry = db.Column(db.DateTime, nullable=True)
+    reset_p_invalid = db.Column(db.Boolean, default=False)
 
     def save(self):
         db.session.add(self)
@@ -115,6 +115,7 @@ def create_reset_p(user_id):
     if usersession:
         usersession.reset_p = reset_p
         usersession.reset_p_expiry = expiry
+        usersession.reset_p_invalid = False
         usersession.update()
     else:
         usersession = UserSession(user_id=user_id, reset_p=reset_p, reset_p_expiry=expiry)
@@ -126,9 +127,9 @@ def get_user_by_email(email):
     return Users.query.filter_by(email=email).first()
 
 
-def get_user_by_reset_p(reset_p):
-    usersession = UserSession.query.filter_by(reset_p=reset_p).first()
-    return usersession
+# def get_user_by_reset_p(reset_p):
+#     usersession = UserSession.query.filter_by(reset_p=reset_p).first()
+#     return usersession
 
 
 def update_password(user, password):

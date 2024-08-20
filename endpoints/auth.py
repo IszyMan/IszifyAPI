@@ -362,8 +362,17 @@ def reset_password(reset_p):
                 message="User not found",
             )
 
+        if user.user_session.reset_p_invalid:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Revoked token",
+            )
+
         # if the reset password token has expired
         if user.user_session.reset_p_expiry < datetime.now():
+            user.user_session.reset_p_invalid = True
+            db.session.commit()
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
@@ -406,6 +415,9 @@ def reset_password(reset_p):
                 status=StatusRes.FAILED,
                 message=pass_change,
             )
+
+        user.user_session.reset_p_invalid = True
+        db.session.commit()
 
         return return_response(
             HttpStatus.OK,
