@@ -9,7 +9,8 @@ import hmac
 import hashlib
 import base64
 from io import BytesIO
-import time
+import time, json, socket
+from urllib.request import urlopen
 
 
 def return_response(status_code, status=None, message=None, **data):
@@ -89,3 +90,43 @@ def generate_signature(params_to_sign, api_secret):
     except Exception as e:
         print(e, "error from generate_signature")
         return None
+
+
+def get_browser_info(request):
+    user_agent = request.user_agent
+    user_agent = str(user_agent)
+    browsers = {
+        'Chrome': r'Chrome\/([0-9\.]+)',
+        'Firefox': r'Firefox\/([0-9\.]+)',
+        'Safari': r'Version\/([0-9\.]+).*Safari',
+        'Edge': r'Edge\/([0-9\.]+)',
+        'Opera': r'OPR\/([0-9\.]+)'
+    }
+
+    browser_name = 'Unknown'
+    # browser_version = 'Unknown'
+
+    for name, pattern in browsers.items():
+        match = re.search(pattern, user_agent)
+        if match:
+            browser_name = name
+            # browser_version = match.group(1)
+            break
+    return browser_name
+
+
+def get_computer_name():
+    hostname = socket.gethostname()
+    return hostname
+
+
+def get_info():
+    url = 'http://ipinfo.io/json'
+    response = urlopen(url)
+    data = json.load(response)
+
+    ip = data['ip']
+    city = data['city']
+    country = data['country']
+
+    return ip, city, country
