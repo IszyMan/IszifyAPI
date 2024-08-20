@@ -306,9 +306,17 @@ def forgot_password_request():
         print(frontend_url, "frontend_url before checking")
 
         frontend_url = f"http://{frontend_url}" if not frontend_url.startswith("http") else frontend_url
-        reset_link = f"{frontend_url}/reset-password/{user_reset.reset_p}"
+        reset_link = f"{frontend_url}/{user_reset.reset_p}"
         print(reset_link, "reset_link")
         # send this reset link to the user
+
+        email_payload = {
+            "reset_link": reset_link,
+            "email": user.email,
+            "subject": "Reset your password",
+            "template_name": "reset_password.html",
+        }
+        send_mail(email_payload)
 
         return return_response(
             HttpStatus.OK,
