@@ -1,4 +1,7 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -9,7 +12,7 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # jtw config
-    JWT_SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'hard to guess string'
     # expiring time
     JWT_ACCESS_TOKEN_EXPIRES = 3600
 
@@ -19,6 +22,12 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(base_dir, 'iszify.sqlite')
     # SQLALCHEMY_DATABASE_URI = uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    MAIL_SERVER = 'smtp.gmail.com'
+    MAIL_PORT = 465
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
 
 
 class TestConfig(Config):
