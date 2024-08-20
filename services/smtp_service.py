@@ -1,7 +1,9 @@
 from flask_mail import Message
-from flask import render_template
+from flask import render_template_string
 from extensions import mail
-from utils import generate_otp
+import os
+
+base_dir = os.path.abspath(os.path.dirname(__file__))
 
 
 def send_mail(payload):
@@ -12,7 +14,15 @@ def send_mail(payload):
     )
 
     if payload.get("template_name"):
-        msg.html = render_template(payload["template_name"], **payload)
+        # Construct the full path to the template
+        template_path = os.path.join(base_dir, "../templates", payload["template_name"])
+
+        # Read the template file manually
+        with open(template_path, 'r') as f:
+            template_content = f.read()
+
+        # Render the template content using payload
+        msg.html = render_template_string(template_content, **payload)
     elif payload.get("body"):
         msg.body = payload["body"]
     else:
