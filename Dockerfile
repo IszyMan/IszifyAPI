@@ -3,9 +3,7 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Use apt-get instead of apk since this is a Debian-based image
 RUN apt-get update && apt-get install -y \
-    postgresql-dev \
     gcc \
     python3-dev \
     libpq-dev \
