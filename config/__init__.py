@@ -5,7 +5,7 @@ load_dotenv()
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
-# uri = f"""postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get('POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"""
+uri = f"""postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get('POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get('POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"""
 
 
 class Config:
@@ -19,8 +19,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(base_dir, 'iszify.sqlite')
-    # SQLALCHEMY_DATABASE_URI = uri
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(base_dir, 'iszify.sqlite')
+    SQLALCHEMY_DATABASE_URI = uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
