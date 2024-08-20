@@ -14,10 +14,13 @@ def create_app(config_name="development"):
 
     app.config.from_object(config_obj[config_name])
 
+    cors.init_app(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE"],
+                                              "allow_headers": ["Authorization", "Content-Type"],
+                                              "supports_credentials": True}})
+
     db.init_app(app)
     jwt.init_app(app)
     migrate.init_app(app, db)
-    cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
     mail.init_app(app)
 
     # user loader
