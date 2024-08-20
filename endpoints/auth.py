@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (auth_blpenticate, create_user,
+from models import (authenticate, create_user,
                     get_user, create_reset_p,
                     get_user_by_reset_p, change_password, create_otp)
 from extensions import db
@@ -32,7 +32,7 @@ def login():
                 status=StatusRes.FAILED,
                 message="Email and Password are required",
             )
-        user = auth_blpenticate(email.lower(), password)
+        user = authenticate(email.lower(), password)
         if user:
             if not user.email_verified:
                 return return_response(
@@ -226,7 +226,7 @@ def verify_account():
                 message="User not found",
             )
 
-        if not user.email_verified:
+        if user.email_verified:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
