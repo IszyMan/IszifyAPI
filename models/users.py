@@ -1,9 +1,11 @@
 from extensions import db
 from func import hex_id, generate_otp
 from passlib.hash import pbkdf2_sha256 as hasher
+from datetime import datetime, timedelta
+from utils import generate_random_string, validate_password
 
 
-class User(db.Model):
+class Users(db.Model):
     __tablename__ = "users"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     email = db.Column(db.String(100), unique=True)
@@ -11,8 +13,9 @@ class User(db.Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     username = db.Column(db.String(100), unique=True, nullable=False)
-    otp = db.Column(db.String(8), default=generate_otp)
     email_verified = db.Column(db.Boolean, default=False)
+
+    user_session = db.relationship('UserSession', backref='user', lazy=True, uselist=False)
 
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
@@ -32,22 +35,40 @@ class User(db.Model):
         return f"<User {self.email}>"
 
 
+class UserSession(db.Model):
+    __tablename__ = 'user_session'
+
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
+    reset_p = db.Column(db.String(50), nullable=True, unique=True)
+    otp = db.Column(db.String(6), nullable=True)
+    otp_expiry = db.Column(db.DateTime, nullable=True)
+    reset_p_expiry = db.Column(db.DateTime, nullable=True)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+
 def authenticate(email, password):
-    user = User.query.filter_by(email=email).first()
+    user = Users.query.filter_by(email=email).first()
     if user and hasher.verify(password, user.password):
         return user
     return None
 
 
 def username_exist(username):
-    user = User.query.filter_by(username=username).first()
+    user = Users.query.filter_by(username=username).first()
     if user:
         return True
     return False
 
 
 def email_exist(email):
-    user = User.query.filter_by(email=email).first()
+    user = Users.query.filter_by(email=email).first()
     if user:
         return True
     return False
@@ -58,13 +79,99 @@ def create_user(email, password, first_name, last_name, username):
         return None, "Email already exist"
     if username_exist(username):
         return None, "Username already exist"
-    user = User(email, password, first_name, last_name, username)
+    user = Users(email, password, first_name, last_name, username)
     user.save()
+    create_otp(user.id)
     return user, None
 
 
 def get_user(email):
     if not email_exist(email):
         return None
-    user = User.query.filter_by(email=email).first()
+    user = Users.query.filter_by(email=email).first()
     return user
+
+
+def create_otp(user_id):
+    # expiry time is 10 minutes
+    expiry = datetime.now() + timedelta(minutes=10)
+    otp = generate_otp()
+    usersession = UserSession.query.filter_by(user_id=user_id).first()
+    if usersession:
+        usersession.otp = otp
+        usersession.otp_expiry = expiry
+        usersession.update()
+    else:
+        usersession = UserSession(user_id=user_id, otp=otp, otp_expiry=expiry)
+        usersession.save()
+    return usersession
+
+
+def create_reset_p(user_id):
+    # expiry time is 10 minutes
+    expiry = datetime.now() + timedelta(minutes=10)
+    reset_p = f"ly{generate_random_string()}"
+    usersession = UserSession.query.filter_by(user_id=user_id).first()
+    if usersession:
+        usersession.reset_p = reset_p
+        usersession.reset_p_expiry = expiry
+        usersession.update()
+    else:
+        usersession = UserSession(user_id=user_id, reset_p=reset_p, reset_p_expiry=expiry)
+        usersession.save()
+    return usersession
+
+
+def get_user_by_email(email):
+    return Users.query.filter_by(email=email).first()
+
+
+def get_user_by_reset_p(reset_p):
+    usersession = UserSession.query.filter_by(reset_p=reset_p).first()
+    return usersession
+
+
+def update_password(user, password):
+    user.password = hasher.hash(password)
+    user.update()
+
+    return user
+
+
+def current_user_info(user):
+    return {
+        "id": user.id,
+        "first_name": user.first_name.title(),
+        "last_name": user.last_name.title(),
+        "username": user.username,
+        "email": user.email,
+        "email_verified": user.email_verified
+    }
+
+
+def get_user_by_id(user_id):
+    return Users.query.filter_by(id=user_id).first()
+
+
+def update_user_role(user_id, is_admin, is_super_admin):
+    user = get_user_by_id(user_id)
+    user.is_admin = is_admin
+    user.is_super_admin = is_super_admin
+    user.update()
+    return user
+
+
+def change_password(current_user, old_password, new_password):
+    if not hasher.verify(old_password, current_user.password):
+        return "Old password is incorrect"
+    pass_val = validate_password(new_password)
+    if pass_val:
+        return pass_val
+    current_user.password = hasher.hash(new_password)
+    current_user.update()
+    return None
+
+
+def get_user_by_reset_p(reset_p):
+    usersession = UserSession.query.filter_by(reset_p=reset_p).first()
+    return usersession.user
