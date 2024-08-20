@@ -3,6 +3,7 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import MetaData
+from flask_cors import CORS
 
 
 naming_convention = {
@@ -17,3 +18,4 @@ db = SQLAlchemy(metadata=MetaData(naming_convention=naming_convention))
 jwt = JWTManager()
 migrate = Migrate()
 mail = Mail()
+cors = CORS()
