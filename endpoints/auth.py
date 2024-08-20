@@ -256,6 +256,7 @@ def verify_account():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Email verified successfully",
+            access_token=return_access_token(user),
         )
 
     except Exception as e:
