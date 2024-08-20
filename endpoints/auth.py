@@ -1,18 +1,23 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import authenticate, create_user, get_user
+from models import (auth_blpenticate, create_user,
+                    get_user, create_reset_p,
+                    get_user_by_reset_p, change_password, create_otp)
 from extensions import db
-from utils import return_response, return_access_token, is_valid_email, validate_password
+from utils import (return_response, return_access_token,
+                   is_valid_email, validate_password)
 import traceback
+from datetime import datetime
+from services import send_mail
 
 AUTH_PREFIX = "auth"
 
 
-auth = Blueprint('auth', __name__)
+auth_blp = Blueprint('auth_blp', __name__)
 
 
-@auth.route(f"/{AUTH_PREFIX}/login", methods=["POST"])
+@auth_blp.route(f"/{AUTH_PREFIX}/login", methods=["POST"])
 def login():
     try:
         data = request.get_json()
@@ -27,7 +32,7 @@ def login():
                 status=StatusRes.FAILED,
                 message="Email and Password are required",
             )
-        user = authenticate(email.lower(), password)
+        user = auth_blpenticate(email.lower(), password)
         if user:
             if not user.email_verified:
                 return return_response(
@@ -47,8 +52,8 @@ def login():
             message="Invalid Email or Password",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth/login")
-        print(e, "error@auth/login")
+        print(traceback.format_exc(), "traceback@auth_blp/login")
+        print(e, "error@auth_blp/login")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -57,7 +62,7 @@ def login():
         )
 
 
-@auth.route(f"/{AUTH_PREFIX}/register", methods=["POST"])
+@auth_blp.route(f"/{AUTH_PREFIX}/register", methods=["POST"])
 def register():
     try:
         data = request.get_json()
@@ -100,9 +105,16 @@ def register():
                 message=message,
             )
 
-        otp = user.otp
+        otp = user.user_session.otp
         print(otp, "OTP")
         # implement where to send the user an otp after registration
+        email_payload = {
+            "otp": otp,
+            "email": user.email,
+            "subject": "Verify your account",
+            "template_name": "otp.html",
+        }
+        send_mail(email_payload)
 
         return return_response(
             HttpStatus.OK,
@@ -112,8 +124,8 @@ def register():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth/register")
-        print(e, "error@auth/register")
+        print(traceback.format_exc(), "traceback@auth_blp/register")
+        print(e, "error@auth_blp/register")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -123,13 +135,68 @@ def register():
 
 
 # resend otp
-@auth.route(f"/{AUTH_PREFIX}/resend-otp", methods=["POST"])
+@auth_blp.route(f"/{AUTH_PREFIX}/resend-otp", methods=["POST"])
 def resend_otp():
-    pass
+    try:
+        data = request.get_json()
+        email = data.get("email")
+
+        if not email:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Email is required",
+            )
+
+        user = get_user(email)
+
+        if not user:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+
+        if user.email_verified:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Email already verified",
+            )
+
+        user_session = create_otp(user.id)
+
+        otp = user_session.otp
+        print(otp, "OTP")
+        # implement where to send the user an otp
+        email_payload = {
+            "otp": otp,
+            "email": user.email,
+            "subject": "(Otp Resend)-Verify your account",
+            "template_name": "otp.html",
+        }
+        send_mail(email_payload)
+
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="An email has been sent to verify your account",
+            user_email=user.email
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@auth_blp/resend-otp")
+        print(e, "error@auth_blp/resend-otp")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
 
 
 # verify email
-@auth.route(f"/{AUTH_PREFIX}/verify-account", methods=["PATCH"])
+@auth_blp.route(f"/{AUTH_PREFIX}/verify-account", methods=["PATCH"])
 def verify_account():
     try:
         data = request.get_json()
@@ -166,11 +233,18 @@ def verify_account():
                 message="Email already verified",
             )
 
-        if user.otp != otp:
+        if user.user_session.otp != otp:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Invalid OTP",
+            )
+
+        if user.user_session.otp_expiry < datetime.now():
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="OTP expired",
             )
 
         user.email_verified = True
@@ -183,8 +257,8 @@ def verify_account():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth/verify-account")
-        print(e, "error@auth/verify-account")
+        print(traceback.format_exc(), "traceback@auth_blp/verify-account")
+        print(e, "error@auth_blp/verify-account")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -194,6 +268,139 @@ def verify_account():
 
 
 # forgotten password
-@auth.route(f"/{AUTH_PREFIX}/forgot-password", methods=["POST"])
-def forgot_password():
-    pass
+@auth_blp.route(f"/{AUTH_PREFIX}/forgot-password-request", methods=["PATCH"])
+def forgot_password_request():
+    try:
+        data = request.get_json()
+
+        email = data.get("email")
+        frontend_url = data.get("frontend_url")
+
+        if not email:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Email is required",
+            )
+
+        if not frontend_url:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Frontend URL is required",
+            )
+
+        user = get_user(email)
+
+        if not user:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+
+        user_reset = create_reset_p(user.id)
+
+        print(frontend_url, "frontend_url before checking")
+
+        frontend_url = f"http://{frontend_url}" if not frontend_url.startswith("http") else frontend_url
+        reset_link = f"{frontend_url}/reset-password/{user_reset.reset_p}"
+        print(reset_link, "reset_link")
+        # send this reset link to the user
+
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Password reset request sent successfully",
+            user_email=user.email
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@auth_blp/forgot-password-request")
+        print(e, "error@auth_blp/forgot-password-request")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# reset password
+@auth_blp.route(f"/{AUTH_PREFIX}/reset-password/<reset_p>", methods=["PATCH"])
+def reset_password(reset_p):
+    try:
+        data = request.get_json()
+
+        old_password = data.get("old_password")
+        new_password = data.get("new_password")
+
+        if not reset_p:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Reset password token is required",
+            )
+
+        user = get_user_by_reset_p(reset_p)
+
+        if not user:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+
+        # if the reset password token has expired
+        if user.reset_p_expiry < datetime.now():
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Reset password token has expired",
+            )
+
+        if reset_p and (not old_password and not new_password):
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Please provide old and new password",
+            )
+
+        if not old_password and new_password:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Old password is required",
+            )
+
+        if old_password and not new_password:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="New password is required",
+            )
+
+        pass_change = change_password(user, old_password, new_password)
+
+        if pass_change:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message=pass_change,
+            )
+
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Password reset successfully",
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@auth_blp/reset-password")
+        print(e, "error@auth_blp/reset-password")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
