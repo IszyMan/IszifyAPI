@@ -39,12 +39,14 @@ def login():
                     HttpStatus.FORBIDDEN,
                     status=StatusRes.FAILED,
                     message="Email not verified",
+                    email_verified=user.email_verified
                 )
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Login Successful",
                 access_token=return_access_token(user),
+                email_verified=user.email_verified
             )
         return return_response(
             HttpStatus.NOT_FOUND,
