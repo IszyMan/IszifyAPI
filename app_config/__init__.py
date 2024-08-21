@@ -53,6 +53,24 @@ def create_app(config_name="development"):
             message="Unauthorized",
         )
 
+    # error 404
+    @app.errorhandler(404)
+    def not_found(e):
+        return return_response(
+            HttpStatus.NOT_FOUND,
+            status=StatusRes.FAILED,
+            message="Endpoint Not Found",
+        )
+
+    # method not allowed
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return return_response(
+            HttpStatus.METHOD_NOT_ALLOWED,
+            status=StatusRes.FAILED,
+            message="Method Not Allowed",
+        )
+
     app.register_blueprint(AuthenticationBlueprint, url_prefix="/api/v1")
     app.register_blueprint(UserBlueprint, url_prefix="/api/v1")
 
