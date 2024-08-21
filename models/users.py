@@ -173,4 +173,4 @@ def change_password(current_user, new_password):
 
 def get_user_by_reset_p(reset_p):
     usersession = UserSession.query.filter_by(reset_p=reset_p).first()
-    return usersession.user
+    return usersession.user if usersession else None
