@@ -119,7 +119,7 @@ def register():
         send_mail(email_payload)
 
         return return_response(
-            HttpStatus.OK,
+            HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="An email has been sent to verify your account",
             user_email=user.email
