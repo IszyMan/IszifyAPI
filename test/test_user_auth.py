@@ -26,6 +26,8 @@ class TestUser(unittest.TestCase):
             user=user,
             otp="123456",
             otp_expiry=datetime.now() + timedelta(minutes=10),
+            reset_p="lyTU628jhfM83j",
+            reset_p_expiry=datetime.now() + timedelta(minutes=10),
         )
 
         db.session.add_all([user, user_session])
@@ -74,4 +76,22 @@ class TestUser(unittest.TestCase):
         db.session.commit()
         res = self.client.post("/api/v1/auth/login", json=data)
         print(res.data, "data")
+        self.assertEqual(res.status_code, 200)
+
+    def test_forgot_password(self):
+        data = {
+            "email": "john_doe@example.com",
+            "frontend_url": "http://localhost:3000/reset-password",
+        }
+        res = self.client.patch("/api/v1/auth/forgot-password-request", json=data)
+        res_dict = res.get_json()
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res_dict['user_email'], "john_doe@example.com")
+
+    def test_reset_password(self):
+        data = {
+            "new_password": "Password@01",
+            "confirm_password": "Password@01",
+        }
+        res = self.client.patch("/api/v1/auth/reset-password/lyTU628jhfM83j", json=data)
         self.assertEqual(res.status_code, 200)
