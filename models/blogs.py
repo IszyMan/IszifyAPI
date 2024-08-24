@@ -105,3 +105,12 @@ def get_all_blogs(page, per_page, blog_id, cat_id):
     blogs = query.paginate(page=page, per_page=per_page, error_out=False)
     return blogs
 
+
+def category_exists(name):
+    return Catgories.query.filter_by(name=name.lower()).first()
+
+
+def save_category(name):
+    category = Catgories(name.lower())
+    category.save()
+    return category
