@@ -1,7 +1,8 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import get_all_blogs, get_blogs_per_category, get_blog, get_categories, save_blog
+from models import (get_all_blogs, get_blogs_per_category,
+                    get_blog, get_categories, save_blog, save_category, category_exists)
 from utils import return_response
 from extensions import db
 import traceback
@@ -144,6 +145,46 @@ def get_all_categories():
     except Exception as e:
         print(traceback.format_exc(), "traceback@blog_blp/get_blog")
         print(e, "error@blog_blp/get_blog")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# create category
+@blog_blp.route(f"/{BLOG_PREFIX}/create-category", methods=["POST"])
+def create_category():
+    try:
+        data = request.get_json()
+        name = data.get("name")
+        if not name:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Name is required",
+            )
+
+        name = name.lower()
+        if category_exists(name):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Category already exists",
+            )
+
+        category = save_category(name)
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Category created successfully",
+            data=category.to_dict()
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@blog_blp/create_category")
+        print(e, "error@blog_blp/create_category")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
