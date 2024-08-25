@@ -84,7 +84,7 @@ def get_blogs_per_category(category_id, page, per_page):
 
 
 def get_categories():
-    cats = Catgories.query.all()
+    cats = Catgories.query.order_by(Catgories.name).all()
     return [cat.to_dict() for cat in cats]
 
 
@@ -101,6 +101,9 @@ def get_all_blogs(page, per_page, blog_id, cat_id):
 
     if cat_id:
         query = query.filter_by(category_id=cat_id)
+
+    # order by
+    query = query.order_by(Blogs.created.desc())
 
     blogs = query.paginate(page=page, per_page=per_page, error_out=False)
     return blogs
