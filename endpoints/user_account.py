@@ -87,6 +87,9 @@ def shorten_url():
 
         # res = generate_and_save_qr(url_and_short_url) if generate_qr_code else ""
         # print(res, 'res')
+        if want_qr_code:
+            # create qr code for the short url
+            pass
 
         url = Urlshort(
             user_id=current_user.id,
