@@ -4,3 +4,4 @@ from .users import (authenticate, create_user, get_user,
 from .shorten_url import generate_short_url, Urlshort, validate_url, save_url_clicks
 from .blogs import (Catgories, Blogs, save_blog, get_blogs_per_category, get_categories, get_blog,
                     get_all_blogs, save_category, category_exists)
+from .qrcode import QRCodeCategories, save_qrcode_category, get_qrcode_categories
