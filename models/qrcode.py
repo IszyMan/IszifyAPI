@@ -9,7 +9,7 @@ class QRCodeCategories(db.Model):
     display = db.Column(db.Boolean, default=True)
 
     def to_dict(self):
-        return {"id": self.id, "name": self.name}
+        return {"id": self.id, "name": self.name.title()}
 
     def __init__(self, name):
         self.name = name
