@@ -4,7 +4,8 @@ from config import config_obj
 from models.users import Users
 from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocation
 from models.blogs import Catgories, Blogs
-from endpoints import AuthenticationBlueprint, UserBlueprint, BlogBlueprint
+from models.qrcode import QRCodeCategories
+from endpoints import AuthenticationBlueprint, UserBlueprint, BlogBlueprint, QRCodeBlueprint
 from utils import return_response
 from http_status import HttpStatus
 from status_res import StatusRes
@@ -75,5 +76,6 @@ def create_app(config_name="development"):
     app.register_blueprint(AuthenticationBlueprint, url_prefix="/api/v1")
     app.register_blueprint(UserBlueprint, url_prefix="/api/v1")
     app.register_blueprint(BlogBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(QRCodeBlueprint, url_prefix="/api/v1")
 
     return app
