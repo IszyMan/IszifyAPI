@@ -4,7 +4,7 @@ from config import config_obj
 from models.users import Users
 from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocation
 from models.blogs import Catgories, Blogs
-from models.qrcode import QRCodeCategories
+from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMedia
 from endpoints import AuthenticationBlueprint, UserBlueprint, BlogBlueprint, QRCodeBlueprint
 from utils import return_response
 from http_status import HttpStatus
