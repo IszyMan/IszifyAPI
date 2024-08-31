@@ -10,12 +10,8 @@ from models import (
 from extensions import db
 from utils import (
     return_response,
-    return_access_token,
-    is_valid_email,
-    validate_password,
 )
 import traceback
-from datetime import datetime
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
 
