@@ -3,3 +3,5 @@ migrations
 .idea
 __pycache__
 .env
+.DS_Store
+DS_Store
