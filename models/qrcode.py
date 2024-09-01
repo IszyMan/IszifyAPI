@@ -115,6 +115,13 @@ class QrCodeStyling(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
 
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
     def to_dict(self):
         return {"id": self.id}
 
@@ -125,6 +132,13 @@ class SocialMedia(db.Model):
     name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.Text, nullable=False)
     qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
 
     def to_dict(self):
         return {"id": self.id, "name": self.name, "url": self.url}
@@ -217,3 +231,73 @@ def get_qrcode_data(
         "total_pages": qrcode_data.pages,
         "per_page": qrcode_data.per_page,
     }
+
+
+def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
+    qrcode_data = QRCodeData.query.filter(
+        QRCodeData.user_id == user_id, QRCodeData.id == qr_id
+    ).first()
+
+    if not qrcode_data:
+        return False
+
+    qrcode_data.url = qrcode_data_payload.get("url", qrcode_data.url)
+    qrcode_data.phone_number = qrcode_data_payload.get("phone_number", qrcode_data.phone_number)
+    qrcode_data.message = qrcode_data_payload.get("message", qrcode_data.message)
+    qrcode_data.email = qrcode_data_payload.get("email", qrcode_data.email)
+    qrcode_data.subject = qrcode_data_payload.get("subject", qrcode_data.subject)
+    qrcode_data.ssid = qrcode_data_payload.get("ssid", qrcode_data.ssid)
+    qrcode_data.password = qrcode_data_payload.get("password", qrcode_data.password)
+    qrcode_data.encryption = qrcode_data_payload.get("encryption", qrcode_data.encryption)
+    qrcode_data.ios_url = qrcode_data_payload.get("ios_url", qrcode_data.ios_url)
+    qrcode_data.android_url = qrcode_data_payload.get("android_url", qrcode_data.android_url)
+    qrcode_data.other_device_url = qrcode_data_payload.get("other_device_url", qrcode_data.other_device_url)
+    qrcode_data.longitude = qrcode_data_payload.get("longitude", qrcode_data.longitude)
+    qrcode_data.latitude = qrcode_data_payload.get("latitude", qrcode_data.latitude)
+    qrcode_data.trade_number = qrcode_data_payload.get("trade_number", qrcode_data.trade_number)
+    qrcode_data.prefix = qrcode_data_payload.get("prefix", qrcode_data.prefix)
+    qrcode_data.first_name = qrcode_data_payload.get("first_name", qrcode_data.first_name)
+    qrcode_data.last_name = qrcode_data_payload.get("last_name", qrcode_data.last_name)
+    qrcode_data.company_name = qrcode_data_payload.get("company_name", qrcode_data.company_name)
+    qrcode_data.mobile_phone = qrcode_data_payload.get("mobile_phone", qrcode_data.mobile_phone)
+    qrcode_data.fax = qrcode_data_payload.get("fax", qrcode_data.fax)
+    qrcode_data.postal_code = qrcode_data_payload.get("postal_code", qrcode_data.postal_code)
+    qrcode_data.religion = qrcode_data_payload.get("religion", qrcode_data.religion)
+    qrcode_data.street = qrcode_data_payload.get("street", qrcode_data.street)
+    qrcode_data.city = qrcode_data_payload.get("city", qrcode_data.city)
+    qrcode_data.state = qrcode_data_payload.get("state", qrcode_data.state)
+    qrcode_data.country = qrcode_data_payload.get("country", qrcode_data.country)
+    qrcode_data.category = qrcode_data_payload.get("category", qrcode_data.category)
+
+    if qrcode_data_payload.get("social_media"):
+        for social_media in qrcode_data_payload.get("social_media"):
+            each_social = SocialMedia.query.filter_by(id=social_media["id"]).first()
+            if each_social:
+                each_social.url = social_media.get("url", each_social.url)
+                each_social.name = social_media.get("name", each_social.name)
+                each_social.update()
+            else:
+                social = SocialMedia(url=social_media.get("url"), name=social_media.get("name"))
+                social.save()
+
+    # TODO: Edit QR Code Styling
+    if qrcode_data_payload.get("qr_style"):
+        for qr_style in qrcode_data_payload.get("qr_style"):
+            each_qr = QrCodeStyling.query.filter_by(id=qr_style["id"]).first()
+            if each_qr:
+                each_qr.update()
+            else:
+                qr = QrCodeStyling()
+                qr.save()
+
+    qrcode_data.update()
+
+    return True
+
+
+def get_qrcode_data_by_id(user_id, qr_id):
+    qrcode_data = QRCodeData.query.filter(
+        QRCodeData.user_id == user_id, QRCodeData.id == qr_id
+    ).first()
+
+    return qrcode_data.to_dict()
