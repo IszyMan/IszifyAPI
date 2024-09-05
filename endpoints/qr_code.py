@@ -228,6 +228,8 @@ def edit_qrcode(qr_code_id):
                 city=data.get("city"),
                 state=data.get("state"),
                 country=data.get("country"),
+                social_media=social_media,
+                qr_style=qr_style,
             )
 
             res = update_qrcode_data(payload, current_user.id, qr_code_id)
