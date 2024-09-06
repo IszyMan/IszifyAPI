@@ -11,6 +11,7 @@ import base64
 from io import BytesIO
 import time, json, socket
 from urllib.request import urlopen
+import requests
 
 
 def return_response(status_code, status=None, message=None, **data):
@@ -130,3 +131,16 @@ def get_info():
     country = data['country']
 
     return ip, city, country
+
+
+def detect_disposable_email(email):
+    try:
+        url = f"https://open.kickbox.com/v1/disposable/{email}"
+        headers = {"accept": "application/json"}
+        response = requests.get(url, headers=headers)
+        res = response.json()
+        print(res, "result of disposable email")
+        return res.get("disposable")
+    except Exception as e:
+        print(e, "error@disposable_email")
+        return "Error"
