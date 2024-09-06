@@ -4,8 +4,8 @@ from status_res import StatusRes
 from models import (current_user_info,
                     generate_short_url, Urlshort,
                     validate_url, save_url_clicks)
-from extensions import db
-from utils import return_response, get_info, get_computer_name, get_browser_info
+from extensions import db, limiter
+from utils import return_response, get_info, get_computer_name, get_browser_info, user_id_limiter
 import traceback
 from datetime import datetime
 from services import send_mail
@@ -21,6 +21,7 @@ user_blp = Blueprint('user_blp', __name__)
 @user_blp.route(f"/{USER_PREFIX}/dashboard", methods=["GET"])
 @jwt_required()
 @email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
 def dashboard():
     try:
         res = current_user_info(current_user)
