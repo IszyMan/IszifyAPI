@@ -4,6 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import MetaData
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+import os
 
 
 naming_convention = {
@@ -19,3 +22,8 @@ jwt = JWTManager()
 migrate = Migrate()
 mail = Mail()
 cors = CORS()
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri=os.environ.get("REDIS_URL")
+)
