@@ -6,7 +6,7 @@ from models import (authenticate, create_user,
                     get_user_by_reset_p, change_password, create_otp)
 from extensions import db
 from utils import (return_response, return_access_token,
-                   is_valid_email, validate_password)
+                   is_valid_email, validate_password, detect_disposable_email)
 import traceback
 from datetime import datetime
 from services import send_mail
@@ -87,6 +87,20 @@ def register():
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Invalid Email",
+            )
+
+        res = detect_disposable_email(email)
+        if res == "Error" or res is None:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Network Error",
+            )
+        if res:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Disposable Email not allowed",
             )
 
         pass_valid_msg = validate_password(password)
