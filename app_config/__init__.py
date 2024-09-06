@@ -1,5 +1,5 @@
 from flask import Flask
-from extensions import db, jwt, migrate, mail, cors
+from extensions import db, jwt, migrate, mail, cors, limiter
 from config import config_obj
 from models.users import Users
 from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocation
@@ -9,6 +9,7 @@ from endpoints import AuthenticationBlueprint, UserBlueprint, BlogBlueprint, QRC
 from utils import return_response
 from http_status import HttpStatus
 from status_res import StatusRes
+from flask_limiter.errors import RateLimitExceeded
 
 
 def create_app(config_name="development"):
@@ -24,6 +25,7 @@ def create_app(config_name="development"):
     jwt.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
+    limiter.init_app(app)
 
     # user loader
     @jwt.user_lookup_loader
@@ -71,6 +73,16 @@ def create_app(config_name="development"):
             HttpStatus.METHOD_NOT_ALLOWED,
             status=StatusRes.FAILED,
             message="Method Not Allowed",
+        )
+
+    # rate limit exceeded
+    @app.errorhandler(RateLimitExceeded)
+    def ratelimit_handler(e):
+        print(e, "ratelimit@errorhandler")
+        return return_response(
+            HttpStatus.TOO_MANY_REQUESTS,
+            status=StatusRes.FAILED,
+            message="Too Many Requests, Please Try Again Later",
         )
 
     app.register_blueprint(AuthenticationBlueprint, url_prefix="/api/v1")
