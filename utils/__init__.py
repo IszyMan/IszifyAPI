@@ -1,6 +1,6 @@
 from flask import jsonify
 import uuid
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity
 import re
 from random import randint, choice
 import string
@@ -144,3 +144,7 @@ def detect_disposable_email(email):
     except Exception as e:
         print(e, "error@disposable_email")
         return "Error"
+
+
+def user_id_limiter():
+    return get_jwt_identity()
