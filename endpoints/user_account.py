@@ -41,7 +41,8 @@ def dashboard():
 
 @user_blp.route(f"{USER_PREFIX}/short_url/create", methods=["POST"])
 @jwt_required()
-# @email_verified
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
 def shorten_url():
     try:
         print("got hereeeee")
