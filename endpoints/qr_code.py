@@ -9,9 +9,10 @@ from models import (
     update_qrcode_data,
     get_qrcode_data_by_id
 )
-from extensions import db
+from extensions import db, limiter
 from utils import (
     return_response,
+    user_id_limiter
 )
 import traceback
 from flask_jwt_extended import jwt_required, current_user
@@ -62,6 +63,7 @@ def qrcode_categories():
 # create qr code
 @qrcode_blp.route(f"/{AUTH_PREFIX}/qrcode", methods=["GET", "POST"])
 @jwt_required()
+@limiter.limit("15 per minute", key_func=user_id_limiter)
 def qrcode():
     try:
         if request.method == "POST":
@@ -171,6 +173,7 @@ def qrcode():
 # edit qr code
 @qrcode_blp.route(f"/{AUTH_PREFIX}/qrcode/<qr_code_id>", methods=["GET", "PATCH"])
 @jwt_required()
+@limiter.limit("5 per minute", key_func=user_id_limiter)
 def edit_qrcode(qr_code_id):
     try:
         if request.method == "PATCH":
