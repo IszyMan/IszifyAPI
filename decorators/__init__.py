@@ -17,4 +17,5 @@ def email_verified(f):
                 status=StatusRes.FAILED,
                 message="Email not verified",
             )
+
     return decorated_function
