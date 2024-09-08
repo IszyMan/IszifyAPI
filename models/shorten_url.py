@@ -1,15 +1,16 @@
-from flask_login import UserMixin
-from extensions import db
-from sqlalchemy.orm import relationship
-from hashids import Hashids
-
+import datetime
+import hashlib
+import uuid
 # from main import create_app
 from urllib import request
 from urllib.error import HTTPError, URLError
-import datetime
+
+from hashids import Hashids
 from sqlalchemy import extract
+
+from extensions import db
 from func import hex_id
-import uuid, hashlib
+
 # from sqlalchemy.dialects.postgresql import BYTEA
 
 secret = "any-secret-key-you-choose"
