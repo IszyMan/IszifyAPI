@@ -242,26 +242,44 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
         return False
 
     qrcode_data.url = qrcode_data_payload.get("url", qrcode_data.url)
-    qrcode_data.phone_number = qrcode_data_payload.get("phone_number", qrcode_data.phone_number)
+    qrcode_data.phone_number = qrcode_data_payload.get(
+        "phone_number", qrcode_data.phone_number
+    )
     qrcode_data.message = qrcode_data_payload.get("message", qrcode_data.message)
     qrcode_data.email = qrcode_data_payload.get("email", qrcode_data.email)
     qrcode_data.subject = qrcode_data_payload.get("subject", qrcode_data.subject)
     qrcode_data.ssid = qrcode_data_payload.get("ssid", qrcode_data.ssid)
     qrcode_data.password = qrcode_data_payload.get("password", qrcode_data.password)
-    qrcode_data.encryption = qrcode_data_payload.get("encryption", qrcode_data.encryption)
+    qrcode_data.encryption = qrcode_data_payload.get(
+        "encryption", qrcode_data.encryption
+    )
     qrcode_data.ios_url = qrcode_data_payload.get("ios_url", qrcode_data.ios_url)
-    qrcode_data.android_url = qrcode_data_payload.get("android_url", qrcode_data.android_url)
-    qrcode_data.other_device_url = qrcode_data_payload.get("other_device_url", qrcode_data.other_device_url)
+    qrcode_data.android_url = qrcode_data_payload.get(
+        "android_url", qrcode_data.android_url
+    )
+    qrcode_data.other_device_url = qrcode_data_payload.get(
+        "other_device_url", qrcode_data.other_device_url
+    )
     qrcode_data.longitude = qrcode_data_payload.get("longitude", qrcode_data.longitude)
     qrcode_data.latitude = qrcode_data_payload.get("latitude", qrcode_data.latitude)
-    qrcode_data.trade_number = qrcode_data_payload.get("trade_number", qrcode_data.trade_number)
+    qrcode_data.trade_number = qrcode_data_payload.get(
+        "trade_number", qrcode_data.trade_number
+    )
     qrcode_data.prefix = qrcode_data_payload.get("prefix", qrcode_data.prefix)
-    qrcode_data.first_name = qrcode_data_payload.get("first_name", qrcode_data.first_name)
+    qrcode_data.first_name = qrcode_data_payload.get(
+        "first_name", qrcode_data.first_name
+    )
     qrcode_data.last_name = qrcode_data_payload.get("last_name", qrcode_data.last_name)
-    qrcode_data.company_name = qrcode_data_payload.get("company_name", qrcode_data.company_name)
-    qrcode_data.mobile_phone = qrcode_data_payload.get("mobile_phone", qrcode_data.mobile_phone)
+    qrcode_data.company_name = qrcode_data_payload.get(
+        "company_name", qrcode_data.company_name
+    )
+    qrcode_data.mobile_phone = qrcode_data_payload.get(
+        "mobile_phone", qrcode_data.mobile_phone
+    )
     qrcode_data.fax = qrcode_data_payload.get("fax", qrcode_data.fax)
-    qrcode_data.postal_code = qrcode_data_payload.get("postal_code", qrcode_data.postal_code)
+    qrcode_data.postal_code = qrcode_data_payload.get(
+        "postal_code", qrcode_data.postal_code
+    )
     qrcode_data.religion = qrcode_data_payload.get("religion", qrcode_data.religion)
     qrcode_data.street = qrcode_data_payload.get("street", qrcode_data.street)
     qrcode_data.city = qrcode_data_payload.get("city", qrcode_data.city)
@@ -277,7 +295,9 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
                 each_social.name = social_media.get("name", each_social.name)
                 each_social.update()
             else:
-                social = SocialMedia(url=social_media.get("url"), name=social_media.get("name"))
+                social = SocialMedia(
+                    url=social_media.get("url"), name=social_media.get("name")
+                )
                 social.save()
 
     # TODO: Edit QR Code Styling
