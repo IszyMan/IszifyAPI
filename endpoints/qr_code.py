@@ -7,13 +7,10 @@ from models import (
     save_qrcode_data,
     get_qrcode_data,
     update_qrcode_data,
-    get_qrcode_data_by_id
+    get_qrcode_data_by_id,
 )
 from extensions import db, limiter
-from utils import (
-    return_response,
-    user_id_limiter
-)
+from utils import return_response, user_id_limiter
 import traceback
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
@@ -142,7 +139,9 @@ def qrcode():
         end_date = request.args.get("end_date")
 
         try:
-            start_date = datetime.strptime(start_date, "%d-%m-%Y") if start_date else None
+            start_date = (
+                datetime.strptime(start_date, "%d-%m-%Y") if start_date else None
+            )
             end_date = datetime.strptime(end_date, "%d-%m-%Y") if end_date else None
         except ValueError as e:
             print(traceback.format_exc(), "traceback@qrcode_blp/qrcode")
@@ -245,17 +244,13 @@ def edit_qrcode(qr_code_id):
                 )
 
             return return_response(
-                HttpStatus.OK, status=StatusRes.SUCCESS,
-                message="QR Code Updated"
+                HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Updated"
             )
 
         # get qr code
         qr_code = get_qrcode_data_by_id(qr_code_id, current_user.id)
         return return_response(
-            HttpStatus.OK,
-            status=StatusRes.SUCCESS,
-            message="QR Code",
-            **qr_code
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code", **qr_code
         )
 
     except Exception as e:
