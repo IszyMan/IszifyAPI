@@ -1,11 +1,21 @@
 from flask import Blueprint, request, redirect
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (current_user_info,
-                    generate_short_url, Urlshort,
-                    validate_url, save_url_clicks)
+from models import (
+    current_user_info,
+    generate_short_url,
+    Urlshort,
+    validate_url,
+    save_url_clicks,
+)
 from extensions import db, limiter
-from utils import return_response, get_info, get_computer_name, get_browser_info, user_id_limiter
+from utils import (
+    return_response,
+    get_info,
+    get_computer_name,
+    get_browser_info,
+    user_id_limiter,
+)
 import traceback
 from datetime import datetime
 from services import send_mail
@@ -15,7 +25,7 @@ from flask_jwt_extended import current_user, jwt_required
 USER_PREFIX = "user"
 
 
-user_blp = Blueprint('user_blp', __name__)
+user_blp = Blueprint("user_blp", __name__)
 
 
 @user_blp.route(f"/{USER_PREFIX}/dashboard", methods=["GET"])
@@ -25,9 +35,9 @@ user_blp = Blueprint('user_blp', __name__)
 def dashboard():
     try:
         res = current_user_info(current_user)
-        return return_response(HttpStatus.OK,
-                               message="User Dashboard",
-                               status=StatusRes.SUCCESS, data=res)
+        return return_response(
+            HttpStatus.OK, message="User Dashboard", status=StatusRes.SUCCESS, data=res
+        )
     except Exception as e:
         print(traceback.format_exc(), "traceback@user_blp/dashboard")
         print(e, "error@user_blp/dashboard")
@@ -51,16 +61,16 @@ def shorten_url():
         custom_url = data.get("custom_url")
         want_qr_code = data.get("want_qr_code", False)
 
-        title = data.get("title", f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S %Z ')}")
+        title = data.get(
+            "title", f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S %Z ')}"
+        )
 
         print(
             f"original_url: {original_url}, custom_url: {custom_url}, title: {title}, "
             f"want_qr_code: {want_qr_code}"
         )
 
-        if Urlshort.query.filter_by(
-                user_id=current_user.id, url=original_url
-        ).first():
+        if Urlshort.query.filter_by(user_id=current_user.id, url=original_url).first():
             return return_response(
                 HttpStatus.CONFLICT,
                 status=StatusRes.FAILED,
@@ -138,7 +148,7 @@ def redirect_to_url(short_url):
     #     url = QrCode.query.filter_by(short_url=short_url).first()
     #     if not url:
     #         return ""
-        # save_qrcode_clicks(url.id, payload)
+    # save_qrcode_clicks(url.id, payload)
     # else:
     save_url_clicks(url.id, payload)
 
