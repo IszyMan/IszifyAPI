@@ -1,15 +1,22 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (get_all_blogs, get_blogs_per_category,
-                    get_blog, get_categories, save_blog, save_category, category_exists)
+from models import (
+    get_all_blogs,
+    get_blogs_per_category,
+    get_blog,
+    get_categories,
+    save_blog,
+    save_category,
+    category_exists,
+)
 from utils import return_response
 from extensions import db
 import traceback
 
 BLOG_PREFIX = "blog"
 
-blog_blp = Blueprint('blog_blp', __name__)
+blog_blp = Blueprint("blog_blp", __name__)
 
 
 # create blog
@@ -33,7 +40,7 @@ def create_blog():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Blog created successfully",
-            data=blog.to_dict()
+            data=blog.to_dict(),
         )
 
     except Exception as e:
@@ -64,7 +71,7 @@ def get_blog():
             pages=all_blogs.pages,
             per_page=all_blogs.per_page,
             total_items=all_blogs.total,
-            total_pages=all_blogs.pages
+            total_pages=all_blogs.pages,
         )
 
     except Exception as e:
@@ -93,7 +100,7 @@ def get_blogs_per_cat_id(cat_id):
             pages=blog.page,
             per_page=blog.per_page,
             total_items=blog.total,
-            total_pages=blog.pages
+            total_pages=blog.pages,
         )
 
     except Exception as e:
@@ -113,10 +120,7 @@ def get_one_blog(blog_id):
     try:
         blog = get_blog(blog_id)
         return return_response(
-            HttpStatus.OK,
-            status=StatusRes.SUCCESS,
-            message="Blog",
-            data=blog
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="Blog", data=blog
         )
 
     except Exception as e:
@@ -139,7 +143,7 @@ def get_all_categories():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Categories",
-            data=categories
+            data=categories,
         )
 
     except Exception as e:
@@ -179,7 +183,7 @@ def create_category():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Category created successfully",
-            data=category.to_dict()
+            data=category.to_dict(),
         )
 
     except Exception as e:
