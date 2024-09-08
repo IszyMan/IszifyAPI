@@ -86,7 +86,7 @@ class TestUser(unittest.TestCase):
         res = self.client.patch("/api/v1/auth/forgot-password-request", json=data)
         res_dict = res.get_json()
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res_dict['user_email'], "john_doe@example.com")
+        self.assertEqual(res_dict["user_email"], "john_doe@example.com")
 
     def test_reset_password(self):
         data = {
