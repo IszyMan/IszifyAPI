@@ -1,12 +1,23 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (authenticate, create_user,
-                    get_user, create_reset_p,
-                    get_user_by_reset_p, change_password, create_otp)
+from models import (
+    authenticate,
+    create_user,
+    get_user,
+    create_reset_p,
+    get_user_by_reset_p,
+    change_password,
+    create_otp,
+)
 from extensions import db
-from utils import (return_response, return_access_token,
-                   is_valid_email, validate_password, detect_disposable_email)
+from utils import (
+    return_response,
+    return_access_token,
+    is_valid_email,
+    validate_password,
+    detect_disposable_email,
+)
 import traceback
 from datetime import datetime
 from services import send_mail
@@ -14,7 +25,7 @@ from services import send_mail
 AUTH_PREFIX = "auth"
 
 
-auth_blp = Blueprint('auth_blp', __name__)
+auth_blp = Blueprint("auth_blp", __name__)
 
 
 @auth_blp.route(f"/{AUTH_PREFIX}/login", methods=["POST"])
@@ -39,14 +50,14 @@ def login():
                     HttpStatus.FORBIDDEN,
                     status=StatusRes.FAILED,
                     message="Email not verified",
-                    email_verified=user.email_verified
+                    email_verified=user.email_verified,
                 )
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Login Successful",
                 access_token=return_access_token(user),
-                email_verified=user.email_verified
+                email_verified=user.email_verified,
             )
         return return_response(
             HttpStatus.NOT_FOUND,
@@ -136,7 +147,7 @@ def register():
             HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="An email has been sent to verify your account",
-            user_email=user.email
+            user_email=user.email,
         )
 
     except Exception as e:
@@ -197,7 +208,7 @@ def resend_otp():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="An email has been sent to verify your account",
-            user_email=user.email
+            user_email=user.email,
         )
 
     except Exception as e:
@@ -320,7 +331,11 @@ def forgot_password_request():
 
         print(frontend_url, "frontend_url before checking")
 
-        frontend_url = f"http://{frontend_url}" if not frontend_url.startswith("http") else frontend_url
+        frontend_url = (
+            f"http://{frontend_url}"
+            if not frontend_url.startswith("http")
+            else frontend_url
+        )
         reset_link = f"{frontend_url}/{user_reset.reset_p}"
         print(reset_link, "reset_link")
         # send this reset link to the user
@@ -337,7 +352,7 @@ def forgot_password_request():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Password reset request sent successfully",
-            user_email=user.email
+            user_email=user.email,
         )
 
     except Exception as e:
