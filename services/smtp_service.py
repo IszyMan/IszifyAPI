@@ -18,7 +18,7 @@ def send_mail(payload):
         template_path = os.path.join(base_dir, "../templates", payload["template_name"])
 
         # Read the template file manually
-        with open(template_path, 'r') as f:
+        with open(template_path, "r") as f:
             template_content = f.read()
 
         # Render the template content using payload
