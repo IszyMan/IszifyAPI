@@ -16,8 +16,10 @@ class Users(db.Model):
     email_verified = db.Column(db.Boolean, default=False)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
-    user_session = db.relationship('UserSession', backref='user', lazy=True, uselist=False)
-    qrcodes = db.relationship('QRCodeData', backref='user', lazy=True)
+    user_session = db.relationship(
+        "UserSession", backref="user", lazy=True, uselist=False
+    )
+    qrcodes = db.relationship("QRCodeData", backref="user", lazy=True)
 
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
@@ -38,9 +40,9 @@ class Users(db.Model):
 
 
 class UserSession(db.Model):
-    __tablename__ = 'user_session'
+    __tablename__ = "user_session"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
-    user_id = db.Column(db.String(50), db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
     reset_p = db.Column(db.String(50), nullable=True, unique=True)
     otp = db.Column(db.String(6), nullable=True)
     otp_expiry = db.Column(db.DateTime, nullable=True)
@@ -120,7 +122,9 @@ def create_reset_p(user_id):
         usersession.reset_p_invalid = False
         usersession.update()
     else:
-        usersession = UserSession(user_id=user_id, reset_p=reset_p, reset_p_expiry=expiry)
+        usersession = UserSession(
+            user_id=user_id, reset_p=reset_p, reset_p_expiry=expiry
+        )
         usersession.save()
     return usersession
 
@@ -148,7 +152,7 @@ def current_user_info(user):
         "last_name": user.last_name.title(),
         "username": user.username,
         "email": user.email,
-        "email_verified": user.email_verified
+        "email_verified": user.email_verified,
     }
 
 
