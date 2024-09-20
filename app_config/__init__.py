@@ -75,6 +75,16 @@ def create_app(config_name="development"):
             message="Method Not Allowed",
         )
 
+    # 500
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        print(e, "internal_server_error")
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
     # rate limit exceeded
     @app.errorhandler(RateLimitExceeded)
     def ratelimit_handler(e):
