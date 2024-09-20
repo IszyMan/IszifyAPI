@@ -1,3 +1,5 @@
+import random
+
 from flask import jsonify
 import uuid
 from flask_jwt_extended import create_access_token, get_jwt_identity
@@ -12,6 +14,8 @@ from io import BytesIO
 import time, json, socket
 from urllib.request import urlopen
 import requests
+import string
+import secrets
 
 
 def return_response(status_code, status=None, message=None, **data):
@@ -148,3 +152,12 @@ def detect_disposable_email(email):
 
 def user_id_limiter():
     return get_jwt_identity()
+
+
+def gen_short_code():
+    length = random.choice([6, 7, 8])
+    # Define the possible characters for the short code (A-Z, 0-9)
+    characters = string.ascii_uppercase + string.digits
+    # Generate a random string of the specified length
+    short_code = ''.join(secrets.choice(characters) for _ in range(length))
+    return short_code
