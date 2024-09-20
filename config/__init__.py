@@ -7,7 +7,7 @@ base_dir = os.path.abspath(os.path.dirname(__file__))
 
 uri = f"""postgresql://{os.environ.get('POSTGRES_USER')}:{os.environ.get(
     'POSTGRES_PASSWORD')}@{os.environ.get('POSTGRES_HOST')}:{os.environ.get(
-    'POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}"""
+    'POSTGRES_PORT')}/{os.environ.get('POSTGRES_DB')}?sslmode=require"""
 
 
 class Config:
