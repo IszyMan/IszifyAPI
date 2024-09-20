@@ -26,6 +26,8 @@ class Urlshort(db.Model):
     short_url = db.Column(db.String(250))
     title = db.Column(db.String(250))
     want_qr_code = db.Column(db.Boolean, default=False)
+    # relationship to qr code
+    qr_code_rel = db.relationship("QRCodeData", backref="url_shortener", lazy=True)
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
