@@ -1,6 +1,8 @@
 from extensions import db
 from func import hex_id
 from sqlalchemy import func
+from flask import request
+from utils import gen_short_code
 
 
 class QRCodeCategories(db.Model):
@@ -55,7 +57,9 @@ class QRCodeData(db.Model):
     city = db.Column(db.String(150))
     state = db.Column(db.String(150))
     country = db.Column(db.String(150))
+    short_url = db.Column(db.String(50))
     category = db.Column(db.String(50), nullable=False)
+    short_url_id = db.Column(db.String(50), db.ForeignKey("url_shortener.id"), nullable=True)
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True)
@@ -99,6 +103,7 @@ class QRCodeData(db.Model):
             "street": self.street,
             "city": self.city,
             "state": self.state,
+            "short_url": f"{request.host_url}{self.short_url}",
             "country": self.country,
             "category": self.category,
             "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
@@ -184,6 +189,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
         state=qrcode_data_payload["state"],
         country=qrcode_data_payload["country"],
         category=qrcode_data_payload["category"],
+        short_url=gen_short_code() if qrcode_data_payload["url"] else None,
         user_id=user_id,
     )
 
