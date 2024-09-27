@@ -3,7 +3,7 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     python3-dev \
     libpq-dev \
@@ -11,7 +11,10 @@ RUN apt-get update && apt-get install -y --no-cache \
     tzdata \
     libc-dev \
     libffi-dev \
-    openssl
+    openssl \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 
 WORKDIR /app
 
