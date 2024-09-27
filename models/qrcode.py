@@ -120,6 +120,18 @@ class QrCodeStyling(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
 
+    width = db.Column(db.Integer, default=200)
+    height = db.Column(db.Integer, default=200)
+    image = db.Column(db.Text, nullable=True)
+    margin = db.Column(db.Integer, default=0)
+
+    qr_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for QR options
+    image_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for image options
+    dots_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dots options
+    background_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for background options
+    corners_square_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for square corners options
+    corners_dot_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dot corners options
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -128,7 +140,20 @@ class QrCodeStyling(db.Model):
         db.session.commit()
 
     def to_dict(self):
-        return {"id": self.id}
+        data_to_return = {
+            "id": self.id,
+            "width": self.width,
+            "height": self.height,
+            "image": self.image,
+            "margin": self.margin,
+            "qr_options": self.qr_options,
+            "image_options": self.image_options,
+            "dots_options": self.dots_options,
+            "background_options": self.background_options,
+            "corners_square_options": self.corners_square_options,
+            "corners_dot_options": self.corners_dot_options,
+        }
+        return {key: value for key, value in data_to_return.items() if value}
 
 
 class SocialMedia(db.Model):
