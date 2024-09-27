@@ -120,7 +120,7 @@ def qrcode():
                 city=data.get("city"),
                 state=data.get("state"),
                 country=data.get("country"),
-                category=category,
+                category=category.lower(),
                 social_media=social_media,
                 qr_style=qr_style,
             )
@@ -265,26 +265,7 @@ def edit_qrcode(qr_code_id):
         )
 
 
-
-
-"""
-class QrCodeStyling(db.Model):
-    __tablename__ = "qr_code_styling"
-    id = db.Column(db.String(50), primary_key=True, default=hex_id)
-    qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
-
-    width = db.Column(db.Integer, default=200)
-    height = db.Column(db.Integer, default=200)
-    image = db.Column(db.Text, nullable=True)
-    margin = db.Column(db.Integer, default=0)
-
-    qr_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for QR options
-    image_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for image options
-    dots_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dots options
-    background_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for background options
-    corners_square_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for square corners options
-    corners_dot_options = db.Column(db.JSON, nullable=False)
-"""
+# style qr code
 @qrcode_blp.route(f"/{AUTH_PREFIX}/style_qrcode/<qr_code_id>", methods=["POST"])
 @jwt_required()
 @limiter.limit("5 per minute", key_func=user_id_limiter)
