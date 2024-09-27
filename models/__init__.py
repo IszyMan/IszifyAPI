@@ -28,4 +28,5 @@ from .qrcode import (
     get_qrcode_data,
     update_qrcode_data,
     get_qrcode_data_by_id,
+    qrcode_styling,
 )
