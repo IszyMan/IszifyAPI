@@ -8,7 +8,7 @@ from .users import (
     create_otp,
     current_user_info,
 )
-from .shorten_url import generate_short_url, Urlshort, validate_url, save_url_clicks
+from .shorten_url import generate_short_url, Urlshort, validate_url, save_url_clicks, get_original_url_by_short_url
 from .blogs import (
     Catgories,
     Blogs,
@@ -29,4 +29,5 @@ from .qrcode import (
     update_qrcode_data,
     get_qrcode_data_by_id,
     qrcode_styling,
+    get_url_by_short_url
 )
