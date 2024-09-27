@@ -400,3 +400,9 @@ def qrcode_styling(payload, qrcode_id):
 
     qr_styling.save()
     return qr_styling
+
+
+def get_url_by_short_url(short_url):
+    original_url = QRCodeData.query.filter(
+        func.lower(QRCodeData.short_url) == short_url.lower()).first()
+    return original_url.url if original_url else None
