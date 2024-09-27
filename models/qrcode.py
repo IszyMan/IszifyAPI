@@ -63,7 +63,7 @@ class QRCodeData(db.Model):
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True)
-    qr_style = db.relationship("QrCodeStyling", backref="qrcode", lazy=True)
+    qr_style = db.relationship("QrCodeStyling", backref="qrcode", lazy=True, uselist=False)
 
     def save(self):
         db.session.add(self)
@@ -110,7 +110,7 @@ class QRCodeData(db.Model):
             "social_media": (
                 [sm.to_dict() for sm in self.social_media] if self.social_media else []
             ),
-            "qr_style": [qs.to_dict() for qs in self.qr_style] if self.qr_style else [],
+            "qr_style": self.qr_style.to_dict() if self.qr_style else {},
         }
         return {key: value for key, value in result.items() if value}
 
@@ -218,14 +218,16 @@ def save_qrcode_data(qrcode_data_payload, user_id):
         user_id=user_id,
     )
 
-    if "social_media" in qrcode_data_payload:
+    if qrcode_data_payload["social_media"]:
+        print("social media")
         for sm in qrcode_data_payload["social_media"]:
             social_media = SocialMedia(
                 name=sm["name"], url=sm["url"], qrcode=qrcode_data
             )
             db.session.add(social_media)
 
-    if "qr_style" in qrcode_data_payload:
+    if qrcode_data_payload["qr_style"]:
+        print("qr style")
         for qs in qrcode_data_payload["qr_style"]:
             qr_style = QrCodeStyling(qrcode=qrcode_data)  # TODO: add styling options
             db.session.add(qr_style)
@@ -357,6 +359,7 @@ def get_qrcode_data_by_id(user_id, qr_id):
 def qrcode_styling(payload, qrcode_id):
     existing_style = QrCodeStyling.query.filter_by(qrcode_id=qrcode_id).first()
     if existing_style:
+        print("update existing style")
         existing_style.width = payload.get("width", existing_style.width)
         existing_style.height = payload.get("height", existing_style.height)
         existing_style.image = payload.get("image", existing_style.image)
@@ -380,6 +383,7 @@ def qrcode_styling(payload, qrcode_id):
 
         existing_style.update()
         return existing_style
+    print("create new style")
     qr_styling = QrCodeStyling(
         width=payload.get("width"),
         height=payload.get("height"),
