@@ -3,7 +3,7 @@ FROM python:3.9-slim
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN apt-get update && apt-get install -y --no-cache-dir \
+RUN apt-get update && apt-get install -y --no-cache \
     gcc \
     python3-dev \
     libpq-dev \
