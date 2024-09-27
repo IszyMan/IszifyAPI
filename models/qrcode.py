@@ -352,3 +352,47 @@ def get_qrcode_data_by_id(user_id, qr_id):
     ).first()
 
     return qrcode_data.to_dict()
+
+
+def qrcode_styling(payload, qrcode_id):
+    existing_style = QrCodeStyling.query.filter_by(qrcode_id=qrcode_id).first()
+    if existing_style:
+        existing_style.width = payload.get("width", existing_style.width)
+        existing_style.height = payload.get("height", existing_style.height)
+        existing_style.image = payload.get("image", existing_style.image)
+        existing_style.margin = payload.get("margin", existing_style.margin)
+        existing_style.qr_options = payload.get("qr_options", existing_style.qr_options)
+        existing_style.image_options = payload.get(
+            "image_options", existing_style.image_options
+        )
+        existing_style.dots_options = payload.get(
+            "dots_options", existing_style.dots_options
+        )
+        existing_style.background_options = payload.get(
+            "background_options", existing_style.background_options
+        )
+        existing_style.corners_square_options = payload.get(
+            "corners_square_options", existing_style.corners_square_options
+        )
+        existing_style.corners_dot_options = payload.get(
+            "corners_dot_options", existing_style.corners_dot_options
+        )
+
+        existing_style.update()
+        return existing_style
+    qr_styling = QrCodeStyling(
+        width=payload.get("width"),
+        height=payload.get("height"),
+        image=payload.get("image"),
+        margin=payload.get("margin"),
+        qr_options=payload.get("qr_options"),
+        image_options=payload.get("image_options"),
+        dots_options=payload.get("dots_options"),
+        background_options=payload.get("background_options"),
+        corners_square_options=payload.get("corners_square_options"),
+        corners_dot_options=payload.get("corners_dot_options"),
+        qrcode_id=qrcode_id,
+    )
+
+    qr_styling.save()
+    return qr_styling
