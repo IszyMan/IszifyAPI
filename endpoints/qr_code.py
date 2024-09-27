@@ -17,12 +17,12 @@ from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
 import pprint
 
-AUTH_PREFIX = "qr_code"
+QR_PREFIX = "qr_code"
 
 qrcode_blp = Blueprint("qrcode_blp", __name__)
 
 
-@qrcode_blp.route(f"/{AUTH_PREFIX}/qrcode-categories", methods=["GET", "POST"])
+@qrcode_blp.route(f"/{QR_PREFIX}/qrcode-categories", methods=["GET", "POST"])
 def qrcode_categories():
     try:
         if request.method == "POST":
@@ -59,7 +59,7 @@ def qrcode_categories():
 
 
 # create qr code
-@qrcode_blp.route(f"/{AUTH_PREFIX}/qrcode", methods=["GET", "POST"])
+@qrcode_blp.route(f"/{QR_PREFIX}/qrcode", methods=["GET", "POST"])
 @jwt_required()
 @limiter.limit("15 per minute", key_func=user_id_limiter)
 def qrcode():
@@ -171,7 +171,7 @@ def qrcode():
 
 
 # edit qr code
-@qrcode_blp.route(f"/{AUTH_PREFIX}/qrcode/<qr_code_id>", methods=["GET", "PATCH"])
+@qrcode_blp.route(f"/{QR_PREFIX}/qrcode/<qr_code_id>", methods=["GET", "PATCH"])
 @jwt_required()
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def edit_qrcode(qr_code_id):
@@ -266,7 +266,7 @@ def edit_qrcode(qr_code_id):
 
 
 # style qr code
-@qrcode_blp.route(f"/{AUTH_PREFIX}/style_qrcode/<qr_code_id>", methods=["POST"])
+@qrcode_blp.route(f"/{QR_PREFIX}/style_qrcode/<qr_code_id>", methods=["POST"])
 @jwt_required()
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def style_qrcode(qr_code_id):
