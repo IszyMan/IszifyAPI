@@ -8,6 +8,7 @@ from models import (
     get_qrcode_data,
     update_qrcode_data,
     get_qrcode_data_by_id,
+    qrcode_styling
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter
@@ -256,6 +257,125 @@ def edit_qrcode(qr_code_id):
     except Exception as e:
         print(traceback.format_exc(), "traceback@qrcode_blp/edit_qrcode")
         print(e, "error@qrcode_blp/edit_qrcode")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+
+
+"""
+class QrCodeStyling(db.Model):
+    __tablename__ = "qr_code_styling"
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
+
+    width = db.Column(db.Integer, default=200)
+    height = db.Column(db.Integer, default=200)
+    image = db.Column(db.Text, nullable=True)
+    margin = db.Column(db.Integer, default=0)
+
+    qr_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for QR options
+    image_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for image options
+    dots_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dots options
+    background_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for background options
+    corners_square_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for square corners options
+    corners_dot_options = db.Column(db.JSON, nullable=False)
+"""
+@qrcode_blp.route(f"/{AUTH_PREFIX}/style_qrcode/<qr_code_id>", methods=["POST"])
+@jwt_required()
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def style_qrcode(qr_code_id):
+    try:
+        data = request.get_json()
+
+        if not qr_code_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="QR Code ID is required",
+            )
+
+        qrcode_id = qr_code_id
+        width = data.get("width", 200)
+        height = data.get("height", 200)
+        image = data.get("image")
+        margin = data.get("margin", 0)
+        qr_options = data.get("qr_options", {})
+        image_options = data.get("image_options", {})
+        dots_options = data.get("dots_options")
+        background_options = data.get("background_options", {})
+        corners_square_options = data.get("corners_square_options", {})
+        corners_dot_options = data.get("corners_dot_options", {})
+
+        if not isinstance(qr_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="QR Options must be an object",
+            )
+
+        if not isinstance(image_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Image Options must be an object",
+            )
+
+        if not isinstance(dots_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Dots Options must be an object",
+            )
+
+        if not isinstance(background_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Background Options must be an object",
+            )
+
+        if not isinstance(corners_square_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Corners Square Options must be an object",
+            )
+
+        if not isinstance(corners_dot_options, dict):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Corners Dot Options must be an object",
+            )
+
+        payload = dict(
+            width=width,
+            height=height,
+            image=image,
+            margin=margin,
+            qr_options=qr_options,
+            image_options=image_options,
+            dots_options=dots_options,
+            background_options=background_options,
+            corners_square_options=corners_square_options,
+            corners_dot_options=corners_dot_options,
+        )
+
+        qrcode_styling(payload, qrcode_id)
+
+        return return_response(
+            HttpStatus.CREATED,
+            status=StatusRes.SUCCESS,
+            message="QR Code Styled",
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@qrcode_blp/style_qrcode")
+        print(e, "error@qrcode_blp/style_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
