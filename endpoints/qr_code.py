@@ -70,8 +70,8 @@ def qrcode():
             pprint.pprint(data)
 
             category = data.get("category")
-            social_media = data.get("social_media")
-            qr_style = data.get("qr_style")
+            social_media = data.get("social_media", [])
+            qr_style = data.get("qr_style", [])
             if not category:
                 return return_response(
                     HttpStatus.BAD_REQUEST,
@@ -249,7 +249,7 @@ def edit_qrcode(qr_code_id):
             )
 
         # get qr code
-        qr_code = get_qrcode_data_by_id(qr_code_id, current_user.id)
+        qr_code = get_qrcode_data_by_id(current_user.id, qr_code_id)
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code", **qr_code
         )
@@ -357,6 +357,45 @@ def style_qrcode(qr_code_id):
     except Exception as e:
         print(traceback.format_exc(), "traceback@qrcode_blp/style_qrcode")
         print(e, "error@qrcode_blp/style_qrcode")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# delete qr code
+@qrcode_blp.route(f"/{QR_PREFIX}/delete_qrcode/<qr_code_id>", methods=["DELETE"])
+@jwt_required()
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def delete_qrcode(qr_code_id):
+    try:
+        if not qr_code_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="QR Code ID is required",
+            )
+
+        res = get_qrcode_data_by_id(current_user.id, qr_code_id, "instance")
+
+        if not res:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="QR Code not found",
+            )
+
+        db.session.delete(res)
+        db.session.commit()
+
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Deleted"
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@qrcode_blp/delete_qrcode")
+        print(e, "error@qrcode_blp/delete_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
