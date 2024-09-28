@@ -250,6 +250,12 @@ def edit_qrcode(qr_code_id):
 
         # get qr code
         qr_code = get_qrcode_data_by_id(current_user.id, qr_code_id)
+        if not qr_code:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="QR Code not found"
+            )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code", **qr_code
         )
