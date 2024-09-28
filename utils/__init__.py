@@ -156,8 +156,9 @@ def user_id_limiter():
 
 def gen_short_code():
     length = random.choice([6, 7, 8])
+    initial = random.choice(["Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"])
     # Define the possible characters for the short code (A-Z, 0-9)
     characters = string.ascii_uppercase + string.digits
     # Generate a random string of the specified length
     short_code = ''.join(secrets.choice(characters) for _ in range(length))
-    return short_code
+    return f"{initial}{short_code}"
