@@ -348,12 +348,12 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     return True
 
 
-def get_qrcode_data_by_id(user_id, qr_id):
+def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
     qrcode_data = QRCodeData.query.filter(
         QRCodeData.user_id == user_id, QRCodeData.id == qr_id
     ).first()
 
-    return qrcode_data.to_dict()
+    return qrcode_data.to_dict() if not fetch_type else qrcode_data
 
 
 def qrcode_styling(payload, qrcode_id):
