@@ -11,6 +11,7 @@ from utils import return_response
 from http_status import HttpStatus
 from status_res import StatusRes
 from flask_limiter.errors import RateLimitExceeded
+from sqlalchemy.exc import OperationalError
 
 
 def create_app(config_name="development"):
@@ -84,6 +85,15 @@ def create_app(config_name="development"):
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
             message="Network Error",
+        )
+
+    @app.errorhandler(OperationalError)
+    def handle_operational_error(e):
+        print(e, "OperationalError")
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Connection Error",
         )
 
     # rate limit exceeded
