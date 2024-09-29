@@ -3,6 +3,7 @@ from func import hex_id
 from sqlalchemy import func
 from flask import request
 from utils import gen_short_code
+from decorators import retry_on_exception
 
 
 class QRCodeCategories(db.Model):
@@ -185,6 +186,7 @@ def get_qrcode_categories():
     return [cat.to_dict() for cat in cats]
 
 
+@retry_on_exception(retries=3, delay=1)
 def save_qrcode_data(qrcode_data_payload, user_id):
     qrcode_data = QRCodeData(
         url=qrcode_data_payload["url"],
@@ -237,6 +239,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
     return qrcode_data
 
 
+@retry_on_exception(retries=3, delay=1)
 def get_qrcode_data(
     page, per_page, user_id, category=None, start_date=None, end_date=None
 ):
@@ -266,6 +269,7 @@ def get_qrcode_data(
     }
 
 
+@retry_on_exception(retries=3, delay=1)
 def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data = QRCodeData.query.filter(
         QRCodeData.user_id == user_id, QRCodeData.id == qr_id
@@ -348,6 +352,7 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     return True
 
 
+@retry_on_exception(retries=3, delay=1)
 def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
     qrcode_data = QRCodeData.query.filter_by(user_id=user_id, id=qr_id).first()
     if not qrcode_data:
@@ -355,6 +360,7 @@ def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
     return qrcode_data if fetch_type else qrcode_data.to_dict()
 
 
+@retry_on_exception(retries=3, delay=1)
 def qrcode_styling(payload, qrcode_id):
     existing_style = QrCodeStyling.query.filter_by(qrcode_id=qrcode_id).first()
     if existing_style:
@@ -401,6 +407,7 @@ def qrcode_styling(payload, qrcode_id):
     return qr_styling
 
 
+@retry_on_exception(retries=3, delay=1)
 def get_url_by_short_url(short_url):
     original_url = QRCodeData.query.filter(
         func.lower(QRCodeData.short_url) == short_url.lower()).first()
