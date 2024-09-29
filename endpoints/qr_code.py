@@ -71,7 +71,7 @@ def qrcode():
 
             category = data.get("category")
             social_media = data.get("social_media", [])
-            qr_style = data.get("qr_style", [])
+            qr_style = data.get("qr_style", {})
             if not category:
                 return return_response(
                     HttpStatus.BAD_REQUEST,
@@ -86,11 +86,11 @@ def qrcode():
                     message="Social Media must be an array",
                 )
 
-            if qr_style and not isinstance(qr_style, list):
+            if qr_style and not isinstance(qr_style, dict):
                 return return_response(
                     HttpStatus.BAD_REQUEST,
                     status=StatusRes.FAILED,
-                    message="QR Style must be an array",
+                    message="QR Style must be an object",
                 )
 
             payload = dict(
