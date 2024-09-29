@@ -230,9 +230,21 @@ def save_qrcode_data(qrcode_data_payload, user_id):
 
     if qrcode_data_payload["qr_style"]:
         print("qr style")
-        for qs in qrcode_data_payload["qr_style"]:
-            qr_style = QrCodeStyling(qrcode=qrcode_data)  # TODO: add styling options
-            db.session.add(qr_style)
+        qr_styling = QrCodeStyling(
+            width=qrcode_data_payload["qr_style"].get("width"),
+            height=qrcode_data_payload["qr_style"].get("height"),
+            image=qrcode_data_payload["qr_style"].get("image"),
+            margin=qrcode_data_payload["qr_style"].get("margin"),
+            qr_options=qrcode_data_payload["qr_style"].get("qr_options", {}),
+            image_options=qrcode_data_payload["qr_style"].get("image_options", {}),
+            dots_options=qrcode_data_payload["qr_style"].get("dots_options", {}),
+            background_options=qrcode_data_payload["qr_style"].get("background_options", {}),
+            corners_square_options=qrcode_data_payload["qr_style"].get("corners_square_options", {}),
+            corners_dot_options=qrcode_data_payload["qr_style"].get("corners_dot_options", {}),
+            qrcode=qrcode_data,
+        )
+
+        db.session.add(qr_styling)
 
     db.session.add(qrcode_data)
     db.session.commit()
