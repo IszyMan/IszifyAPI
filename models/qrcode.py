@@ -33,6 +33,7 @@ class QRCodeData(db.Model):
     __tablename__ = "qrcode_data"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     url = db.Column(db.Text)
+    title = db.Column(db.String(150))
     phone_number = db.Column(db.String(50))
     message = db.Column(db.Text)
     email = db.Column(db.String(100))
@@ -79,6 +80,7 @@ class QRCodeData(db.Model):
     def to_dict(self):
         result = {
             "id": self.id,
+            "title": self.title,
             "url": self.url,
             "phone_number": self.phone_number,
             "message": self.message,
@@ -217,6 +219,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
         country=qrcode_data_payload["country"],
         category=qrcode_data_payload["category"],
         short_url=gen_short_code() if qrcode_data_payload["url"] else None,
+        title=qrcode_data_payload.get("title"),
         user_id=user_id,
     )
 
@@ -335,6 +338,7 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data.state = qrcode_data_payload.get("state", qrcode_data.state)
     qrcode_data.country = qrcode_data_payload.get("country", qrcode_data.country)
     qrcode_data.category = qrcode_data_payload.get("category", qrcode_data.category)
+    qrcode_data.title = qrcode_data_payload.get("title", qrcode_data.title)
 
     if qrcode_data_payload.get("social_media"):
         for social_media in qrcode_data_payload.get("social_media"):
@@ -381,21 +385,21 @@ def qrcode_styling(payload, qrcode_id):
         existing_style.height = payload.get("height", existing_style.height)
         existing_style.image = payload.get("image", existing_style.image)
         existing_style.margin = payload.get("margin", existing_style.margin)
-        existing_style.qr_options = payload.get("qr_options", existing_style.qr_options)
+        existing_style.qr_options = payload.get("qrOptions", existing_style.qr_options)
         existing_style.image_options = payload.get(
-            "image_options", existing_style.image_options
+            "imageOptions", existing_style.image_options
         )
         existing_style.dots_options = payload.get(
-            "dots_options", existing_style.dots_options
+            "dotsOptions", existing_style.dots_options
         )
         existing_style.background_options = payload.get(
-            "background_options", existing_style.background_options
+            "backgroundOptions", existing_style.background_options
         )
         existing_style.corners_square_options = payload.get(
-            "corners_square_options", existing_style.corners_square_options
+            "cornersSquareOptions", existing_style.corners_square_options
         )
         existing_style.corners_dot_options = payload.get(
-            "corners_dot_options", existing_style.corners_dot_options
+            "cornersDotOptions", existing_style.corners_dot_options
         )
 
         existing_style.update()
@@ -406,12 +410,12 @@ def qrcode_styling(payload, qrcode_id):
         height=payload.get("height"),
         image=payload.get("image"),
         margin=payload.get("margin"),
-        qr_options=payload.get("qr_options"),
-        image_options=payload.get("image_options"),
-        dots_options=payload.get("dots_options"),
-        background_options=payload.get("background_options"),
-        corners_square_options=payload.get("corners_square_options"),
-        corners_dot_options=payload.get("corners_dot_options"),
+        qr_options=payload.get("qrOptions"),
+        image_options=payload.get("imageOptions"),
+        dots_options=payload.get("dotsOptions"),
+        background_options=payload.get("backgroundOptions"),
+        corners_square_options=payload.get("cornersSquareOptions"),
+        corners_dot_options=payload.get("cornersDotOptions"),
         qrcode_id=qrcode_id,
     )
 
