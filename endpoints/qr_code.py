@@ -98,6 +98,7 @@ def qrcode():
             if data.get("url"):
                 print("checking if url exists in category")
                 res = check_url_category_exists(data.get("url"), category, current_user.id)
+                print(res, "RES")
                 if res:
                     return return_response(
                         HttpStatus.BAD_REQUEST,
