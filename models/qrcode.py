@@ -437,4 +437,4 @@ def check_url_category_exists(url, category, user_id):
         func.lower(QRCodeData.url) == url.lower(),
         func.lower(QRCodeData.category) == category.lower(),
         QRCodeData.user_id == user_id,
-    )
+    ).first()
