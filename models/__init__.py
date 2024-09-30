@@ -29,5 +29,6 @@ from .qrcode import (
     update_qrcode_data,
     get_qrcode_data_by_id,
     qrcode_styling,
-    get_url_by_short_url
+    get_url_by_short_url,
+    check_url_category_exists
 )
