@@ -81,6 +81,7 @@ def create_app(config_name="development"):
     @app.errorhandler(500)
     def internal_server_error(e):
         print(e, "internal_server_error")
+        db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
@@ -90,6 +91,7 @@ def create_app(config_name="development"):
     @app.errorhandler(OperationalError)
     def handle_operational_error(e):
         print(e, "OperationalError")
+        db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
