@@ -16,6 +16,7 @@ from urllib.request import urlopen
 import requests
 import string
 import secrets
+from bs4 import BeautifulSoup
 
 
 def return_response(status_code, status=None, message=None, **data):
@@ -162,3 +163,24 @@ def gen_short_code():
     # Generate a random string of the specified length
     short_code = ''.join(secrets.choice(characters) for _ in range(length))
     return f"{initial}{short_code}"
+
+
+def get_website_title(url):
+    try:
+        # Send a GET request to the website
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad responses
+
+        # Parse the HTML content
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Find the title tag and get its text
+        title = soup.title.string if soup.title else None
+        print(title, "title from getWebsiteTitle")
+        return title
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching the URL: {e}")
+        return None
+    except Exception as e:
+        print(e, "error@getWebsiteTitle")
+        return None
