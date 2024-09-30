@@ -97,14 +97,14 @@ def qrcode():
 
             if data.get("url"):
                 print("checking if url exists in category")
-                title = get_website_title(data.get("url")) if not title else title
                 res = check_url_category_exists(data.get("url"), category, current_user.id)
-                if not res:
+                if res:
                     return return_response(
                         HttpStatus.BAD_REQUEST,
                         status=StatusRes.FAILED,
                         message="URL already exists in this category",
                     )
+                title = get_website_title(data.get("url")) if not title else title
 
             payload = dict(
                 url=data.get("url"),
