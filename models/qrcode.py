@@ -147,12 +147,12 @@ class QrCodeStyling(db.Model):
             "height": self.height,
             "image": self.image,
             "margin": self.margin,
-            "qr_options": self.qr_options,
-            "image_options": self.image_options,
-            "dots_options": self.dots_options,
-            "background_options": self.background_options,
-            "corners_square_options": self.corners_square_options,
-            "corners_dot_options": self.corners_dot_options,
+            "qrOptions": self.qr_options,
+            "imageOptions": self.image_options,
+            "dotsOptions": self.dots_options,
+            "backgroundOptions": self.background_options,
+            "cornersSquareOptions": self.corners_square_options,
+            "cornersDotOptions": self.corners_dot_options,
         }
         return {key: value for key, value in data_to_return.items() if value}
 
@@ -235,12 +235,12 @@ def save_qrcode_data(qrcode_data_payload, user_id):
             height=qrcode_data_payload["qr_style"].get("height"),
             image=qrcode_data_payload["qr_style"].get("image"),
             margin=qrcode_data_payload["qr_style"].get("margin"),
-            qr_options=qrcode_data_payload["qr_style"].get("qr_options", {}),
-            image_options=qrcode_data_payload["qr_style"].get("image_options", {}),
-            dots_options=qrcode_data_payload["qr_style"].get("dots_options", {}),
-            background_options=qrcode_data_payload["qr_style"].get("background_options", {}),
-            corners_square_options=qrcode_data_payload["qr_style"].get("corners_square_options", {}),
-            corners_dot_options=qrcode_data_payload["qr_style"].get("corners_dot_options", {}),
+            qr_options=qrcode_data_payload["qr_style"].get("qrOptions", {}),
+            image_options=qrcode_data_payload["qr_style"].get("imageOptions", {}),
+            dots_options=qrcode_data_payload["qr_style"].get("dotsOptions", {}),
+            background_options=qrcode_data_payload["qr_style"].get("backgroundOptions", {}),
+            corners_square_options=qrcode_data_payload["qr_style"].get("cornersSquareOptions", {}),
+            corners_dot_options=qrcode_data_payload["qr_style"].get("cornersDotOptions", {}),
             qrcode=qrcode_data,
         )
 
