@@ -424,3 +424,12 @@ def get_url_by_short_url(short_url):
     original_url = QRCodeData.query.filter(
         func.lower(QRCodeData.short_url) == short_url.lower()).first()
     return original_url.url if original_url else None
+
+
+# check if url and category already exists
+def check_url_category_exists(url, category, user_id):
+    return QRCodeData.query.filter(
+        func.lower(QRCodeData.url) == url.lower(),
+        func.lower(QRCodeData.category) == category.lower(),
+        QRCodeData.user_id == user_id,
+    )
