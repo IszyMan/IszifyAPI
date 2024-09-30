@@ -17,6 +17,7 @@ class Config:
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY") or "hard to guess string"
     # expiring time
     JWT_ACCESS_TOKEN_EXPIRES = 3600
+    SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True}
 
 
 class DevelopmentConfig(Config):
