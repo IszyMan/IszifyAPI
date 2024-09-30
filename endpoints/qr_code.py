@@ -136,7 +136,7 @@ def qrcode():
                 category=category.lower(),
                 social_media=social_media,
                 qr_style=qr_style,
-                title=title or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S %Z ')}",
+                title=title or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S')}",
             )
 
             save_qrcode_data(payload, current_user.id)
