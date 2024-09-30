@@ -8,7 +8,8 @@ from models import (
     get_qrcode_data,
     update_qrcode_data,
     get_qrcode_data_by_id,
-    qrcode_styling
+    qrcode_styling,
+    check_url_category_exists
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter
@@ -92,6 +93,16 @@ def qrcode():
                     status=StatusRes.FAILED,
                     message="QR Style must be an object",
                 )
+
+            if data.get("url"):
+                print("checking if url exists in category")
+                res = check_url_category_exists(data.get("url"), category, current_user.id)
+                if not res:
+                    return return_response(
+                        HttpStatus.BAD_REQUEST,
+                        status=StatusRes.FAILED,
+                        message="URL already exists in this category",
+                    )
 
             payload = dict(
                 url=data.get("url"),
