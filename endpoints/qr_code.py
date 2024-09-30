@@ -12,7 +12,7 @@ from models import (
     check_url_category_exists
 )
 from extensions import db, limiter
-from utils import return_response, user_id_limiter
+from utils import return_response, user_id_limiter, get_website_title
 import traceback
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
@@ -71,6 +71,7 @@ def qrcode():
             pprint.pprint(data)
 
             category = data.get("category")
+            title = data.get("title")
             social_media = data.get("social_media", [])
             qr_style = data.get("qr_style", {})
             if not category:
@@ -96,6 +97,7 @@ def qrcode():
 
             if data.get("url"):
                 print("checking if url exists in category")
+                title = get_website_title(data.get("url")) if not title else title
                 res = check_url_category_exists(data.get("url"), category, current_user.id)
                 if not res:
                     return return_response(
@@ -134,6 +136,7 @@ def qrcode():
                 category=category.lower(),
                 social_media=social_media,
                 qr_style=qr_style,
+                title=title or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S %Z ')}",
             )
 
             save_qrcode_data(payload, current_user.id)
@@ -302,12 +305,12 @@ def style_qrcode(qr_code_id):
         height = data.get("height", 200)
         image = data.get("image")
         margin = data.get("margin", 0)
-        qr_options = data.get("qr_options", {})
-        image_options = data.get("image_options", {})
-        dots_options = data.get("dots_options")
-        background_options = data.get("background_options", {})
-        corners_square_options = data.get("corners_square_options", {})
-        corners_dot_options = data.get("corners_dot_options", {})
+        qr_options = data.get("qrOptions", {})
+        image_options = data.get("imageOptions", {})
+        dots_options = data.get("dotsOptions")
+        background_options = data.get("backgroundOptions", {})
+        corners_square_options = data.get("cornersSquareOptions", {})
+        corners_dot_options = data.get("cornersDotOptions", {})
 
         if not isinstance(qr_options, dict):
             return return_response(
