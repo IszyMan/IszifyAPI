@@ -5,6 +5,7 @@ from http_status import HttpStatus
 from status_res import StatusRes
 import time
 from sqlalchemy.exc import OperationalError
+from extensions import db
 
 
 # email verified decorator
@@ -23,6 +24,28 @@ def email_verified(f):
     return decorated_function
 
 
+# def retry_on_exception(retries=3, delay=1, exceptions=(OperationalError,)):
+#     def decorator(func):
+#         def wrapper(*args, **kwargs):
+#             for attempt in range(retries):
+#                 try:
+#                     return func(*args, **kwargs)
+#                 except exceptions as e:
+#                     if attempt < retries - 1:  # if not the last attempt
+#                         print(f"Retrying due to: {e}. Attempt {attempt + 1}/{retries}.")
+#                         time.sleep(delay)  # wait before retrying
+#                     else:
+#                         print(f"Failed after {retries} attempts.")
+#                         raise  # re-raise the last exception
+#                 finally:
+#                     # Rollback the session if there was an exception
+#                     if hasattr(args[0], 'session'):
+#                         args[0].session.rollback()
+#         return wrapper
+#
+#     return decorator
+
+
 def retry_on_exception(retries=3, delay=1, exceptions=(OperationalError,)):
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -30,13 +53,13 @@ def retry_on_exception(retries=3, delay=1, exceptions=(OperationalError,)):
                 try:
                     return func(*args, **kwargs)
                 except exceptions as e:
-                    if attempt < retries - 1:  # if not the last attempt
+                    if attempt < retries - 1:
                         print(f"Retrying due to: {e}. Attempt {attempt + 1}/{retries}.")
-                        time.sleep(delay)  # wait before retrying
+                        time.sleep(delay)
                     else:
                         print(f"Failed after {retries} attempts.")
-                        raise  # re-raise the last exception
-
+                        raise
+                finally:
+                    db.session.rollback()  # Rollback the session if there was an exception
         return wrapper
-
     return decorator
