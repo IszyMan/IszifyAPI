@@ -9,6 +9,8 @@ from models import (
     get_user_by_reset_p,
     change_password,
     create_otp,
+    username_exist,
+    email_exist
 )
 from extensions import db
 from utils import (
@@ -112,6 +114,20 @@ def register():
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Disposable Email not allowed",
+            )
+
+        if username_exist(username.lower()):
+            return return_response(
+                HttpStatus.CONFLICT,
+                status=StatusRes.FAILED,
+                message="Username already exists",
+            )
+
+        if email_exist(email.lower()):
+            return return_response(
+                HttpStatus.CONFLICT,
+                status=StatusRes.FAILED,
+                message="Email already exists",
             )
 
         pass_valid_msg = validate_password(password)
