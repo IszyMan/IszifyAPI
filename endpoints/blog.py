@@ -173,7 +173,7 @@ def create_category():
         name = name.lower()
         if category_exists(name):
             return return_response(
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.CONFLICT,
                 status=StatusRes.FAILED,
                 message="Category already exists",
             )
