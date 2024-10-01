@@ -100,7 +100,7 @@ def qrcode():
                 res = check_url_category_exists(data.get("url"), category, current_user.id)
                 if res:
                     return return_response(
-                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.CONFLICT,
                         status=StatusRes.FAILED,
                         message="URL already exists in this category",
                     )
@@ -367,7 +367,7 @@ def style_qrcode(qr_code_id):
             corners_dot_options=corners_dot_options,
         )
 
-        qrcode_styling(payload, qrcode_id)
+        qrcode_styling(payload, qrcode_id, current_user.id)
 
         return return_response(
             HttpStatus.CREATED,
