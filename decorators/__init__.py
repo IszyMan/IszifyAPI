@@ -61,5 +61,7 @@ def retry_on_exception(retries=3, delay=1, exceptions=(OperationalError,)):
                         raise
                 finally:
                     db.session.rollback()  # Rollback the session if there was an exception
+
         return wrapper
+
     return decorator
