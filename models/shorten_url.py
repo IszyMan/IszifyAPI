@@ -1,6 +1,7 @@
 import datetime
 import hashlib
 import uuid
+
 # from main import create_app
 from urllib import request
 from urllib.error import HTTPError, URLError
@@ -160,5 +161,6 @@ def save_url_click_location(ip_address, country, city, device, browser, url_id):
 @retry_on_exception(retries=3, delay=1)
 def get_original_url_by_short_url(short_url):
     origin_url = Urlshort.query.filter(
-        func.lower(Urlshort.short_url) == short_url.lower()).first()
+        func.lower(Urlshort.short_url) == short_url.lower()
+    ).first()
     return origin_url.url if origin_url else None
