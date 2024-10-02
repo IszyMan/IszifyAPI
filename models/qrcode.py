@@ -61,11 +61,15 @@ class QRCodeData(db.Model):
     country = db.Column(db.String(150))
     short_url = db.Column(db.String(50))
     category = db.Column(db.String(50), nullable=False)
-    short_url_id = db.Column(db.String(50), db.ForeignKey("url_shortener.id"), nullable=True)
+    short_url_id = db.Column(
+        db.String(50), db.ForeignKey("url_shortener.id"), nullable=True
+    )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True)
-    qr_style = db.relationship("QrCodeStyling", backref="qrcode", lazy=True, uselist=False)
+    qr_style = db.relationship(
+        "QrCodeStyling", backref="qrcode", lazy=True, uselist=False
+    )
 
     def save(self):
         db.session.add(self)
@@ -131,9 +135,15 @@ class QrCodeStyling(db.Model):
     qr_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for QR options
     image_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for image options
     dots_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dots options
-    background_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for background options
-    corners_square_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for square corners options
-    corners_dot_options = db.Column(db.JSON, nullable=False)  # Dynamic JSON for dot corners options
+    background_options = db.Column(
+        db.JSON, nullable=False
+    )  # Dynamic JSON for background options
+    corners_square_options = db.Column(
+        db.JSON, nullable=False
+    )  # Dynamic JSON for square corners options
+    corners_dot_options = db.Column(
+        db.JSON, nullable=False
+    )  # Dynamic JSON for dot corners options
 
     def save(self):
         db.session.add(self)
@@ -241,9 +251,15 @@ def save_qrcode_data(qrcode_data_payload, user_id):
             qr_options=qrcode_data_payload["qr_style"].get("qrOptions", {}),
             image_options=qrcode_data_payload["qr_style"].get("imageOptions", {}),
             dots_options=qrcode_data_payload["qr_style"].get("dotsOptions", {}),
-            background_options=qrcode_data_payload["qr_style"].get("backgroundOptions", {}),
-            corners_square_options=qrcode_data_payload["qr_style"].get("cornersSquareOptions", {}),
-            corners_dot_options=qrcode_data_payload["qr_style"].get("cornersDotOptions", {}),
+            background_options=qrcode_data_payload["qr_style"].get(
+                "backgroundOptions", {}
+            ),
+            corners_square_options=qrcode_data_payload["qr_style"].get(
+                "cornersSquareOptions", {}
+            ),
+            corners_dot_options=qrcode_data_payload["qr_style"].get(
+                "cornersDotOptions", {}
+            ),
             qrcode=qrcode_data,
         )
 
@@ -378,7 +394,9 @@ def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
 
 @retry_on_exception(retries=3, delay=1)
 def qrcode_styling(payload, qrcode_id, user_id):
-    existing_style = QrCodeStyling.query.filter_by(qrcode_id=qrcode_id, user_id=user_id).first()
+    existing_style = QrCodeStyling.query.filter_by(
+        qrcode_id=qrcode_id, user_id=user_id
+    ).first()
     if existing_style:
         print("update existing style")
         existing_style.width = payload.get("width", existing_style.width)
@@ -426,7 +444,8 @@ def qrcode_styling(payload, qrcode_id, user_id):
 @retry_on_exception(retries=3, delay=1)
 def get_url_by_short_url(short_url):
     original_url = QRCodeData.query.filter(
-        func.lower(QRCodeData.short_url) == short_url.lower()).first()
+        func.lower(QRCodeData.short_url) == short_url.lower()
+    ).first()
     return original_url.url if original_url else None
 
 
