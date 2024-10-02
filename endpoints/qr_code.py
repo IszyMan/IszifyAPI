@@ -9,7 +9,7 @@ from models import (
     update_qrcode_data,
     get_qrcode_data_by_id,
     qrcode_styling,
-    check_url_category_exists
+    check_url_category_exists,
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter, get_website_title
@@ -99,7 +99,9 @@ def qrcode():
 
             if data.get("url"):
                 print("checking if url exists in category")
-                res = check_url_category_exists(data.get("url"), category, current_user.id)
+                res = check_url_category_exists(
+                    data.get("url"), category, current_user.id
+                )
                 if res:
                     return return_response(
                         HttpStatus.CONFLICT,
@@ -138,7 +140,8 @@ def qrcode():
                 category=category.lower(),
                 social_media=social_media,
                 qr_style=qr_style,
-                title=title or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S')}",
+                title=title
+                or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S')}",
             )
 
             save_qrcode_data(payload, current_user.id)
@@ -270,7 +273,7 @@ def edit_qrcode(qr_code_id):
             return return_response(
                 HttpStatus.NOT_FOUND,
                 status=StatusRes.FAILED,
-                message="QR Code not found"
+                message="QR Code not found",
             )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code", **qr_code
