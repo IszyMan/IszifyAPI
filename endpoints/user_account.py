@@ -113,7 +113,7 @@ def shorten_url():
         url.save()
 
         return return_response(
-            HttpStatus.OK,
+            HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="Short URL created successfully",
         )
