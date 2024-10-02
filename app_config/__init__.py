@@ -5,8 +5,13 @@ from models.users import Users
 from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocation
 from models.blogs import Catgories, Blogs
 from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMedia
-from endpoints import (AuthenticationBlueprint, UserBlueprint,
-                       BlogBlueprint, QRCodeBlueprint, RedirectUrlBlueprint)
+from endpoints import (
+    AuthenticationBlueprint,
+    UserBlueprint,
+    BlogBlueprint,
+    QRCodeBlueprint,
+    RedirectUrlBlueprint,
+)
 from utils import return_response
 from http_status import HttpStatus
 from status_res import StatusRes
@@ -19,9 +24,17 @@ def create_app(config_name="development"):
 
     app.config.from_object(config_obj[config_name])
 
-    cors.init_app(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"],
-                                              "allow_headers": ["Authorization", "Content-Type"],
-                                              "supports_credentials": True}})
+    cors.init_app(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": "*",
+                "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"],
+                "allow_headers": ["Authorization", "Content-Type"],
+                "supports_credentials": True,
+            }
+        },
+    )
 
     db.init_app(app)
     jwt.init_app(app)
