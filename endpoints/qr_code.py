@@ -17,6 +17,7 @@ import traceback
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
 import pprint
+from decorators import email_verified
 
 QR_PREFIX = "qr_code"
 
@@ -62,6 +63,7 @@ def qrcode_categories():
 # create qr code
 @qrcode_blp.route(f"/{QR_PREFIX}/qrcode", methods=["GET", "POST"])
 @jwt_required()
+@email_verified
 @limiter.limit("15 per minute", key_func=user_id_limiter)
 def qrcode():
     try:
