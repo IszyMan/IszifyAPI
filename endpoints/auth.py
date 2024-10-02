@@ -10,7 +10,7 @@ from models import (
     change_password,
     create_otp,
     username_exist,
-    email_exist
+    email_exist,
 )
 from extensions import db
 from utils import (
