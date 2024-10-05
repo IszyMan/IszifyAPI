@@ -353,7 +353,7 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data.city = qrcode_data_payload.get("city", qrcode_data.city)
     qrcode_data.state = qrcode_data_payload.get("state", qrcode_data.state)
     qrcode_data.country = qrcode_data_payload.get("country", qrcode_data.country)
-    qrcode_data.category = qrcode_data_payload.get("category", qrcode_data.category)
+    # qrcode_data.category = qrcode_data_payload.get("category", qrcode_data.category)
     qrcode_data.title = qrcode_data_payload.get("title", qrcode_data.title)
 
     if qrcode_data_payload.get("social_media"):
