@@ -312,7 +312,7 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     if not qrcode_data:
         return False
 
-    qrcode_data.url = qrcode_data_payload.get("url", qrcode_data.url)
+    qrcode_data.url = qrcode_data_payload.get("url") or qrcode_data.url
     qrcode_data.phone_number = qrcode_data_payload.get(
         "phone_number", qrcode_data.phone_number
     )
