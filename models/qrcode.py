@@ -314,57 +314,57 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
 
     qrcode_data.url = qrcode_data_payload.get("url") or qrcode_data.url
     qrcode_data.phone_number = qrcode_data_payload.get(
-        "phone_number", qrcode_data.phone_number
-    )
-    qrcode_data.message = qrcode_data_payload.get("message", qrcode_data.message)
-    qrcode_data.email = qrcode_data_payload.get("email", qrcode_data.email)
-    qrcode_data.subject = qrcode_data_payload.get("subject", qrcode_data.subject)
-    qrcode_data.ssid = qrcode_data_payload.get("ssid", qrcode_data.ssid)
-    qrcode_data.password = qrcode_data_payload.get("password", qrcode_data.password)
+        "phone_number"
+    ) or qrcode_data.phone_number
+    qrcode_data.message = qrcode_data_payload.get("message") or qrcode_data.message
+    qrcode_data.email = qrcode_data_payload.get("email") or qrcode_data.email
+    qrcode_data.subject = qrcode_data_payload.get("subject") or qrcode_data.subject
+    qrcode_data.ssid = qrcode_data_payload.get("ssid") or qrcode_data.ssid
+    qrcode_data.password = qrcode_data_payload.get("password") or qrcode_data.password
     qrcode_data.encryption = qrcode_data_payload.get(
-        "encryption", qrcode_data.encryption
-    )
-    qrcode_data.ios_url = qrcode_data_payload.get("ios_url", qrcode_data.ios_url)
+        "encryption"
+    ) or qrcode_data.encryption
+    qrcode_data.ios_url = qrcode_data_payload.get("ios_url") or qrcode_data.ios_url
     qrcode_data.android_url = qrcode_data_payload.get(
-        "android_url", qrcode_data.android_url
-    )
+        "android_url"
+    ) or qrcode_data.android_url
     qrcode_data.other_device_url = qrcode_data_payload.get(
-        "other_device_url", qrcode_data.other_device_url
-    )
-    qrcode_data.longitude = qrcode_data_payload.get("longitude", qrcode_data.longitude)
-    qrcode_data.latitude = qrcode_data_payload.get("latitude", qrcode_data.latitude)
+        "other_device_url"
+    ) or qrcode_data.other_device_url
+    qrcode_data.longitude = qrcode_data_payload.get("longitude") or qrcode_data.longitude
+    qrcode_data.latitude = qrcode_data_payload.get("latitude") or qrcode_data.latitude
     qrcode_data.trade_number = qrcode_data_payload.get(
-        "trade_number", qrcode_data.trade_number
-    )
-    qrcode_data.prefix = qrcode_data_payload.get("prefix", qrcode_data.prefix)
+        "trade_number"
+    ) or qrcode_data.trade_number
+    qrcode_data.prefix = qrcode_data_payload.get("prefix") or qrcode_data.prefix
     qrcode_data.first_name = qrcode_data_payload.get(
-        "first_name", qrcode_data.first_name
-    )
-    qrcode_data.last_name = qrcode_data_payload.get("last_name", qrcode_data.last_name)
+        "first_name"
+    ) or qrcode_data.first_name
+    qrcode_data.last_name = qrcode_data_payload.get("last_name") or qrcode_data.last_name
     qrcode_data.company_name = qrcode_data_payload.get(
-        "company_name", qrcode_data.company_name
-    )
+        "company_name"
+    ) or qrcode_data.company_name
     qrcode_data.mobile_phone = qrcode_data_payload.get(
-        "mobile_phone", qrcode_data.mobile_phone
-    )
-    qrcode_data.fax = qrcode_data_payload.get("fax", qrcode_data.fax)
+        "mobile_phone"
+    ) or qrcode_data.mobile_phone
+    qrcode_data.fax = qrcode_data_payload.get("fax") or qrcode_data.fax
     qrcode_data.postal_code = qrcode_data_payload.get(
-        "postal_code", qrcode_data.postal_code
-    )
-    qrcode_data.religion = qrcode_data_payload.get("religion", qrcode_data.religion)
-    qrcode_data.street = qrcode_data_payload.get("street", qrcode_data.street)
-    qrcode_data.city = qrcode_data_payload.get("city", qrcode_data.city)
-    qrcode_data.state = qrcode_data_payload.get("state", qrcode_data.state)
-    qrcode_data.country = qrcode_data_payload.get("country", qrcode_data.country)
-    # qrcode_data.category = qrcode_data_payload.get("category", qrcode_data.category)
-    qrcode_data.title = qrcode_data_payload.get("title", qrcode_data.title)
+        "postal_code"
+    ) or qrcode_data.postal_code
+    qrcode_data.religion = qrcode_data_payload.get("religion") or qrcode_data.religion
+    qrcode_data.street = qrcode_data_payload.get("street") or qrcode_data.street
+    qrcode_data.city = qrcode_data_payload.get("city") or qrcode_data.city
+    qrcode_data.state = qrcode_data_payload.get("state") or qrcode_data.state
+    qrcode_data.country = qrcode_data_payload.get("country") or qrcode_data.country
+    # qrcode_data.category = qrcode_data_payload.get("category") or qrcode_data.category
+    qrcode_data.title = qrcode_data_payload.get("title") or qrcode_data.title
 
     if qrcode_data_payload.get("social_media"):
         for social_media in qrcode_data_payload.get("social_media"):
             each_social = SocialMedia.query.filter_by(id=social_media["id"]).first()
             if each_social:
-                each_social.url = social_media.get("url", each_social.url)
-                each_social.name = social_media.get("name", each_social.name)
+                each_social.url = social_media.get("url") or each_social.url
+                each_social.name = social_media.get("name") or each_social.name
                 each_social.update()
             else:
                 social = SocialMedia(
@@ -402,26 +402,26 @@ def qrcode_styling(payload, qrcode_id, user_id):
     ).first()
     if existing_style:
         print("update existing style")
-        existing_style.width = payload.get("width", existing_style.width)
-        existing_style.height = payload.get("height", existing_style.height)
-        existing_style.image = payload.get("image", existing_style.image)
-        existing_style.margin = payload.get("margin", existing_style.margin)
-        existing_style.qr_options = payload.get("qrOptions", existing_style.qr_options)
+        existing_style.width = payload.get("width") or existing_style.width
+        existing_style.height = payload.get("height") or existing_style.height
+        existing_style.image = payload.get("image") or existing_style.image
+        existing_style.margin = payload.get("margin") or existing_style.margin
+        existing_style.qr_options = payload.get("qrOptions") or existing_style.qr_options
         existing_style.image_options = payload.get(
-            "imageOptions", existing_style.image_options
-        )
+            "imageOptions"
+        ) or existing_style.image_options
         existing_style.dots_options = payload.get(
-            "dotsOptions", existing_style.dots_options
-        )
+            "dotsOptions"
+        ) or existing_style.dots_options
         existing_style.background_options = payload.get(
-            "backgroundOptions", existing_style.background_options
-        )
+            "backgroundOptions"
+        ) or existing_style.background_options
         existing_style.corners_square_options = payload.get(
-            "cornersSquareOptions", existing_style.corners_square_options
-        )
+            "cornersSquareOptions"
+        ) or existing_style.corners_square_options
         existing_style.corners_dot_options = payload.get(
-            "cornersDotOptions", existing_style.corners_dot_options
-        )
+            "cornersDotOptions"
+        ) or existing_style.corners_dot_options
 
         existing_style.update()
         return existing_style
