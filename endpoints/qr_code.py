@@ -208,7 +208,7 @@ def edit_qrcode(qr_code_id):
                 )
 
             social_media = data.get("social_media")
-            qr_style = data.get("qr_style")
+            qr_style = data.get("qr_style", {})
             if social_media and not isinstance(social_media, list):
                 return return_response(
                     HttpStatus.BAD_REQUEST,
@@ -216,11 +216,11 @@ def edit_qrcode(qr_code_id):
                     message="Social Media must be an array",
                 )
 
-            if qr_style and not isinstance(qr_style, list):
+            if qr_style and not isinstance(qr_style, dict):
                 return return_response(
                     HttpStatus.BAD_REQUEST,
                     status=StatusRes.FAILED,
-                    message="QR Style must be an array",
+                    message="QR Style must be an object",
                 )
 
             payload = dict(
@@ -250,6 +250,7 @@ def edit_qrcode(qr_code_id):
                 city=data.get("city"),
                 state=data.get("state"),
                 country=data.get("country"),
+                title=data.get("title"),
                 social_media=social_media,
                 qr_style=qr_style,
             )
