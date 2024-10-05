@@ -224,11 +224,11 @@ def edit_qrcode(qr_code_id):
                 )
 
             payload = dict(
-                url=data.get("url"),
-                phone_number=data.get("phone_number"),
-                message=data.get("message"),
-                email=data.get("email"),
-                subject=data.get("subject"),
+                url=data.get("url", ""),
+                phone_number=data.get("phone_number", ""),
+                message=data.get("message", ""),
+                email=data.get("email", ""),
+                subject=data.get("subject", ""),
                 ssid=data.get("ssid"),
                 password=data.get("password"),
                 encryption=data.get("encryption"),
