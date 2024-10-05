@@ -66,9 +66,9 @@ class QRCodeData(db.Model):
     )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True)
+    social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True, cascade="all, delete")
     qr_style = db.relationship(
-        "QrCodeStyling", backref="qrcode", lazy=True, uselist=False
+        "QrCodeStyling", backref="qrcode", lazy=True, uselist=False, cascade="all, delete"
     )
 
     def save(self):
