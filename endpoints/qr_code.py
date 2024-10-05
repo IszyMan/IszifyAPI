@@ -224,7 +224,7 @@ def edit_qrcode(qr_code_id):
                 )
 
             payload = dict(
-                url=data.get("url", ""),
+                url=data.get("url"),
                 phone_number=data.get("phone_number"),
                 message=data.get("message"),
                 email=data.get("email"),
