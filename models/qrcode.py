@@ -1,5 +1,3 @@
-import pprint
-
 from extensions import db
 from func import hex_id
 from sqlalchemy import func
@@ -304,7 +302,6 @@ def get_qrcode_data(
 
 @retry_on_exception(retries=3, delay=1)
 def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
-    pprint.pprint(qrcode_data_payload)
     qrcode_data = QRCodeData.query.filter(
         QRCodeData.user_id == user_id, QRCodeData.id == qr_id
     ).first()
