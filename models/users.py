@@ -18,9 +18,9 @@ class Users(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
     user_session = db.relationship(
-        "UserSession", backref="user", lazy=True, uselist=False
+        "UserSession", backref="user", lazy=True, uselist=False, cascade="all, delete"
     )
-    qrcodes = db.relationship("QRCodeData", backref="user", lazy=True)
+    qrcodes = db.relationship("QRCodeData", backref="user", lazy=True, cascade="all, delete")
 
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
