@@ -422,7 +422,7 @@ def qrcode_styling(payload, qrcode_id, user_id):
         ) or existing_style.corners_dot_options
 
         existing_style.update()
-        return existing_style
+        return existing_style, True
     print("create new style")
     qr_styling = QrCodeStyling(
         width=payload.get("width"),
@@ -439,7 +439,7 @@ def qrcode_styling(payload, qrcode_id, user_id):
     )
 
     qr_styling.save()
-    return qr_styling
+    return qr_styling, False
 
 
 @retry_on_exception(retries=3, delay=1)
