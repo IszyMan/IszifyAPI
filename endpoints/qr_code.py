@@ -365,12 +365,12 @@ def style_qrcode(qr_code_id):
             height=height,
             image=image,
             margin=margin,
-            qr_options=qr_options,
-            image_options=image_options,
-            dots_options=dots_options,
-            background_options=background_options,
-            corners_square_options=corners_square_options,
-            corners_dot_options=corners_dot_options,
+            qrOptions=qr_options,
+            imageOptions=image_options,
+            dotsOptions=dots_options,
+            backgroundOptions=background_options,
+            cornersSquareOptions=corners_square_options,
+            cornersDotOptions=corners_dot_options,
         )
 
         _, exist =qrcode_styling(payload, qrcode_id, current_user.id)
