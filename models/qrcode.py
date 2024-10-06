@@ -395,7 +395,7 @@ def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
 @retry_on_exception(retries=3, delay=1)
 def qrcode_styling(payload, qrcode_id, user_id):
     existing_style = QrCodeStyling.query.join(QRCodeData).filter(
-        QRCodeData.qrcode_id == qrcode_id,
+        QrCodeStyling.qrcode_id == qrcode_id,
         QRCodeData.user_id == user_id
     ).first()
     if existing_style:
