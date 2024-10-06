@@ -4,7 +4,6 @@ from sqlalchemy import func
 from flask import request
 from utils import gen_short_code
 from decorators import retry_on_exception
-import pprint
 
 
 class QRCodeCategories(db.Model):
@@ -401,7 +400,6 @@ def qrcode_styling(payload, qrcode_id, user_id):
     ).first()
     if existing_style:
         print("update existing style")
-        pprint.pprint(payload)
         existing_style.width = payload.get("width") or existing_style.width
         existing_style.height = payload.get("height") or existing_style.height
         existing_style.image = payload.get("image") or existing_style.image
