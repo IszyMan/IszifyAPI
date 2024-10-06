@@ -373,10 +373,10 @@ def style_qrcode(qr_code_id):
             corners_dot_options=corners_dot_options,
         )
 
-        qrcode_styling(payload, qrcode_id, current_user.id)
+        _, exist =qrcode_styling(payload, qrcode_id, current_user.id)
 
         return return_response(
-            HttpStatus.CREATED,
+            HttpStatus.OK if exist else HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="QR Code Styled",
         )
