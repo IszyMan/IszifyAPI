@@ -32,4 +32,10 @@ services:
     depends_on:
       - api
       - redis
-    command: /bin/sh -c "apt-get update && apt-get install -y certbot && certbot certonly --standalone -d iszz.ly -d www.iszz.ly"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        apt-get update && apt-get install -y certbot \
+        && certbot certonly --non-interactive --agree-tos --email israelwonahtb@gmail.com \
+        --standalone -d iszz.ly -d www.iszz.ly
