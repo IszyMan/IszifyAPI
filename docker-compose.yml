@@ -38,4 +38,4 @@ services:
       - |
         apt-get update && apt-get install -y certbot \
         && certbot certonly --non-interactive --agree-tos --email israelwonahtb@gmail.com \
-        --standalone -d iszz.ly -d www.iszz.ly
+        --standalone -d iszz.ly
