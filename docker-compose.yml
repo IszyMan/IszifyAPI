@@ -33,4 +33,7 @@ services:
     depends_on:
       - api
       - redis
-    entrypoint: /bin/bash -c "apt-get update && apt-get install -y certbot && certbot certonly --non-interactive --agree-tos --email israelwonahtb@gmail.com --standalone -d iszz.ly && nginx -g 'daemon off;'"
+    environment:
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - DOMAIN=${DOMAIN}
+    entrypoint: /bin/bash -c "apt-get update && apt-get install -y certbot && certbot certonly --non-interactive --agree-tos --email ${CERTBOT_EMAIL} --standalone -d ${DOMAIN} && nginx -g 'daemon off;'"
