@@ -157,11 +157,14 @@ def user_id_limiter():
 
 def gen_short_code():
     length = random.choice([6, 7, 8])
+    # Randomly pick an initial from the list and randomly decide upper or lowercase
     initial = random.choice(["Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"])
-    # Define the possible characters for the short code (A-Z, 0-9)
-    characters = string.ascii_uppercase + string.digits
-    # Generate a random string of the specified length
+    initial = random.choice([initial.lower(), initial.upper()])
+    # Define the possible characters for the short code (A-Z, a-z, 0-9)
+    characters = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    # Generate a random string of the specified length with mixed case
     short_code = ''.join(secrets.choice(characters) for _ in range(length))
+
     return f"{initial}{short_code}"
 
 
@@ -184,3 +187,10 @@ def get_website_title(url):
     except Exception as e:
         print(e, "error@getWebsiteTitle")
         return None
+
+
+def return_host_url(host_url):
+    # if host url starts with http instead of https
+    if host_url.startswith("http://"):
+        host_url = host_url.replace("http://", "https://")
+    return host_url
