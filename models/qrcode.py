@@ -2,7 +2,7 @@ from extensions import db
 from func import hex_id
 from sqlalchemy import func
 from flask import request
-from utils import gen_short_code
+from utils import gen_short_code, return_host_url
 from decorators import retry_on_exception
 
 
@@ -110,7 +110,7 @@ class QRCodeData(db.Model):
             "street": self.street,
             "city": self.city,
             "state": self.state,
-            "short_url": f"{request.host_url}{self.short_url}",
+            "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
             "country": self.country,
             "category": self.category,
             "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
