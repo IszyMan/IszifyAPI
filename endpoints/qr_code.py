@@ -192,6 +192,7 @@ def qrcode():
 # edit qr code
 @qrcode_blp.route(f"/{QR_PREFIX}/qrcode/<qr_code_id>", methods=["GET", "PATCH"])
 @jwt_required()
+@email_verified
 # @limiter.limit("5 per minute", key_func=user_id_limiter)
 def edit_qrcode(qr_code_id):
     try:
