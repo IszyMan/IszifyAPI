@@ -155,10 +155,13 @@ def user_id_limiter():
     return get_jwt_identity()
 
 
-def gen_short_code():
+def gen_short_code(url_short=False):
     length = random.choice([6, 7, 8])
     # Randomly pick an initial from the list and randomly decide upper or lowercase
-    initial = random.choice(["Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"])
+    if url_short:
+        initial = random.choice(["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M"])
+    else:
+        initial = random.choice(["N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"])
     initial = random.choice([initial.lower(), initial.upper()])
     # Define the possible characters for the short code (A-Z, a-z, 0-9)
     characters = string.ascii_uppercase + string.ascii_lowercase + string.digits
