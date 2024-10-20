@@ -164,3 +164,13 @@ def get_original_url_by_short_url(short_url):
         func.lower(Urlshort.short_url) == short_url.lower()
     ).first()
     return origin_url.url if origin_url else None
+
+
+def save_shorten_url(url, short_url, title, want_qr_code, user_id):
+    new_record = Urlshort(
+        url=url, short_url=short_url, title=title, want_qr_code=want_qr_code,
+        user_id=user_id
+    )
+    db.session.add(new_record)
+    db.session.commit()
+    return new_record
