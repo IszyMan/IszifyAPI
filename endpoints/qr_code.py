@@ -374,7 +374,7 @@ def style_qrcode(qr_code_id):
             cornersDotOptions=corners_dot_options,
         )
 
-        _, exist =qrcode_styling(payload, qrcode_id, current_user.id)
+        _, exist = qrcode_styling(payload, qrcode_id, current_user.id)
 
         return return_response(
             HttpStatus.OK if exist else HttpStatus.CREATED,
