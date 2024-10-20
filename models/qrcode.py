@@ -4,6 +4,7 @@ from sqlalchemy import func
 from flask import request
 from utils import gen_short_code, return_host_url
 from decorators import retry_on_exception
+from datetime import datetime, timedelta
 
 
 class QRCodeCategories(db.Model):
@@ -66,9 +67,15 @@ class QRCodeData(db.Model):
     )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    social_media = db.relationship("SocialMedia", backref="qrcode", lazy=True, cascade="all, delete")
+    social_media = db.relationship(
+        "SocialMedia", backref="qrcode", lazy=True, cascade="all, delete"
+    )
     qr_style = db.relationship(
-        "QrCodeStyling", backref="qrcode", lazy=True, uselist=False, cascade="all, delete"
+        "QrCodeStyling",
+        backref="qrcode",
+        lazy=True,
+        uselist=False,
+        cascade="all, delete",
     )
 
     def save(self):
@@ -310,44 +317,48 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
         return False
 
     qrcode_data.url = qrcode_data_payload.get("url") or qrcode_data.url
-    qrcode_data.phone_number = qrcode_data_payload.get(
-        "phone_number"
-    ) or qrcode_data.phone_number
+    qrcode_data.phone_number = (
+        qrcode_data_payload.get("phone_number") or qrcode_data.phone_number
+    )
     qrcode_data.message = qrcode_data_payload.get("message") or qrcode_data.message
     qrcode_data.email = qrcode_data_payload.get("email") or qrcode_data.email
     qrcode_data.subject = qrcode_data_payload.get("subject") or qrcode_data.subject
     qrcode_data.ssid = qrcode_data_payload.get("ssid") or qrcode_data.ssid
     qrcode_data.password = qrcode_data_payload.get("password") or qrcode_data.password
-    qrcode_data.encryption = qrcode_data_payload.get(
-        "encryption"
-    ) or qrcode_data.encryption
+    qrcode_data.encryption = (
+        qrcode_data_payload.get("encryption") or qrcode_data.encryption
+    )
     qrcode_data.ios_url = qrcode_data_payload.get("ios_url") or qrcode_data.ios_url
-    qrcode_data.android_url = qrcode_data_payload.get(
-        "android_url"
-    ) or qrcode_data.android_url
-    qrcode_data.other_device_url = qrcode_data_payload.get(
-        "other_device_url"
-    ) or qrcode_data.other_device_url
-    qrcode_data.longitude = qrcode_data_payload.get("longitude") or qrcode_data.longitude
+    qrcode_data.android_url = (
+        qrcode_data_payload.get("android_url") or qrcode_data.android_url
+    )
+    qrcode_data.other_device_url = (
+        qrcode_data_payload.get("other_device_url") or qrcode_data.other_device_url
+    )
+    qrcode_data.longitude = (
+        qrcode_data_payload.get("longitude") or qrcode_data.longitude
+    )
     qrcode_data.latitude = qrcode_data_payload.get("latitude") or qrcode_data.latitude
-    qrcode_data.trade_number = qrcode_data_payload.get(
-        "trade_number"
-    ) or qrcode_data.trade_number
+    qrcode_data.trade_number = (
+        qrcode_data_payload.get("trade_number") or qrcode_data.trade_number
+    )
     qrcode_data.prefix = qrcode_data_payload.get("prefix") or qrcode_data.prefix
-    qrcode_data.first_name = qrcode_data_payload.get(
-        "first_name"
-    ) or qrcode_data.first_name
-    qrcode_data.last_name = qrcode_data_payload.get("last_name") or qrcode_data.last_name
-    qrcode_data.company_name = qrcode_data_payload.get(
-        "company_name"
-    ) or qrcode_data.company_name
-    qrcode_data.mobile_phone = qrcode_data_payload.get(
-        "mobile_phone"
-    ) or qrcode_data.mobile_phone
+    qrcode_data.first_name = (
+        qrcode_data_payload.get("first_name") or qrcode_data.first_name
+    )
+    qrcode_data.last_name = (
+        qrcode_data_payload.get("last_name") or qrcode_data.last_name
+    )
+    qrcode_data.company_name = (
+        qrcode_data_payload.get("company_name") or qrcode_data.company_name
+    )
+    qrcode_data.mobile_phone = (
+        qrcode_data_payload.get("mobile_phone") or qrcode_data.mobile_phone
+    )
     qrcode_data.fax = qrcode_data_payload.get("fax") or qrcode_data.fax
-    qrcode_data.postal_code = qrcode_data_payload.get(
-        "postal_code"
-    ) or qrcode_data.postal_code
+    qrcode_data.postal_code = (
+        qrcode_data_payload.get("postal_code") or qrcode_data.postal_code
+    )
     qrcode_data.religion = qrcode_data_payload.get("religion") or qrcode_data.religion
     qrcode_data.street = qrcode_data_payload.get("street") or qrcode_data.street
     qrcode_data.city = qrcode_data_payload.get("city") or qrcode_data.city
@@ -394,32 +405,35 @@ def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
 
 @retry_on_exception(retries=3, delay=1)
 def qrcode_styling(payload, qrcode_id, user_id):
-    existing_style = QrCodeStyling.query.join(QRCodeData).filter(
-        QrCodeStyling.qrcode_id == qrcode_id,
-        QRCodeData.user_id == user_id
-    ).first()
+    existing_style = (
+        QrCodeStyling.query.join(QRCodeData)
+        .filter(QrCodeStyling.qrcode_id == qrcode_id, QRCodeData.user_id == user_id)
+        .first()
+    )
     if existing_style:
         print("update existing style")
         existing_style.width = payload.get("width") or existing_style.width
         existing_style.height = payload.get("height") or existing_style.height
         existing_style.image = payload.get("image") or existing_style.image
         existing_style.margin = payload.get("margin") or existing_style.margin
-        existing_style.qr_options = payload.get("qrOptions") or existing_style.qr_options
-        existing_style.image_options = payload.get(
-            "imageOptions"
-        ) or existing_style.image_options
-        existing_style.dots_options = payload.get(
-            "dotsOptions"
-        ) or existing_style.dots_options
-        existing_style.background_options = payload.get(
-            "backgroundOptions"
-        ) or existing_style.background_options
-        existing_style.corners_square_options = payload.get(
-            "cornersSquareOptions"
-        ) or existing_style.corners_square_options
-        existing_style.corners_dot_options = payload.get(
-            "cornersDotOptions"
-        ) or existing_style.corners_dot_options
+        existing_style.qr_options = (
+            payload.get("qrOptions") or existing_style.qr_options
+        )
+        existing_style.image_options = (
+            payload.get("imageOptions") or existing_style.image_options
+        )
+        existing_style.dots_options = (
+            payload.get("dotsOptions") or existing_style.dots_options
+        )
+        existing_style.background_options = (
+            payload.get("backgroundOptions") or existing_style.background_options
+        )
+        existing_style.corners_square_options = (
+            payload.get("cornersSquareOptions") or existing_style.corners_square_options
+        )
+        existing_style.corners_dot_options = (
+            payload.get("cornersDotOptions") or existing_style.corners_dot_options
+        )
 
         existing_style.update()
         return existing_style, True
@@ -457,3 +471,19 @@ def check_url_category_exists(url, category, user_id):
         func.lower(QRCodeData.category) == category.lower(),
         QRCodeData.user_id == user_id,
     ).first()
+
+
+def save_want_qr_code(category, short_url, short_id, url, user_id, title):
+    qr_code = QRCodeData(
+        url=url,
+        short_url=short_url,
+        short_url_id=short_id,
+        category=category,
+        user_id=user_id,
+        title=title,
+    )
+
+    db.session.add(qr_code)
+    db.session.commit()
+
+    return qr_code
