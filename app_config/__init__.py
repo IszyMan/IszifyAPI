@@ -11,6 +11,7 @@ from endpoints import (
     BlogBlueprint,
     QRCodeBlueprint,
     RedirectUrlBlueprint,
+    UrlShortBlueprint
 )
 from utils import return_response
 from http_status import HttpStatus
@@ -125,6 +126,7 @@ def create_app(config_name="development"):
     app.register_blueprint(UserBlueprint, url_prefix="/api/v1")
     app.register_blueprint(BlogBlueprint, url_prefix="/api/v1")
     app.register_blueprint(QRCodeBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(UrlShortBlueprint, url_prefix="/api/v1")
     app.register_blueprint(RedirectUrlBlueprint)
 
     return app
