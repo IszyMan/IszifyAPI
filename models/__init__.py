@@ -39,4 +39,5 @@ from .qrcode import (
     qrcode_styling,
     get_url_by_short_url,
     check_url_category_exists,
+    save_want_qr_code
 )
