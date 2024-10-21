@@ -12,6 +12,8 @@ from sqlalchemy import extract, func
 from extensions import db
 from func import hex_id
 from decorators import retry_on_exception
+from utils import return_host_url
+from flask import request
 
 # from sqlalchemy.dialects.postgresql import BYTEA
 
@@ -39,6 +41,16 @@ class Urlshort(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "url": self.url,
+            "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
+            "title": self.title,
+            "want_qr_code": self.want_qr_code,
+            "created": self.created
+        }
 
 
 # clicks model
@@ -174,3 +186,20 @@ def save_shorten_url(url, short_url, title, want_qr_code, user_id):
     db.session.add(new_record)
     db.session.commit()
     return new_record
+
+
+def get_shorten_url_for_user(page, per_page, user_id):
+    query = Urlshort.query.filter_by(user_id=user_id)
+
+    # Order by creation date descending and paginate
+    shorten_urls = query.order_by(Urlshort.created.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    return {
+        "data": [shorten_url.to_dict() for shorten_url in shorten_urls.items],
+        "total_items": shorten_urls.total,
+        "page": shorten_urls.page,
+        "total_pages": shorten_urls.pages,
+        "per_page": shorten_urls.per_page,
+    }
