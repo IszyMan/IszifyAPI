@@ -5,6 +5,7 @@ from models import (
     Urlshort,
     validate_url,
     save_want_qr_code,
+    get_shorten_url_for_user
 )
 from extensions import db, limiter
 from utils import (
@@ -61,14 +62,14 @@ def shorten_url():
             return return_response(
                 HttpStatus.CONFLICT,
                 status=StatusRes.FAILED,
-                message="URL already exists, please filter by the url to get the details",
+                message="URL already exists, please search for the url to get the details",
             )
-        if not validate_url(original_url):
-            return return_response(
-                HttpStatus.BAD_REQUEST,
-                status=StatusRes.FAILED,
-                message="Invalid URL",
-            )
+        # if not validate_url(original_url):
+        #     return return_response(
+        #         HttpStatus.BAD_REQUEST,
+        #         status=StatusRes.FAILED,
+        #         message="Invalid URL",
+        #     )
 
         if custom_url:
             print(custom_url, "custom_url")
@@ -111,6 +112,32 @@ def shorten_url():
     except Exception as e:
         print(traceback.format_exc(), "traceback@user_blp/shorten_url")
         print(e, "error@user_blp/shorten_url")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get shortened urls
+
+@url_short_blp.route(f"{USER_PREFIX}/short_urls", methods=["GET"])
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def get_short_urls():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        urls = get_shorten_url_for_user(page, per_page, current_user.id)
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URLs", **urls
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/get_short_urls")
+        print(e, "error@user_blp/get_short_urls")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
