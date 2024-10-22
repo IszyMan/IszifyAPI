@@ -414,6 +414,13 @@ def delete_qrcode(qr_code_id):
                 message="QR Code not found",
             )
 
+        if res.short_url_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="To delete this QR Code, please delete the short URL related to it",
+            )
+
         db.session.delete(res)
         db.session.commit()
 
