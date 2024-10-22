@@ -144,3 +144,60 @@ def get_short_urls():
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
+
+# Edit shortened url
+
+@url_short_blp.route(f"{USER_PREFIX}/short_url/<short_url_id>", methods=["PATCH", "DELETE"])
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def edit_short_url(short_url_id):
+    try:
+        data = request.get_json()
+
+        if not short_url_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Short URL ID is required",
+            )
+
+        short_url = Urlshort.query.filter_by(id=short_url_id, user_id=current_user.id).first()
+        if not short_url:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="Short URL not found",
+            )
+
+        if request.method == "DELETE":
+            short_url.delete()
+            return return_response(
+                HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL deleted"
+            )
+        title = data.get("title", short_url.title)
+        url = data.get("url", short_url.url)
+
+        short_url.title = title
+        short_url.url = url
+        short_url.update()
+
+        if short_url.want_qr_code:
+            short_url.qr_code_rel.url = url
+            short_url.qr_code_rel.title = title
+            short_url.qr_code_rel.update()
+
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL updated"
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/edit_short_url")
+        print(e, "error@user_blp/edit_short_url")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
