@@ -31,7 +31,7 @@ class Urlshort(db.Model):
     title = db.Column(db.String(250))
     want_qr_code = db.Column(db.Boolean, default=False)
     # relationship to qr code
-    qr_code_rel = db.relationship("QRCodeData", backref="url_shortener", lazy=True)
+    qr_code_rel = db.relationship("QRCodeData", backref="url_shortener", uselist=False, cascade="all, delete")
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
@@ -40,6 +40,13 @@ class Urlshort(db.Model):
 
     def save(self):
         db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
         db.session.commit()
 
     def to_dict(self):
