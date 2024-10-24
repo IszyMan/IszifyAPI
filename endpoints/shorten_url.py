@@ -121,7 +121,6 @@ def shorten_url():
 
 
 # get shortened urls
-
 @url_short_blp.route(f"{USER_PREFIX}/short_urls", methods=["GET"])
 @jwt_required()
 @email_verified
