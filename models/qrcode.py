@@ -5,6 +5,7 @@ from flask import request
 from utils import gen_short_code, return_host_url
 from decorators import retry_on_exception
 from datetime import datetime, timedelta
+from default_style import return_default_style
 
 
 class QRCodeCategories(db.Model):
@@ -121,14 +122,14 @@ class QRCodeData(db.Model):
             "street": self.street,
             "city": self.city,
             "state": self.state,
-            "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
+            "short_url": f"{return_host_url(request.host_url)}{self.short_url}" if self.short_url else None,
             "country": self.country,
             "category": self.category,
             "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
             "social_media": (
                 [sm.to_dict() for sm in self.social_media] if self.social_media else []
             ),
-            "qr_style": self.qr_style.to_dict() if self.qr_style else {},
+            "qr_style": self.qr_style.to_dict() if self.qr_style else return_default_style(),
         }
         return {key: value for key, value in result.items() if value}
 
