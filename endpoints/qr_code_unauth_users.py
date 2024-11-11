@@ -40,7 +40,7 @@ def qrcode():
             if res:
                 return return_response(
                     HttpStatus.OK,
-                    status=StatusRes.FAILED,
+                    status=StatusRes.SUCCESS,
                     message="Data Fetched",
                     data=res.to_dict(),
                 )
