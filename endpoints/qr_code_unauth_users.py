@@ -83,7 +83,8 @@ def qrcode():
             HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="QR Code Created",
-            data=qrcode_data.to_dict()
+            data=qrcode_data.to_dict(),
+            qr_style=data.get("qr_style"),
         )
 
     except Exception as e:
