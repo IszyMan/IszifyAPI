@@ -1,0 +1,5 @@
+#! /bin/bash
+
+source env/bin/activate
+export FLASK_APP=runserver.py
+python3 runserver.py
