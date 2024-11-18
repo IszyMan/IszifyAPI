@@ -13,10 +13,12 @@ from utils import (
     get_computer_name,
     get_browser_info,
     user_id_limiter,
+    validate_password,
 )
 import traceback
 from decorators import email_verified
 from flask_jwt_extended import current_user, jwt_required
+from passlib.hash import pbkdf2_sha256 as hasher
 
 USER_PREFIX = "user"
 
@@ -70,3 +72,84 @@ def redirect_to_url(short_url):
     db.session.commit()
     print(url.url, "the real url")
     return redirect(url.url)
+
+
+# user settings
+# @user_blp.route(f"/{USER_PREFIX}/settings", methods=["PATCH"])
+# @jwt_required()
+# @email_verified
+# @limiter.limit("5 per minute", key_func=user_id_limiter)
+# def settings():
+#     try:
+#         data = request.get_json()
+#         current_user.first_name = data.get("first_name", current_user.first_name)
+#         current_user.last_name = data.get("last_name", current_user.last_name)
+#         current_user.update()
+#         return return_response(
+#             HttpStatus.OK, message="User Settings", status=StatusRes.SUCCESS
+#         )
+#     except Exception as e:
+#         print(traceback.format_exc(), "traceback@user_blp/settings")
+#         print(e, "error@user_blp/settings")
+#         db.session.rollback()
+#         return return_response(
+#             HttpStatus.INTERNAL_SERVER_ERROR,
+#             status=StatusRes.FAILED,
+#             message="Network Error",
+#         )
+# change password
+@user_blp.route(f"/{USER_PREFIX}/change-password", methods=["PATCH"])
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def change_password():
+    try:
+        data = request.get_json()
+        old_password = data.get("old_password")
+        new_password = data.get("new_password")
+        confirm_password = data.get("confirm_password")
+        if not old_password or not new_password or not confirm_password:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="All fields are required",
+            )
+
+        if not hasher.verify(old_password, current_user.password):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Old password is incorrect",
+            )
+
+        pass_valid_msg = validate_password(new_password)
+
+        if pass_valid_msg:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message=pass_valid_msg,
+            )
+
+        if new_password != confirm_password:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Passwords do not match",
+            )
+
+        current_user.password = hasher.hash(new_password)
+        current_user.update()
+
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="Password changed"
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/settings")
+        print(e, "error@user_blp/settings")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
