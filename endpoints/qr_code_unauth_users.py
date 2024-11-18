@@ -34,9 +34,7 @@ def qrcode():
 
         if data.get("url"):
             print("checking if url exists in category")
-            res = check_unauth_url_category_exists(
-                data.get("url"), category
-            )
+            res = check_unauth_url_category_exists(data.get("url"), category)
             if res:
                 return return_response(
                     HttpStatus.OK,
@@ -74,7 +72,7 @@ def qrcode():
             country=data.get("country"),
             category=category.lower(),
             title=f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S')}",
-            user_agent=str(user_agent)
+            user_agent=str(user_agent),
         )
 
         qrcode_data = save_qrcode_data_unauth(payload)
@@ -83,7 +81,7 @@ def qrcode():
             HttpStatus.CREATED,
             status=StatusRes.SUCCESS,
             message="QR Code Created",
-            data=qrcode_data.to_dict()
+            data=qrcode_data.to_dict(),
         )
 
     except Exception as e:
