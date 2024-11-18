@@ -1,12 +1,7 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (
-    Urlshort,
-    validate_url,
-    save_want_qr_code,
-    get_shorten_url_for_user
-)
+from models import Urlshort, validate_url, save_want_qr_code, get_shorten_url_for_user
 from extensions import db, limiter
 from utils import (
     return_response,
@@ -15,6 +10,7 @@ from utils import (
 )
 import traceback
 from datetime import datetime
+
 # from services import send_mail
 from decorators import email_verified
 from flask_jwt_extended import current_user, jwt_required
@@ -147,7 +143,10 @@ def get_short_urls():
 
 # Edit shortened url
 
-@url_short_blp.route(f"{USER_PREFIX}/short_url/<short_url_id>", methods=["PATCH", "DELETE"])
+
+@url_short_blp.route(
+    f"{USER_PREFIX}/short_url/<short_url_id>", methods=["PATCH", "DELETE"]
+)
 @jwt_required()
 @email_verified
 @limiter.limit("5 per minute", key_func=user_id_limiter)
@@ -162,7 +161,9 @@ def edit_short_url(short_url_id):
                 message="Short URL ID is required",
             )
 
-        short_url = Urlshort.query.filter_by(id=short_url_id, user_id=current_user.id).first()
+        short_url = Urlshort.query.filter_by(
+            id=short_url_id, user_id=current_user.id
+        ).first()
         if not short_url:
             return return_response(
                 HttpStatus.NOT_FOUND,
