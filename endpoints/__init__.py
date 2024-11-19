@@ -5,3 +5,5 @@ from .qr_code import qrcode_blp as QRCodeBlueprint
 from .redirect_url import redirect_url_blp as RedirectUrlBlueprint
 from .shorten_url import url_short_blp as UrlShortBlueprint
 from .qr_code_unauth_users import unauth_qrcode_blp as UnauthQRCodeBlueprint
+from .admin_endpoints import admin_auth_blp as AdminAuthBlueprint
+from .admin_endpoints import admin_blp as AdminAccountBlueprint
