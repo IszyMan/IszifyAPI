@@ -2,4 +2,6 @@
 
 source env/bin/activate
 export FLASK_APP=runserver.py
+flask db migrate
+flask db upgrade
 python3 runserver.py
