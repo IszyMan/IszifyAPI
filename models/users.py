@@ -41,6 +41,16 @@ class Users(db.Model):
     def __repr__(self):
         return f"<User {self.email}>"
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "first_name": self.first_name.title(),
+            "last_name": self.last_name.title(),
+            "username": self.username,
+            "email_verified": self.email_verified,
+        }
+
 
 class UserSession(db.Model):
     __tablename__ = "user_session"
