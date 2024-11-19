@@ -153,3 +153,25 @@ def change_password():
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
+
+# user details
+@user_blp.route(f"/{USER_PREFIX}/details", methods=["GET"])
+@jwt_required()
+def get_user_details():
+    try:
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="User Details",
+            data=current_user.to_dict(),
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/get_user_details")
+        print(e, "error@user_blp/get_user_details")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
