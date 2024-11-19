@@ -23,6 +23,7 @@ from utils import (
 import traceback
 from datetime import datetime
 from services import send_mail
+from passlib.hash import pbkdf2_sha256 as hasher
 
 AUTH_PREFIX = "auth"
 
@@ -450,6 +451,14 @@ def reset_password(reset_p):
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Passwords do not match",
+            )
+
+        # check if the new password is the same as the old password
+        if hasher.verify(new_password, user.password):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="New password cannot be the same as the old password",
             )
 
         pass_change = change_password(user, new_password)
