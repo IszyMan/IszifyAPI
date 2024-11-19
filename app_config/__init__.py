@@ -6,6 +6,7 @@ from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocati
 from models.blogs import Catgories, Blogs
 from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMedia
 from models.qrcode_unauth import QRCodeDataUnauth
+from models.admin_models import Admin, AdminSession
 from endpoints import (
     AuthenticationBlueprint,
     UserBlueprint,
@@ -13,7 +14,9 @@ from endpoints import (
     QRCodeBlueprint,
     RedirectUrlBlueprint,
     UrlShortBlueprint,
-    UnauthQRCodeBlueprint
+    UnauthQRCodeBlueprint,
+    AdminAccountBlueprint,
+    AdminAuthBlueprint,
 )
 from utils import return_response
 from http_status import HttpStatus
@@ -49,7 +52,7 @@ def create_app(config_name="development"):
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         user_id = jwt_data["sub"]
-        return Users.query.get(user_id)
+        return Users.query.get(user_id) or Admin.query.get(user_id)
 
     @jwt.expired_token_loader
     def my_expired_token_callback(jwt_header, jwt_payload):
@@ -130,6 +133,8 @@ def create_app(config_name="development"):
     app.register_blueprint(QRCodeBlueprint, url_prefix="/api/v1")
     app.register_blueprint(UrlShortBlueprint, url_prefix="/api/v1")
     app.register_blueprint(UnauthQRCodeBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(AdminAccountBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(AdminAuthBlueprint, url_prefix="/api/v1")
     app.register_blueprint(RedirectUrlBlueprint)
 
     return app
