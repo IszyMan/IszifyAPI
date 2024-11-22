@@ -76,6 +76,7 @@ def qrcode():
             title = data.get("title")
             social_media = data.get("social_media", [])
             qr_style = data.get("qr_style", {})
+            qr_frame = data.get("qr_frame", {})
             if not category:
                 return return_response(
                     HttpStatus.BAD_REQUEST,
@@ -142,6 +143,7 @@ def qrcode():
                 qr_style=qr_style,
                 title=title
                 or f"Untitled {datetime.now().strftime('%Y-%m-%d %I:%M:%S')}",
+                qr_frame=qr_frame,
             )
 
             save_qrcode_data(payload, current_user.id)
