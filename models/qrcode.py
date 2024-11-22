@@ -78,6 +78,13 @@ class QRCodeData(db.Model):
         uselist=False,
         cascade="all, delete",
     )
+    qr_frame = db.relationship(
+        "QrFrame",
+        backref="qrcode",
+        lazy=True,
+        uselist=False,
+        cascade="all, delete",
+    )
 
     def save(self):
         db.session.add(self)
@@ -130,8 +137,38 @@ class QRCodeData(db.Model):
                 [sm.to_dict() for sm in self.social_media] if self.social_media else []
             ),
             "qr_style": self.qr_style.to_dict() if self.qr_style else return_default_style(),
+            "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
         return {key: value for key, value in result.items() if value}
+
+
+class QrFrame(db.Model):
+    __tablename__ = 'qr_frame'
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    frame = db.Column(db.Text, nullable=False)
+    scan_name = db.Column(db.String(100), nullable=False)
+    qrcode_id = db.Column(db.String(50), db.ForeignKey("qrcode_data.id"))
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def __repr__(self):
+        return f"<QrFrame {self.scan_name}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "frame": self.frame,
+            "scan_name": self.scan_name,
+        }
 
 
 class QrCodeStyling(db.Model):
@@ -277,6 +314,15 @@ def save_qrcode_data(qrcode_data_payload, user_id):
 
         db.session.add(qr_styling)
 
+    if qrcode_data_payload["qr_frame"]:
+        print("qr frame")
+        qr_frame = QrFrame(
+            frame=qrcode_data_payload["frame"],
+            scan_name=qrcode_data_payload["scan_name"],
+            qrcode=qrcode_data,
+        )
+        db.session.add(qr_frame)
+
     db.session.add(qrcode_data)
     db.session.commit()
     return qrcode_data
@@ -394,6 +440,21 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
             else:
                 qr = QrCodeStyling()
                 qr.save()
+    if qrcode_data_payload.get("qr_frame"):
+        qr_code_frame = QrFrame.query.filter_by(qrcode_id=qr_id).first()
+        if qr_code_frame:
+            qr_code_frame.frame = qrcode_data_payload.get("qr_frame").get("frame") or qr_code_frame.frame
+            qr_code_frame.scan_name = qrcode_data_payload.get("qr_frame").get(
+                "scan_name"
+            ) or qr_code_frame.scan_name
+            qr_code_frame.update()
+        else:
+            qr_frame = QrFrame(
+                frame=qrcode_data_payload.get("qr_frame").get("frame"),
+                scan_name=qrcode_data_payload.get("qr_frame").get("scan_name"),
+                qrcode_id=qr_id,
+            )
+            qr_frame.save()
 
     qrcode_data.update()
 
