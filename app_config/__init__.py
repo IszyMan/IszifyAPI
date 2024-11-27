@@ -6,6 +6,7 @@ from models.shorten_url import Urlshort, UrlShortenerClicks, ShortUrlClickLocati
 from models.blogs import Catgories, Blogs
 from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMedia
 from models.qrcode_unauth import QRCodeDataUnauth
+from models.payment import PaymentPlans, Subscriptions, Transactions
 from models.admin_models import Admin, AdminSession
 from endpoints import (
     AuthenticationBlueprint,
