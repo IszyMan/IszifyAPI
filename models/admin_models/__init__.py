@@ -142,6 +142,7 @@ def edit_one_admin(admin_id, email, first_name, last_name, role_id):
     admin.update()
     return admin
 
+
 def delete_one_admin(admin_id):
     admin = Admin.query.filter_by(id=admin_id).first()
     if not admin:
@@ -149,13 +150,23 @@ def delete_one_admin(admin_id):
     admin.delete()
     return True
 
+
 def get_one_admin(admin_id):
     admin = Admin.query.filter_by(id=admin_id).first()
     return admin
 
 
-def get_all_admins(page, per_page, active=None, start_date=None,
-                   end_date=None, fullname=None, email=None, changed_password=None, role_id=None):
+def get_all_admins(
+    page,
+    per_page,
+    active=None,
+    start_date=None,
+    end_date=None,
+    fullname=None,
+    email=None,
+    changed_password=None,
+    role_id=None,
+):
     filters = []
 
     if active is not None:
@@ -163,7 +174,10 @@ def get_all_admins(page, per_page, active=None, start_date=None,
     if start_date and end_date:
         filters.append(Admin.created.between(start_date, end_date))
     if fullname:
-        filters.append(Admin.first_name.ilike(f"%{fullname}%") | Admin.last_name.ilike(f"%{fullname}%"))
+        filters.append(
+            Admin.first_name.ilike(f"%{fullname}%")
+            | Admin.last_name.ilike(f"%{fullname}%")
+        )
     if email:
         filters.append(Admin.email.ilike(f"%{email}%"))
     if changed_password is not None:
@@ -171,7 +185,11 @@ def get_all_admins(page, per_page, active=None, start_date=None,
     if role_id is not None:
         filters.append(Admin.role_id == role_id)
 
-    admins = Admin.query.filter(*filters).order_by(Admin.created.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    admins = (
+        Admin.query.filter(*filters)
+        .order_by(Admin.created.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
 
     return admins
 
