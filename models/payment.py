@@ -10,6 +10,9 @@ class PaymentPlans(db.Model):
     currency = db.Column(db.String(50))
     duration = db.Column(db.Integer)
 
+    user_sub = db.relationship("Subscriptions", backref="plan", lazy=True)
+
+
     def __init__(self, name, amount, currency, duration):
         self.name = name
         self.amount = amount
@@ -31,3 +34,50 @@ class PaymentPlans(db.Model):
 
     def update(self):
         db.session.commit()
+
+
+class Subscriptions(db.Model):
+    __tablename__ = "subscriptions"
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"))
+    plan_id = db.Column(db.String(50), db.ForeignKey("payment_plans.id"))
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    status = db.Column(db.String(50))
+
+    def __init__(self, user_id, plan_id, start_date, end_date, status):
+        self.user_id = user_id
+        self.plan_id = plan_id
+        self.start_date = start_date
+        self.end_date = end_date
+        self.status = status
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "plan_id": self.plan_id,
+            "start_date": self.start_date,
+            "end_date": self.end_date,
+            "status": self.status,
+        }
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+
+class Transactions(db.Model):
+    __tablename__ = "transactions"
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"))
+    description = db.Column(db.Text)
+    amount = db.Column(db.Float)
+    method = db.Column(db.String(50))
+    transaction_reference = db.Column(db.String(150))
+    currency = db.Column(db.String(50))
+    status = db.Column(db.String(50))
+    date = db.Column(db.DateTime, nullable=False, default=db.func.now())
