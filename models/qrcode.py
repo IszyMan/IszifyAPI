@@ -129,21 +129,27 @@ class QRCodeData(db.Model):
             "street": self.street,
             "city": self.city,
             "state": self.state,
-            "short_url": f"{return_host_url(request.host_url)}{self.short_url}" if self.short_url else None,
+            "short_url": (
+                f"{return_host_url(request.host_url)}{self.short_url}"
+                if self.short_url
+                else None
+            ),
             "country": self.country,
             "category": self.category,
             "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
             "social_media": (
                 [sm.to_dict() for sm in self.social_media] if self.social_media else []
             ),
-            "qr_style": self.qr_style.to_dict() if self.qr_style else return_default_style(),
+            "qr_style": (
+                self.qr_style.to_dict() if self.qr_style else return_default_style()
+            ),
             "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
         return {key: value for key, value in result.items() if value}
 
 
 class QrFrame(db.Model):
-    __tablename__ = 'qr_frame'
+    __tablename__ = "qr_frame"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     frame = db.Column(db.Text, nullable=False)
     scan_name = db.Column(db.String(100), nullable=False)
@@ -443,10 +449,13 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     if qrcode_data_payload.get("qr_frame"):
         qr_code_frame = QrFrame.query.filter_by(qrcode_id=qr_id).first()
         if qr_code_frame:
-            qr_code_frame.frame = qrcode_data_payload.get("qr_frame").get("frame") or qr_code_frame.frame
-            qr_code_frame.scan_name = qrcode_data_payload.get("qr_frame").get(
-                "scan_name"
-            ) or qr_code_frame.scan_name
+            qr_code_frame.frame = (
+                qrcode_data_payload.get("qr_frame").get("frame") or qr_code_frame.frame
+            )
+            qr_code_frame.scan_name = (
+                qrcode_data_payload.get("qr_frame").get("scan_name")
+                or qr_code_frame.scan_name
+            )
             qr_code_frame.update()
         else:
             qr_frame = QrFrame(
