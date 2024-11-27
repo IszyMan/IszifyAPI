@@ -12,7 +12,6 @@ class PaymentPlans(db.Model):
 
     user_sub = db.relationship("Subscriptions", backref="plan", lazy=True)
 
-
     def __init__(self, name, amount, currency, duration):
         self.name = name
         self.amount = amount
