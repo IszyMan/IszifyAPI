@@ -27,7 +27,7 @@ class Users(db.Model):
     transactions = db.relationship(
         "Transactions", backref="user", lazy=True, cascade="all, delete"
     )
-    
+
     subscriptions = db.relationship(
         "Subscriptions", backref="user", lazy=True, cascade="all, delete"
     )
