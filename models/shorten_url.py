@@ -31,7 +31,9 @@ class Urlshort(db.Model):
     title = db.Column(db.String(250))
     want_qr_code = db.Column(db.Boolean, default=False)
     # relationship to qr code
-    qr_code_rel = db.relationship("QRCodeData", backref="url_shortener", uselist=False, cascade="all, delete")
+    qr_code_rel = db.relationship(
+        "QRCodeData", backref="url_shortener", uselist=False, cascade="all, delete"
+    )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
@@ -56,7 +58,7 @@ class Urlshort(db.Model):
             "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
             "title": self.title,
             "want_qr_code": self.want_qr_code,
-            "created": self.created
+            "created": self.created,
         }
 
 
@@ -187,8 +189,11 @@ def get_original_url_by_short_url(short_url):
 
 def save_shorten_url(url, short_url, title, want_qr_code, user_id):
     new_record = Urlshort(
-        url=url, short_url=short_url, title=title, want_qr_code=want_qr_code,
-        user_id=user_id
+        url=url,
+        short_url=short_url,
+        title=title,
+        want_qr_code=want_qr_code,
+        user_id=user_id,
     )
     db.session.add(new_record)
     db.session.commit()
