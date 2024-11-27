@@ -16,7 +16,7 @@ from .shorten_url import (
     validate_url,
     save_url_clicks,
     get_original_url_by_short_url,
-    get_shorten_url_for_user
+    get_shorten_url_for_user,
 )
 from .blogs import (
     Catgories,
@@ -40,10 +40,23 @@ from .qrcode import (
     qrcode_styling,
     get_url_by_short_url,
     check_url_category_exists,
-    save_want_qr_code
+    save_want_qr_code,
 )
 
-from .qrcode_unauth import save_qrcode_data_unauth, check_unauth_url_category_exists, get_unauth_url_by_short_url
-from .admin_models import (admin_authenticate, check_email_role_exist, create_admin_account,
-                          edit_one_admin, get_one_admin, get_all_admins,
-                           get_all_roles, Admin, AdminSession, save_role)
+from .qrcode_unauth import (
+    save_qrcode_data_unauth,
+    check_unauth_url_category_exists,
+    get_unauth_url_by_short_url,
+)
+from .admin_models import (
+    admin_authenticate,
+    check_email_role_exist,
+    create_admin_account,
+    edit_one_admin,
+    get_one_admin,
+    get_all_admins,
+    get_all_roles,
+    Admin,
+    AdminSession,
+    save_role,
+)
