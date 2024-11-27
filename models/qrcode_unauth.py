@@ -83,7 +83,11 @@ class QRCodeDataUnauth(db.Model):
             "street": self.street,
             "city": self.city,
             "state": self.state,
-            "short_url": f"{return_host_url(request.host_url)}{self.short_url}" if self.short_url else None,
+            "short_url": (
+                f"{return_host_url(request.host_url)}{self.short_url}"
+                if self.short_url
+                else None
+            ),
             "country": self.country,
             "category": self.category,
             "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
@@ -122,7 +126,7 @@ def save_qrcode_data_unauth(qrcode_data_payload):
         category=qrcode_data_payload["category"],
         short_url=gen_short_code(un_auth=True) if qrcode_data_payload["url"] else None,
         title=qrcode_data_payload.get("title"),
-        user_agent=qrcode_data_payload.get("user_agent")
+        user_agent=qrcode_data_payload.get("user_agent"),
     )
 
     db.session.add(qrcode_data)
