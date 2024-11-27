@@ -24,6 +24,14 @@ class Users(db.Model):
         "QRCodeData", backref="user", lazy=True, cascade="all, delete"
     )
 
+    transactions = db.relationship(
+        "Transactions", backref="user", lazy=True, cascade="all, delete"
+    )
+    
+    subscriptions = db.relationship(
+        "Subscriptions", backref="user", lazy=True, cascade="all, delete"
+    )
+
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
         self.password = hasher.hash(password)
