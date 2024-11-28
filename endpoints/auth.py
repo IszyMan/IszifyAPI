@@ -22,7 +22,7 @@ from utils import (
 )
 import traceback
 from datetime import datetime
-from services import send_mail
+from api_services import send_mail
 from passlib.hash import pbkdf2_sha256 as hasher
 
 AUTH_PREFIX = "auth"
