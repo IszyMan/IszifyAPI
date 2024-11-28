@@ -11,7 +11,7 @@ from utils import (
 import traceback
 from datetime import datetime
 
-# from services import send_mail
+# from api_services import send_mail
 from decorators import email_verified
 from flask_jwt_extended import current_user, jwt_required
 from utils import get_website_title
