@@ -13,7 +13,7 @@ TRANSACT_PREFIX = "transactions"
 @transactions_blp.route(f"{TRANSACT_PREFIX}/get_banks", methods=["GET"])
 def list_banks():
     try:
-        res = pay_stack.get_banks()
+        res = pay_stack.get_all_banks()
         if not res:
             return return_response(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -24,7 +24,7 @@ def list_banks():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Banks Retrieved",
-            data=res
+            banks=res["data"],
         )
     except Exception as e:
         print(traceback.format_exc(), "traceback@transactions_blp/list_banks")
