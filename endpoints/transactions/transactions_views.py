@@ -33,5 +33,5 @@ def list_banks():
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
-            message="Failed to get banks",
+            message="Network Error",
         )
