@@ -41,7 +41,7 @@ def list_banks():
 # verify paystack transaction
 
 @transactions_blp.route(f"{TRANSACT_PREFIX}/verify-transaction", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def verify_transaction():
     try:
         data = request.get_json()
@@ -53,6 +53,7 @@ def verify_transaction():
                 message="Reference number is required",
             )
         res = pay_stack.verify_transaction(reference_number)
+        print(res, "Result of verify transaction")
         if not res:
             return return_response(
                 HttpStatus.INTERNAL_SERVER_ERROR,
