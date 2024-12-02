@@ -4,7 +4,8 @@ from status_res import StatusRes
 from models import (
     check_email_role_exist, get_one_admin,
     edit_one_admin, get_all_admins, get_all_roles,
-    create_admin_account, save_role
+    create_admin_account, save_role, create_payment_plan, get_payment_plans,
+edit_payment_plan, delete_payment_plan
 )
 from extensions import db, limiter
 from utils import (
@@ -228,6 +229,148 @@ def get_admin_details():
     except Exception as e:
         print(traceback.format_exc(), "traceback@user_blp/get_admin_details")
         print(e, "error@user_blp/get_admin_details")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# add payment plan
+@admin_blp.route(f"/{USER_PREFIX}/payment_plan", methods=["GET","POST"])
+# @jwt_required()
+def add_payment_plan():
+    try:
+        if request.method == "GET":
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Payment Plan Retrieved",
+                plans=get_payment_plans()
+            )
+        data = request.get_json()
+        name = data.get("name")
+        amount = float(data.get("amount"))
+        currency = data.get("currency")
+        duration = int(data.get("duration", 1))
+        if not name:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Name is required",
+            )
+        if not amount:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Amount is required",
+            )
+        if not currency:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Currency is required",
+            )
+        if not duration:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Duration is required",
+            )
+        if not isinstance(amount, float):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Amount must be a float",
+            )
+
+        if not isinstance(duration, int):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Duration must be a number",
+            )
+        plan = create_payment_plan(name, amount, currency, duration)
+        if not plan:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Payment Plan already exists",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message=f"Payment Plan: {plan.name} Added",
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/add_payment_plan")
+        print(e, "error@user_blp/add_payment_plan")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# modify payment plan
+@admin_blp.route(f"/{USER_PREFIX}/payment_plan/<plan_id>", methods=["PATCH", "DELETE"])
+# @jwt_required()
+def modify_payment_plan(plan_id):
+    try:
+        if request.method == "DELETE":
+            plan, plan_name = delete_payment_plan(plan_id)
+            if not plan:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="Payment Plan does not exist",
+                )
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message=f"Payment Plan: {plan_name} Deleted",
+            )
+        data = request.get_json()
+        name = data.get("name")
+        amount = data.get("amount")
+        currency = data.get("currency")
+        duration = data.get("duration")
+
+        if amount and not isinstance(amount, float) and not isinstance(amount, int):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Amount must be a float/int",
+            )
+        if duration and not isinstance(duration, int):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Duration must be a number",
+            )
+        plan = edit_payment_plan(plan_id, name, amount, currency, duration)
+        if not plan:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Payment Plan does not exist",
+            )
+        if isinstance(plan, str):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message=plan,
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message=f"Payment Plan Updated",
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/modify_payment_plan")
+        print(e, "error@user_blp/modify_payment_plan")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
