@@ -13,7 +13,7 @@ class PaymentPlans(db.Model):
     user_sub = db.relationship("Subscriptions", backref="plan", lazy=True)
 
     def __init__(self, name, amount, currency, duration):
-        self.name = name
+        self.name = name.title()
         self.amount = amount
         self.currency = currency
         self.duration = duration
@@ -80,3 +80,46 @@ class Transactions(db.Model):
     currency = db.Column(db.String(50))
     status = db.Column(db.String(50))
     date = db.Column(db.DateTime, nullable=False, default=db.func.now())
+
+
+# create payment plan
+def create_payment_plan(name, amount, currency, duration):
+    if PaymentPlans.query.filter_by(name=name.title()).first():
+        return False
+    plan = PaymentPlans(name, amount, currency, duration)
+    plan.save()
+    return plan
+
+def get_payment_plans():
+    plans = PaymentPlans.query.all()
+    return [plan.to_dict() for plan in plans]
+
+
+# edit payment plan
+def edit_payment_plan(plan_id, name, amount, currency, duration):
+    plan = PaymentPlans.query.filter_by(id=plan_id).first()
+    if not plan:
+        return False
+    if name:
+        if PaymentPlans.query.filter_by(name=name.title()).first() and name.title() != plan.name:
+            return "Name already exists"
+        plan.name = name
+    if amount:
+        plan.amount = float(amount)
+    if currency:
+      plan.currency = currency
+    if duration:
+        plan.duration = int(duration)
+    plan.update()
+    return plan
+
+
+# delete payment plan
+def delete_payment_plan(plan_id):
+    plan = PaymentPlans.query.filter_by(id=plan_id).first()
+    if not plan:
+        return False, None
+    plan_name = plan.name
+    db.session.delete(plan)
+    db.session.commit()
+    return True, plan_name
