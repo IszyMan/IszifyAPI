@@ -61,6 +61,10 @@ class QRCodeData(db.Model):
     city = db.Column(db.String(150))
     state = db.Column(db.String(150))
     country = db.Column(db.String(150))
+    bitcoin_address = db.Column(db.String(120))
+    bitcoin_amount = db.Column(db.Float)
+    bitcoin_label = db.Column(db.String(100))
+    bitcoin_message = db.Column(db.String(100))
     short_url = db.Column(db.String(50))
     category = db.Column(db.String(50), nullable=False)
     short_url_id = db.Column(
@@ -128,6 +132,10 @@ class QRCodeData(db.Model):
             "religion": self.religion,
             "street": self.street,
             "city": self.city,
+            "bitcoin_address": self.bitcoin_address,
+            "bitcoin_amount": self.bitcoin_amount,
+            "bitcoin_label": self.bitcoin_label,
+            "bitcoin_message": self.bitcoin_message,
             "state": self.state,
             "short_url": (
                 f"{return_host_url(request.host_url)}{self.short_url}"
@@ -276,6 +284,10 @@ def save_qrcode_data(qrcode_data_payload, user_id):
         company_name=qrcode_data_payload["company_name"],
         mobile_phone=qrcode_data_payload["mobile_phone"],
         fax=qrcode_data_payload["fax"],
+        bitcoin_address=qrcode_data_payload["bitcoin_address"],
+        bitcoin_amount=qrcode_data_payload["bitcoin_amount"],
+        bitcoin_label=qrcode_data_payload["bitcoin_label"],
+        bitcoin_message=qrcode_data_payload["bitcoin_message"],
         postal_code=qrcode_data_payload["postal_code"],
         religion=qrcode_data_payload["religion"],
         street=qrcode_data_payload["street"],
@@ -423,6 +435,18 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data.country = qrcode_data_payload.get("country") or qrcode_data.country
     # qrcode_data.category = qrcode_data_payload.get("category") or qrcode_data.category
     qrcode_data.title = qrcode_data_payload.get("title") or qrcode_data.title
+    qrcode_data.bitcoin_address = (
+        qrcode_data_payload.get("bitcoin_address") or qrcode_data.bitcoin_address
+    )
+    qrcode_data.bitcoin_amount = (
+        qrcode_data_payload.get("bitcoin_amount") or qrcode_data.bitcoin_amount
+    )
+    qrcode_data.bitcoin_label = (
+        qrcode_data_payload.get("bitcoin_label") or qrcode_data.bitcoin_label
+    )
+    qrcode_data.bitcoin_message = (
+        qrcode_data_payload.get("bitcoin_message") or qrcode_data.bitcoin_message
+    )
 
     if qrcode_data_payload.get("social_media"):
         for social_media in qrcode_data_payload.get("social_media"):
