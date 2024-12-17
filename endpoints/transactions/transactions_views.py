@@ -6,6 +6,8 @@ from status_res import StatusRes
 from http_status import HttpStatus
 from . import pay_stack
 from flask_jwt_extended import jwt_required, current_user
+from models import get_all_subscriptions, get_payment_plans, subscribe, get_transactions, get_one_transaction
+from datetime import datetime
 
 transactions_blp = Blueprint("transactions_blp", __name__)
 
@@ -39,7 +41,6 @@ def list_banks():
 
 
 # verify paystack transaction
-
 @transactions_blp.route(f"{TRANSACT_PREFIX}/verify-transaction", methods=["POST"])
 # @jwt_required()
 def verify_transaction():
@@ -75,3 +76,139 @@ def verify_transaction():
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
+
+# subscribe to a plan
+@transactions_blp.route(f"{TRANSACT_PREFIX}/subscribe", methods=["POST"])
+@jwt_required()
+def subscribe_plan():
+    try:
+        data = request.get_json()
+        plan_id = data.get("plan_id")
+        status = "active"
+        if not plan_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Plan id is required",
+            )
+        res = subscribe(current_user.id, plan_id, status)
+        if not res:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Failed to subscribe to plan",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Plan Subscribed",
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@transactions_blp/subscribe")
+        print(e, "error@transactions_blp/subscribe")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get all payment plans
+@transactions_blp.route(f"{TRANSACT_PREFIX}/plans", methods=["GET"])
+@jwt_required()
+def get_all_payment_plans():
+    try:
+        res = get_payment_plans()
+        if not res:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Failed to get payment plans",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Payment plans retrieved",
+            plans=res,
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@transactions_blp/get_payment_plans")
+        print(e, "error@transactions_blp/get_payment_plans")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+            )
+
+
+# get all transactions
+@transactions_blp.route(f"{TRANSACT_PREFIX}/transactions", methods=["GET"])
+@jwt_required()
+def get_all_transactions():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        reference = request.args.get("reference")
+        status = request.args.get("status")
+        start_date = request.args.get("start_date")
+        end_date = request.args.get("end_date")
+
+        if start_date:
+            start_date = datetime.strptime(start_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+        if end_date:
+            end_date = datetime.strptime(end_date, "%d-%m-%Y").strftime("%d-%m-%Y")
+
+        res = get_transactions(page, per_page, current_user.id, reference, status, start_date, end_date)
+
+        if not res:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Failed to get transactions",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Transactions retrieved",
+            transactions=res,
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@transactions_blp/get_transactions")
+        print(e, "error@transactions_blp/get_transactions")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+            )
+
+# one transaction
+@transactions_blp.route(f"{TRANSACT_PREFIX}/transaction/<int:transaction_id>", methods=["GET"])
+@jwt_required()
+def get_transaction(transaction_id):
+    try:
+        res = get_one_transaction(transaction_id, current_user.id)
+        if not res:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Failed to get transaction",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Transaction retrieved",
+            transaction=res,
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@transactions_blp/get_one_transaction")
+        print(e, "error@transactions_blp/get_one_transaction")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+            )
