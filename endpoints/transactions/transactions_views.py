@@ -173,7 +173,7 @@ def get_all_transactions():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Transactions retrieved",
-            transactions=res,
+            **res,
         )
     except Exception as e:
         print(traceback.format_exc(), "traceback@transactions_blp/get_transactions")
@@ -186,7 +186,7 @@ def get_all_transactions():
             )
 
 # one transaction
-@transactions_blp.route(f"{TRANSACT_PREFIX}/transaction/<int:transaction_id>", methods=["GET"])
+@transactions_blp.route(f"{TRANSACT_PREFIX}/transaction/<transaction_id>", methods=["GET"])
 @jwt_required()
 def get_transaction(transaction_id):
     try:
@@ -195,7 +195,7 @@ def get_transaction(transaction_id):
             return return_response(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 status=StatusRes.FAILED,
-                message="Failed to get transaction",
+                message="Transaction not found",
             )
         return return_response(
             HttpStatus.OK,
