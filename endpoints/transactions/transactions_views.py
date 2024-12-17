@@ -6,12 +6,19 @@ from status_res import StatusRes
 from http_status import HttpStatus
 from . import pay_stack
 from flask_jwt_extended import jwt_required, current_user
-from models import get_all_subscriptions, get_payment_plans, subscribe, get_transactions, get_one_transaction
+from models import (
+    get_all_subscriptions,
+    get_payment_plans,
+    subscribe,
+    get_transactions,
+    get_one_transaction,
+)
 from datetime import datetime
 
 transactions_blp = Blueprint("transactions_blp", __name__)
 
 TRANSACT_PREFIX = "transactions"
+
 
 @transactions_blp.route(f"{TRANSACT_PREFIX}/get_banks", methods=["GET"])
 def list_banks():
@@ -141,7 +148,7 @@ def get_all_payment_plans():
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
             message="Network Error",
-            )
+        )
 
 
 # get all transactions
@@ -161,7 +168,9 @@ def get_all_transactions():
         if end_date:
             end_date = datetime.strptime(end_date, "%d-%m-%Y").strftime("%d-%m-%Y")
 
-        res = get_transactions(page, per_page, current_user.id, reference, status, start_date, end_date)
+        res = get_transactions(
+            page, per_page, current_user.id, reference, status, start_date, end_date
+        )
 
         if not res:
             return return_response(
@@ -183,10 +192,13 @@ def get_all_transactions():
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
             message="Network Error",
-            )
+        )
+
 
 # one transaction
-@transactions_blp.route(f"{TRANSACT_PREFIX}/transaction/<transaction_id>", methods=["GET"])
+@transactions_blp.route(
+    f"{TRANSACT_PREFIX}/transaction/<transaction_id>", methods=["GET"]
+)
 @jwt_required()
 def get_transaction(transaction_id):
     try:
@@ -211,4 +223,28 @@ def get_transaction(transaction_id):
             HttpStatus.INTERNAL_SERVER_ERROR,
             status=StatusRes.FAILED,
             message="Network Error",
-            )
+        )
+
+# get subscriptions
+@transactions_blp.route(f"{TRANSACT_PREFIX}/subscriptions", methods=["GET"])
+@jwt_required()
+def get_subscriptions():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        res = get_all_subscriptions(page, per_page, current_user.id)
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Subscriptions retrieved",
+            **res,
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@transactions_blp/get_all_subscriptions")
+        print(e, "error@transactions_blp/get_all_subscriptions")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
