@@ -139,10 +139,21 @@ def subscribe(user_id, plan_id, status):
 
 
 # get all subscriptions
-def get_all_subscriptions():
-    # lower amount should be first
-    subs = Subscriptions.query.order_by(Subscriptions.start_date.asc()).all()
-    return [sub.to_dict() for sub in subs]
+def get_all_subscriptions(page, per_page, user_id):
+    subscriptions = Subscriptions.query.filter(Subscriptions.user_id == user_id)
+
+    # Order by creation date descending and paginate
+    subscriptions = subscriptions.order_by(Subscriptions.start_date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    return {
+        "data": [subscription.to_dict() for subscription in subscriptions.items],
+        "total_items": subscriptions.total,
+        "page": subscriptions.page,
+        "total_pages": subscriptions.pages,
+        "per_page": subscriptions.per_page,
+    }
 
 
 # get transactions and filters
