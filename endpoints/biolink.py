@@ -2,7 +2,6 @@ from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
 from utils import return_response, user_id_limiter, get_website_title
-import traceback
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
 import pprint
