@@ -39,5 +39,8 @@ class TestConfig(Config):
     # SQLALCHEMY_ECHO = True
     SQLALCHEMY_DATABASE_URI = "sqlite://"
 
+class ProductionConfig(Config):
+    pass
 
-config_obj = {"development": DevelopmentConfig, "testing": TestConfig}
+
+config_obj = {"development": DevelopmentConfig, "testing": TestConfig, "production": ProductionConfig}
