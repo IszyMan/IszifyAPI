@@ -37,7 +37,7 @@ def create_app(config_name="development"):
         resources={
             r"/api/*": {
                 "origins": "*",
-                "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"],
+                "methods": ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Authorization", "Content-Type"],
                 "supports_credentials": True,
             }
