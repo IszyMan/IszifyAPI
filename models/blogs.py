@@ -9,8 +9,11 @@ class Catgories(db.Model):
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     blogs = db.relationship("Blogs", backref="category", lazy=True)
 
-    def to_dict(self):
-        return {"id": self.id, "name": self.name}
+    def to_dict(self, with_blogs=False):
+        cats = {"id": self.id, "name": self.name}
+        if with_blogs:
+            cats["blogs"] = [b.to_dict() for b in self.blogs]
+        return cats
 
     def __init__(self, name):
         self.name = name
