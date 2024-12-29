@@ -1,6 +1,7 @@
 from .base import PaystackBase
 import requests
 
+
 class PaystackClient(PaystackBase):
     def get_all_banks(self):
         try:
