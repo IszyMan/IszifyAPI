@@ -18,7 +18,7 @@ from endpoints import (
     UnauthQRCodeBlueprint,
     AdminAccountBlueprint,
     AdminAuthBlueprint,
-    TransactionsBlueprint
+    TransactionsBlueprint,
 )
 from utils import return_response
 from http_status import HttpStatus
