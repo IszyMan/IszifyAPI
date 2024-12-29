@@ -225,6 +225,7 @@ def get_transaction(transaction_id):
             message="Network Error",
         )
 
+
 # get subscriptions
 @transactions_blp.route(f"{TRANSACT_PREFIX}/subscriptions", methods=["GET"])
 @jwt_required()
@@ -240,7 +241,9 @@ def get_subscriptions():
             **res,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/get_all_subscriptions")
+        print(
+            traceback.format_exc(), "traceback@transactions_blp/get_all_subscriptions"
+        )
         print(e, "error@transactions_blp/get_all_subscriptions")
         db.session.rollback()
         return return_response(
