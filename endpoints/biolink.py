@@ -13,6 +13,7 @@ BLOG_PREFIX = "biolink"
 
 biolink_blp = Blueprint("biolink_blp", __name__)
 
+
 # create new bio link route
 @biolink_blp.route(f"/{BLOG_PREFIX}/create", methods=["POST"])
 @jwt_required()
@@ -23,7 +24,7 @@ def create_new_bio_link():
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
-            message="Bio Link created successfully"
+            message="Bio Link created successfully",
         )
     except Exception as e:
         print(traceback.format_exc(), "traceback@biolink_blp/create_new_bio_link")
