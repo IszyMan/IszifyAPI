@@ -2,15 +2,25 @@ from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
 from models import (
-    check_email_role_exist, get_one_admin,
-    edit_one_admin, get_all_admins, get_all_roles,
-    create_admin_account, save_role, create_payment_plan, get_payment_plans,
-edit_payment_plan, delete_payment_plan
+    check_email_role_exist,
+    get_one_admin,
+    edit_one_admin,
+    get_all_admins,
+    get_all_roles,
+    create_admin_account,
+    save_role,
+    create_payment_plan,
+    get_payment_plans,
+    edit_payment_plan,
+    delete_payment_plan,
 )
 from extensions import db, limiter
 from utils import (
-    return_response, validate_password,
-    return_access_token,is_valid_email, detect_disposable_email
+    return_response,
+    validate_password,
+    return_access_token,
+    is_valid_email,
+    detect_disposable_email,
 )
 import traceback
 from flask_jwt_extended import current_user, jwt_required
@@ -77,7 +87,9 @@ def create_admin():
                 message=resp,
             )
 
-        admin_create = create_admin_account(email, password, first_name, last_name, role_id)
+        admin_create = create_admin_account(
+            email, password, first_name, last_name, role_id
+        )
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -154,8 +166,17 @@ def get_admins():
         changed_password = request.args.get("changed_password")
         role_id = request.args.get("role_id")
 
-        admins = get_all_admins(page, per_page, active, start_date,
-                   end_date, fullname, email, changed_password, role_id)
+        admins = get_all_admins(
+            page,
+            per_page,
+            active,
+            start_date,
+            end_date,
+            fullname,
+            email,
+            changed_password,
+            role_id,
+        )
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -238,7 +259,7 @@ def get_admin_details():
 
 
 # add payment plan
-@admin_blp.route(f"/{USER_PREFIX}/payment_plan", methods=["GET","POST"])
+@admin_blp.route(f"/{USER_PREFIX}/payment_plan", methods=["GET", "POST"])
 # @jwt_required()
 def add_payment_plan():
     try:
@@ -247,7 +268,7 @@ def add_payment_plan():
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Payment Plan Retrieved",
-                plans=get_payment_plans()
+                plans=get_payment_plans(),
             )
         data = request.get_json()
         name = data.get("name")
