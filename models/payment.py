@@ -91,6 +91,7 @@ def create_payment_plan(name, amount, currency, duration):
     plan.save()
     return plan
 
+
 def get_payment_plans():
     plans = PaymentPlans.query.order_by(PaymentPlans.amount.asc()).all()
     return [plan.to_dict() for plan in plans]
@@ -102,13 +103,16 @@ def edit_payment_plan(plan_id, name, amount, currency, duration):
     if not plan:
         return False
     if name:
-        if PaymentPlans.query.filter_by(name=name.title()).first() and name.title() != plan.name:
+        if (
+            PaymentPlans.query.filter_by(name=name.title()).first()
+            and name.title() != plan.name
+        ):
             return "Name already exists"
         plan.name = name
     if amount:
         plan.amount = float(amount)
     if currency:
-      plan.currency = currency
+        plan.currency = currency
     if duration:
         plan.duration = int(duration)
     plan.update()
@@ -157,7 +161,9 @@ def get_all_subscriptions(page, per_page, user_id):
 
 
 # get transactions and filters
-def get_transactions(page, per_page, user_id, reference=None, status=None, start_date=None, end_date=None):
+def get_transactions(
+    page, per_page, user_id, reference=None, status=None, start_date=None, end_date=None
+):
     query = Transactions.query.filter(Transactions.user_id == user_id)
 
     # Filter by start_date and end_date if provided
@@ -187,7 +193,10 @@ def get_transactions(page, per_page, user_id, reference=None, status=None, start
         "per_page": transactions.per_page,
     }
 
+
 # get one transaction
 def get_one_transaction(transaction_id, user_id):
-    transaction = Transactions.query.filter_by(id=transaction_id, user_id=user_id).first()
+    transaction = Transactions.query.filter_by(
+        id=transaction_id, user_id=user_id
+    ).first()
     return transaction.to_dict() if transaction else None
