@@ -9,8 +9,9 @@ class BioLink(db.Model):
 
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    updated = db.Column(db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now())
-
+    updated = db.Column(
+        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
+    )
 
     def __repr__(self):
         return f"<BioLink {self.id}>"
