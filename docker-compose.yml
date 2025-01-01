@@ -20,22 +20,22 @@ services:
     ports:
       - 6379:6379
 
-#  nginx:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.certb
-#    container_name: iszify_nginx
-#    ports:
-#      - 80:80
-#      - 443:443
-#    volumes:
-#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-#      - ./certs:/etc/nginx/certs
-#      - /etc/letsencrypt:/etc/letsencrypt
-#    depends_on:
-#      - api
-#      - redis
-#    environment:
-#      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
-#      - DOMAIN=${DOMAIN}
-#    entrypoint: /bin/bash -c "certbot certonly --non-interactive --agree-tos --email ${CERTBOT_EMAIL} --standalone -d ${DOMAIN} && nginx -g 'daemon off;'"
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.certb
+    container_name: iszify_nginx
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs
+      - /etc/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - api
+      - redis
+    environment:
+      - CERTBOT_EMAIL=${CERTBOT_EMAIL}
+      - DOMAIN=${DOMAIN}
+    entrypoint: /bin/bash -c "certbot certonly --non-interactive --agree-tos --email ${CERTBOT_EMAIL} --standalone -d ${DOMAIN} && nginx -g 'daemon off;'"
