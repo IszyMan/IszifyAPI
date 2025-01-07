@@ -47,31 +47,31 @@ def dashboard():
 
 
 # redirect short url to the original url
-@user_blp.route("/<short_url>/")
-def redirect_to_url(short_url):
-    # user_agent = request.headers.get("User-Agent")
-    ip, city, country = get_info()
-    browser_name = get_browser_info(request)
-    computer_name = get_computer_name()
-    payload = {
-        "ip_address": ip,
-        "city": city,
-        "country": country,
-        "browser_name": browser_name,
-        "device": computer_name,
-    }
-    url = Urlshort.query.filter_by(short_url=short_url).first()
-    # if not url:
-    #     url = QrCode.query.filter_by(short_url=short_url).first()
-    #     if not url:
-    #         return ""
-    # save_qrcode_clicks(url.id, payload)
-    # else:
-    save_url_clicks(url.id, payload)
-
-    db.session.commit()
-    print(url.url, "the real url")
-    return redirect(url.url)
+# @user_blp.route("/<short_url>/")
+# def redirect_to_url(short_url):
+#     # user_agent = request.headers.get("User-Agent")
+#     ip, city, country = get_info()
+#     browser_name = get_browser_info(request)
+#     computer_name = get_computer_name()
+#     payload = {
+#         "ip_address": ip,
+#         "city": city,
+#         "country": country,
+#         "browser_name": browser_name,
+#         "device": computer_name,
+#     }
+#     url = Urlshort.query.filter_by(short_url=short_url).first()
+#     # if not url:
+#     #     url = QrCode.query.filter_by(short_url=short_url).first()
+#     #     if not url:
+#     #         return ""
+#     # save_qrcode_clicks(url.id, payload)
+#     # else:
+#     save_url_clicks(url.id, payload)
+#
+#     db.session.commit()
+#     print(url.url, "the real url")
+#     return redirect(url.url)
 
 
 # user settings
