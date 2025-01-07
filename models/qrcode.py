@@ -67,6 +67,7 @@ class QRCodeData(db.Model):
     bitcoin_message = db.Column(db.String(100))
     short_url = db.Column(db.String(50))
     category = db.Column(db.String(50), nullable=False)
+    duplicate = db.Column(db.Boolean, default=False)
     short_url_id = db.Column(
         db.String(50), db.ForeignKey("url_shortener.id"), nullable=True
     )
@@ -137,6 +138,7 @@ class QRCodeData(db.Model):
             "bitcoin_label": self.bitcoin_label,
             "bitcoin_message": self.bitcoin_message,
             "state": self.state,
+            "duplicate": self.duplicate or False,
             "short_url": (
                 f"{return_host_url(request.host_url)}{self.short_url}"
                 if self.short_url
@@ -586,3 +588,83 @@ def save_want_qr_code(category, short_url, short_id, url, user_id, title):
     db.session.commit()
 
     return qr_code
+
+
+# CHECK SHORT URL EXIST
+def check_short_url_exist(short_url):
+    return QRCodeData.query.filter(QRCodeData.short_url == short_url).first()
+
+
+# duplicate qr code
+def duplicate_qr_code(qr_code_id, user_id, short_url):
+    try:
+        qr_code = QRCodeData.query.filter_by(id=qr_code_id, user_id=user_id).first()
+        if not qr_code:
+            return None
+
+        sh_url = gen_short_code() if qr_code.url else None,
+
+        new_qr_code = QRCodeData(
+            url=qr_code.url,
+            phone_number=qr_code.phone_number,
+            message=qr_code.message,
+            email=qr_code.email,
+            subject=qr_code.subject,
+            ssid=qr_code.ssid,
+            password=qr_code.password,
+            encryption=qr_code.encryption,
+            ios_url=qr_code.ios_url,
+            android_url=qr_code.android_url,
+            other_device_url=qr_code.other_device_url,
+            longitude=qr_code.longitude,
+            latitude=qr_code.latitude,
+            trade_number=qr_code.trade_number,
+            prefix=qr_code.prefix,
+            first_name=qr_code.first_name,
+            last_name=qr_code.last_name,
+            company_name=qr_code.company_name,
+            mobile_phone=qr_code.mobile_phone,
+            fax=qr_code.fax,
+            bitcoin_address=qr_code.bitcoin_address,
+            bitcoin_amount=qr_code.bitcoin_amount,
+            bitcoin_label=qr_code.bitcoin_label,
+            bitcoin_message=qr_code.bitcoin_message,
+            postal_code=qr_code.postal_code,
+            religion=qr_code.religion,
+            street=qr_code.street,
+            city=qr_code.city,
+            state=qr_code.state,
+            country=qr_code.country,
+            category=qr_code.category,
+            short_url=short_url or sh_url,
+            title=qr_code.title,
+            duplicate=True,
+            user_id=qr_code.user_id,
+        )
+
+        db.session.add(new_qr_code)
+
+        if qr_code.qr_style:
+            qr_code_styling = qr_code.qr_style
+            new_qr_styling = QrCodeStyling(
+                width=qr_code_styling.width,
+                height=qr_code_styling.height,
+                image=qr_code_styling.image,
+                margin=qr_code_styling.margin,
+                qr_options=qr_code_styling.qr_options,
+                image_options=qr_code_styling.image_options,
+                dots_options=qr_code_styling.dots_options,
+                background_options=qr_code_styling.background_options,
+                corners_square_options=qr_code_styling.corners_square_options,
+                corners_dot_options=qr_code_styling.corners_dot_options,
+                qrcode_id=new_qr_code.id,
+            )
+
+            db.session.add(new_qr_styling)
+
+        db.session.commit()
+        return qr_code
+    except Exception as e:
+        print(e)
+        db.session.rollback()
+        return None
