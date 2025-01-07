@@ -41,6 +41,8 @@ from .qrcode import (
     get_url_by_short_url,
     check_url_category_exists,
     save_want_qr_code,
+    duplicate_qr_code,
+    check_short_url_exist
 )
 
 from .qrcode_unauth import (
