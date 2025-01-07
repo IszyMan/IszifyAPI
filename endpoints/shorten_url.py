@@ -120,7 +120,7 @@ def shorten_url():
 @url_short_blp.route(f"{USER_PREFIX}/short_urls", methods=["GET"])
 @jwt_required()
 @email_verified
-@limiter.limit("5 per minute", key_func=user_id_limiter)
+@limiter.limit("9 per minute", key_func=user_id_limiter)
 def get_short_urls():
     try:
         page = int(request.args.get("page", 1))
