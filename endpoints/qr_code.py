@@ -10,6 +10,8 @@ from models import (
     get_qrcode_data_by_id,
     qrcode_styling,
     check_url_category_exists,
+    duplicate_qr_code,
+    check_short_url_exist
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter, get_website_title
@@ -440,6 +442,54 @@ def delete_qrcode(qr_code_id):
     except Exception as e:
         print(traceback.format_exc(), "traceback@qrcode_blp/delete_qrcode")
         print(e, "error@qrcode_blp/delete_qrcode")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# duplicate qrcode
+@qrcode_blp.route(f"/{QR_PREFIX}/duplicate_qrcode", methods=["POST"])
+@jwt_required()
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def duplicate_a_qrcode():
+    try:
+        data = request.get_json()
+        qr_code_id = data.get("qr_code_id")
+        short_url = data.get("short_url")
+        if not qr_code_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="QR Code ID is required",
+            )
+
+        if short_url:
+            resp = check_short_url_exist(short_url)
+            if resp:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="You cannot use this short URL",
+                )
+
+        res = duplicate_qr_code(qr_code_id, current_user.id, short_url)
+
+        if not res:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="QR Code not found",
+            )
+
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Duplicated"
+        )
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@qrcode_blp/duplicate_qrcode")
+        print(e, "error@qrcode_blp/duplicate_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
