@@ -155,7 +155,7 @@ class QRCodeData(db.Model):
             ),
             "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
-        return {key: value for key, value in result.items() if value}
+        return {key: value for key, value in result.items() if value or key == "duplicate"}
 
 
 class QrFrame(db.Model):
