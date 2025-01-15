@@ -32,6 +32,7 @@ class Urlshort(db.Model):
     want_qr_code = db.Column(db.Boolean, default=False)
     has_half_back = db.Column(db.Boolean, default=False)
     has_redirected = db.Column(db.Boolean, default=False)
+    hidden = db.Column(db.Boolean, default=False)
     # relationship to qr code
     qr_code_rel = db.relationship(
         "QRCodeData", backref="url_shortener", uselist=False, cascade="all, delete"
@@ -65,6 +66,8 @@ class Urlshort(db.Model):
             "created": self.created,
             "has_half_back": self.has_half_back or False,
             "has_redirected": self.has_redirected or False,
+            "hidden": self.hidden or False,
+            "active": not self.hidden,
         }
 
         if get_qr_code and self.qr_code_rel:
@@ -210,8 +213,8 @@ def save_shorten_url(url, short_url, title, want_qr_code, user_id):
     return new_record
 
 
-def get_shorten_url_for_user(page, per_page, user_id):
-    query = Urlshort.query.filter_by(user_id=user_id)
+def get_shorten_url_for_user(page, per_page, user_id, hidden):
+    query = Urlshort.query.filter_by(user_id=user_id, hidden=hidden)
 
     # Order by creation date descending and paginate
     shorten_urls = query.order_by(Urlshort.created.desc()).paginate(
