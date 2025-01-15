@@ -155,7 +155,9 @@ class QRCodeData(db.Model):
             ),
             "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
-        return {key: value for key, value in result.items() if value or key == "duplicate"}
+        return {
+            key: value for key, value in result.items() if value or key == "duplicate"
+        }
 
 
 class QrFrame(db.Model):
@@ -602,7 +604,7 @@ def duplicate_qr_code(qr_code_id, user_id, short_url):
         if not qr_code:
             return None
 
-        sh_url = gen_short_code() if qr_code.url else None,
+        sh_url = (gen_short_code() if qr_code.url else None,)
 
         new_qr_code = QRCodeData(
             url=qr_code.url,
