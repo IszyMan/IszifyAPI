@@ -17,7 +17,7 @@ from .shorten_url import (
     save_url_clicks,
     get_original_url_by_short_url,
     get_shorten_url_for_user,
-    check_short_url_exist
+    check_short_url_exist,
 )
 from .blogs import (
     Catgories,
@@ -43,7 +43,7 @@ from .qrcode import (
     check_url_category_exists,
     save_want_qr_code,
     duplicate_qr_code,
-    check_short_url_exist
+    check_short_url_exist,
 )
 
 from .qrcode_unauth import (
