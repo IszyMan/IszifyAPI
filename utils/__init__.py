@@ -199,3 +199,16 @@ def return_host_url(host_url):
     if host_url.startswith("http://"):
         host_url = host_url.replace("http://", "https://")
     return host_url
+
+
+# if it starts with https or http, remove it the http/https for example, https://google.com/ should be google.com
+def remove_host_url(host_url):
+    if host_url.startswith("https://"):
+        host_url = host_url.replace("https://", "")
+    elif host_url.startswith("http://"):
+        host_url = host_url.replace("http://", "")
+
+    # if last character is /, remove it
+    if host_url.endswith("/"):
+        host_url = host_url[:-1]
+    return host_url
