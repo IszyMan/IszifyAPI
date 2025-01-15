@@ -71,6 +71,7 @@ def shorten_url():
         if custom_url:
             print(custom_url, "custom_url")
             short_url = custom_url
+            has_half_back = True
             if Urlshort.query.filter_by(short_url=short_url).first():
                 return return_response(
                     HttpStatus.CONFLICT,
@@ -78,6 +79,7 @@ def shorten_url():
                     message="You cannot use this custom url, please choose another one",
                 )
         else:
+            has_half_back = False
             short_url = gen_short_code(url_short=True)
 
         if not title:
@@ -91,6 +93,7 @@ def shorten_url():
             short_url=short_url,
             title=title,
             want_qr_code=want_qr_code,
+            has_half_back=has_half_back,
         )
         url.save()
 
@@ -201,6 +204,12 @@ def edit_short_url(short_url_id):
             )
 
         if request.method == "DELETE":
+            if short_url.has_half_back or short_url.has_redirected:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="You cannot delete this short url",
+                )
             short_url.delete()
             return return_response(
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL deleted"
@@ -219,6 +228,7 @@ def edit_short_url(short_url_id):
 
         short_url.title = title or short_url.title
         short_url.short_url = short_link or short_url.short_url
+        short_url.has_half_back = True if short_link else short_url.has_half_back
         # short_url.url = url
         short_url.update()
 
