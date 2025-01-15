@@ -1,7 +1,8 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import Urlshort, validate_url, save_want_qr_code, get_shorten_url_for_user
+from models import (Urlshort, validate_url, save_want_qr_code,
+                    get_shorten_url_for_user, check_short_url_exist)
 from extensions import db, limiter
 from utils import (
     return_response,
@@ -177,9 +178,19 @@ def edit_short_url(short_url_id):
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL deleted"
             )
         title = data.get("title")
+        short_link = data.get("short_link")
         # url = data.get("url", short_url.url)
+        if short_link:
+            resp = check_short_url_exist(short_link)
+            if resp:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="You cannot use this custom url, please choose another one",
+                )
 
         short_url.title = title or short_url.title
+        short_url.short_url = short_link or short_url.short_url
         # short_url.url = url
         short_url.update()
 
