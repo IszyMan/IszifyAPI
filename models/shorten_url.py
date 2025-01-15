@@ -12,7 +12,7 @@ from sqlalchemy import extract, func
 from extensions import db
 from func import hex_id
 from decorators import retry_on_exception
-from utils import return_host_url
+from utils import return_host_url, remove_host_url
 from flask import request
 
 # from sqlalchemy.dialects.postgresql import BYTEA
@@ -56,6 +56,8 @@ class Urlshort(db.Model):
             "id": self.id,
             "url": self.url,
             "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
+            "short_link": self.short_url,
+            "host_url": remove_host_url(request.host_url),
             "title": self.title,
             "want_qr_code": self.want_qr_code,
             "created": self.created,
@@ -215,3 +217,7 @@ def get_shorten_url_for_user(page, per_page, user_id):
         "total_pages": shorten_urls.pages,
         "per_page": shorten_urls.per_page,
     }
+
+
+def check_short_url_exist(short_url):
+    return Urlshort.query.filter(Urlshort.short_url == short_url).first()
