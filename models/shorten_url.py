@@ -30,6 +30,8 @@ class Urlshort(db.Model):
     short_url = db.Column(db.String(250))
     title = db.Column(db.String(250))
     want_qr_code = db.Column(db.Boolean, default=False)
+    has_half_back = db.Column(db.Boolean, default=False)
+    has_redirected = db.Column(db.Boolean, default=False)
     # relationship to qr code
     qr_code_rel = db.relationship(
         "QRCodeData", backref="url_shortener", uselist=False, cascade="all, delete"
@@ -61,6 +63,8 @@ class Urlshort(db.Model):
             "title": self.title,
             "want_qr_code": self.want_qr_code,
             "created": self.created,
+            "has_half_back": self.has_half_back or False,
+            "has_redirected": self.has_redirected or False,
         }
 
         if get_qr_code and self.qr_code_rel:
