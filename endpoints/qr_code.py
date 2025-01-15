@@ -11,7 +11,7 @@ from models import (
     qrcode_styling,
     check_url_category_exists,
     duplicate_qr_code,
-    check_short_url_exist
+    check_short_url_exist,
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter, get_website_title
