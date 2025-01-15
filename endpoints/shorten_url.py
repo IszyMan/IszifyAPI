@@ -1,8 +1,13 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (Urlshort, validate_url, save_want_qr_code,
-                    get_shorten_url_for_user, check_short_url_exist)
+from models import (
+    Urlshort,
+    validate_url,
+    save_want_qr_code,
+    get_shorten_url_for_user,
+    check_short_url_exist,
+)
 from extensions import db, limiter
 from utils import (
     return_response,
@@ -145,7 +150,9 @@ def get_short_urls():
             message="Network Error",
         )
 
+
 # get one short url
+
 
 @url_short_blp.route(f"{USER_PREFIX}/short_url/<short_url_id>", methods=["GET"])
 @jwt_required()
@@ -161,7 +168,10 @@ def get_one_short_url(short_url_id):
                 message="Short URL not found",
             )
         return return_response(
-            HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL", data=url.to_dict(get_qr_code=True)
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Short URL",
+            data=url.to_dict(get_qr_code=True),
         )
 
     except Exception as e:
@@ -173,6 +183,7 @@ def get_one_short_url(short_url_id):
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
 
 # Edit shortened url
 
