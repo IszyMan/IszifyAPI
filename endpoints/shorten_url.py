@@ -141,6 +141,34 @@ def get_short_urls():
             message="Network Error",
         )
 
+# get one short url
+
+@url_short_blp.route(f"{USER_PREFIX}/short_url/<short_url_id>", methods=["GET"])
+@jwt_required()
+@email_verified
+@limiter.limit("9 per minute", key_func=user_id_limiter)
+def get_one_short_url(short_url_id):
+    try:
+        url = Urlshort.query.filter_by(id=short_url_id, user_id=current_user.id).first()
+        if not url:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="Short URL not found",
+            )
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL", data=url.to_dict(get_qr_code=True)
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/get_one_short_url")
+        print(e, "error@user_blp/get_one_short_url")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
 
 # Edit shortened url
 
