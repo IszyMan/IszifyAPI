@@ -51,8 +51,8 @@ class Urlshort(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def to_dict(self):
-        return {
+    def to_dict(self, get_qr_code=False):
+        sh_dic = {
             "id": self.id,
             "url": self.url,
             "short_url": f"{return_host_url(request.host_url)}{self.short_url}",
@@ -62,6 +62,10 @@ class Urlshort(db.Model):
             "want_qr_code": self.want_qr_code,
             "created": self.created,
         }
+
+        if get_qr_code and self.qr_code_rel:
+            sh_dic["qr_code"] = self.qr_code_rel.to_dict()
+        return sh_dic
 
 
 # clicks model
