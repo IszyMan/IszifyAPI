@@ -176,15 +176,15 @@ def edit_short_url(short_url_id):
             return return_response(
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL deleted"
             )
-        title = data.get("title", short_url.title)
-        url = data.get("url", short_url.url)
+        title = data.get("title")
+        # url = data.get("url", short_url.url)
 
-        short_url.title = title
-        short_url.url = url
+        short_url.title = title or short_url.title
+        # short_url.url = url
         short_url.update()
 
         if short_url.want_qr_code:
-            short_url.qr_code_rel.url = url
+            # short_url.qr_code_rel.url = url
             short_url.qr_code_rel.title = title
             short_url.qr_code_rel.update()
 
