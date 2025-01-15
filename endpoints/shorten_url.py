@@ -129,7 +129,8 @@ def get_short_urls():
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
-        urls = get_shorten_url_for_user(page, per_page, current_user.id)
+        hidden = bool(request.args.get("hidden", False))
+        urls = get_shorten_url_for_user(page, per_page, current_user.id, hidden)
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URLs", **urls
         )
@@ -216,7 +217,8 @@ def edit_short_url(short_url_id):
             )
         title = data.get("title")
         short_link = data.get("short_link")
-        # url = data.get("url", short_url.url)
+        hide = data.get("hide", None)
+
         if short_link:
             resp = check_short_url_exist(short_link)
             if resp:
@@ -229,6 +231,8 @@ def edit_short_url(short_url_id):
         short_url.title = title or short_url.title
         short_url.short_url = short_link or short_url.short_url
         short_url.has_half_back = True if short_link else short_url.has_half_back
+        if isinstance(hide, bool):
+            short_url.hidden = hide
         # short_url.url = url
         short_url.update()
 
