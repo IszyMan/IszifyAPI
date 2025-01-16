@@ -244,6 +244,8 @@ def edit_short_url(short_url_id):
         short_url.has_half_back = True if short_link else short_url.has_half_back
         if isinstance(hide, bool):
             short_url.hidden = hide
+            if short_url.want_qr_code:
+                short_url.qr_code_rel.hidden = hide
         # short_url.url = url
         short_url.update()
 
