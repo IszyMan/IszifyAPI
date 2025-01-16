@@ -266,6 +266,7 @@ def edit_qrcode(qr_code_id):
                 bitcoin_message=data.get("bitcoin_message"),
                 social_media=social_media,
                 qr_style=qr_style,
+                hidden=data.get("hide"),
             )
 
             res = update_qrcode_data(payload, current_user.id, qr_code_id)
