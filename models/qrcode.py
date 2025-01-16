@@ -355,9 +355,9 @@ def save_qrcode_data(qrcode_data_payload, user_id):
 
 @retry_on_exception(retries=3, delay=1)
 def get_qrcode_data(
-    page, per_page, user_id, category=None, start_date=None, end_date=None
+    page, per_page, user_id, category=None, start_date=None, end_date=None, hidden=False
 ):
-    query = QRCodeData.query.filter(QRCodeData.user_id == user_id)
+    query = QRCodeData.query.filter(QRCodeData.user_id == user_id, QRCodeData.hidden == hidden)
 
     # Filter by category if provided
     if category:
