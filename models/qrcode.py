@@ -122,6 +122,7 @@ class QRCodeData(db.Model):
             "other_device_url": self.other_device_url,
             "longitude": self.longitude,
             "latitude": self.latitude,
+            "short_url_id": self.short_url_id or None,
             "trade_number": self.trade_number,
             "prefix": self.prefix,
             "first_name": self.first_name,
