@@ -165,6 +165,7 @@ def qrcode():
         category = request.args.get("category")
         start_date = request.args.get("start_date")
         end_date = request.args.get("end_date")
+        hidden = bool(request.args.get("hidden", False))
 
         try:
             start_date = (
@@ -180,7 +181,7 @@ def qrcode():
                 message="Invalid date format, should be dd-mm-yyyy",
             )
         qrcodes = get_qrcode_data(
-            page, per_page, current_user.id, category, start_date, end_date
+            page, per_page, current_user.id, category, start_date, end_date, hidden
         )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Codes", **qrcodes
