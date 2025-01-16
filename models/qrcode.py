@@ -73,6 +73,7 @@ class QRCodeData(db.Model):
     )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    hidden = db.Column(db.Boolean, default=False)
     social_media = db.relationship(
         "SocialMedia", backref="qrcode", lazy=True, cascade="all, delete"
     )
@@ -127,6 +128,7 @@ class QRCodeData(db.Model):
             "prefix": self.prefix,
             "first_name": self.first_name,
             "last_name": self.last_name,
+            "hidden": self.hidden,
             "company_name": self.company_name,
             "mobile_phone": self.mobile_phone,
             "fax": self.fax,
@@ -157,7 +159,7 @@ class QRCodeData(db.Model):
             "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
         return {
-            key: value for key, value in result.items() if value or key == "duplicate"
+            key: value for key, value in result.items() if value or key in ["duplicate", "hidden"]
         }
 
 
@@ -452,6 +454,11 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data.bitcoin_message = (
         qrcode_data_payload.get("bitcoin_message") or qrcode_data.bitcoin_message
     )
+
+    if isinstance(qrcode_data_payload.get("hidden"), bool):
+        qrcode_data.hidden = qrcode_data_payload.get("hidden")
+        if qrcode_data.short_url_id:
+            qrcode_data.url_shortener.hidden = qrcode_data_payload.get("hidden")
 
     if qrcode_data_payload.get("social_media"):
         for social_media in qrcode_data_payload.get("social_media"):
