@@ -167,9 +167,7 @@ def qrcode():
         end_date = request.args.get("end_date")
         status = request.args.get("status")
 
-        if status == "active":
-            hidden =  False
-        elif status == "hidden":
+        if status == "hidden":
             hidden = True
         else:
             hidden = False
