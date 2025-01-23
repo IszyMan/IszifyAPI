@@ -281,6 +281,8 @@ def create_qr_code():
         data = request.get_json()
 
         short_url_id = data.get("short_url_id")
+        qr_style = data.get("qr_style", {})
+        qr_frame = data.get("qr_frame", {})
         if not short_url_id:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -308,7 +310,7 @@ def create_qr_code():
         short_url.update()
         save_want_qr_code(
             "url", short_url.short_url, short_url.id,
-            short_url.url, current_user.id, short_url.title
+            short_url.url, current_user.id, short_url.title, qr_style=qr_style, qr_frame=qr_frame
         )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code created"
