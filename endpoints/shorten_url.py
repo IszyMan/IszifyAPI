@@ -267,3 +267,52 @@ def edit_short_url(short_url_id):
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
+
+# create qr code for short url
+@url_short_blp.route(
+    f"{USER_PREFIX}/create_qr_short", methods=["POST"]
+)
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def create_qr_code():
+    try:
+        data = request.get_json()
+
+        short_url_id = data.get("short_url_id")
+        if not short_url_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Short URL ID is required",
+            )
+        short_url = Urlshort.query.filter_by(
+            id=short_url_id, user_id=current_user.id
+        ).first()
+        if not short_url:
+            return return_response(
+                HttpStatus.NOT_FOUND,
+                status=StatusRes.FAILED,
+                message="Short URL not found",
+            )
+
+        short_url.want_qr_code = True
+        short_url.update()
+        save_want_qr_code(
+            "url", short_url.short_url, short_url.id,
+            short_url.url, current_user.id, short_url.title
+        )
+        return return_response(
+            HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code created"
+        )
+
+    except Exception as e:
+        print(traceback.format_exc(), "traceback@user_blp/create_qr_code")
+        print(e, "error@user_blp/create_qr_code")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
