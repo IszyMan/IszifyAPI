@@ -297,6 +297,13 @@ def create_qr_code():
                 message="Short URL not found",
             )
 
+        if short_url.want_qr_code:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Short URL already has QR Code",
+            )
+
         short_url.want_qr_code = True
         short_url.update()
         save_want_qr_code(
