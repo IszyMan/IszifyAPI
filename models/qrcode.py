@@ -584,8 +584,12 @@ def check_url_category_exists(url, category, user_id):
     ).first()
 
 
-def save_want_qr_code(category, short_url, short_id, url, user_id, title):
-    qr_code = QRCodeData(
+def save_want_qr_code(category, short_url, short_id, url, user_id, title, qr_style=None, qr_frame=None):
+    if qr_frame is None:
+        qr_frame = {}
+    if qr_style is None:
+        qr_style = {}
+    qr_code_data = QRCodeData(
         url=url,
         short_url=short_url,
         short_url_id=short_id,
@@ -594,10 +598,40 @@ def save_want_qr_code(category, short_url, short_id, url, user_id, title):
         title=title,
     )
 
-    db.session.add(qr_code)
+    db.session.add(qr_code_data)
+
+    if qr_style and isinstance(qr_style, dict):
+        print(f"qr style {qr_style}")
+        qr_styling = QrCodeStyling(
+            width=qr_style.get("width"),
+            height=qr_style.get("height"),
+            image=qr_style.get("image"),
+            margin=qr_style.get("margin"),
+            qr_options=qr_style.get("qrOptions", {}),
+            image_options=qr_style.get("imageOptions", {}),
+            dots_options=qr_style.get("dotsOptions", {}),
+            background_options=qr_style.get(
+                "backgroundOptions", {}
+            ),
+            corners_square_options=qr_style.get(
+                "cornersSquareOptions", {}
+            ),
+            corners_dot_options=qr_style.get(
+                "cornersDotOptions", {}
+            ),
+            qrcode=qr_code_data,
+        )
+
+        db.session.add(qr_styling)
+
+    if qr_frame and isinstance(qr_frame, dict):
+        print("qr frame")
+        # Implement this later
+        pass
+
     db.session.commit()
 
-    return qr_code
+    return qr_code_data
 
 
 # CHECK SHORT URL EXIST
