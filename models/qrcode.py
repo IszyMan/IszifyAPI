@@ -216,6 +216,8 @@ class QrCodeStyling(db.Model):
     corners_dot_options = db.Column(
         db.JSON, nullable=False
     )  # Dynamic JSON for dot corners options
+    frame_text = db.Column(db.Text, nullable=True)
+    frame_color = db.Column(db.String(100), nullable=True)
 
     def save(self):
         db.session.add(self)
@@ -237,6 +239,8 @@ class QrCodeStyling(db.Model):
             "backgroundOptions": self.background_options,
             "cornersSquareOptions": self.corners_square_options,
             "cornersDotOptions": self.corners_dot_options,
+            "frame_text": self.frame_text,
+            "frame_color": self.frame_color,
         }
         return {key: value for key, value in data_to_return.items() if value}
 
@@ -336,6 +340,8 @@ def save_qrcode_data(qrcode_data_payload, user_id):
             corners_dot_options=qrcode_data_payload["qr_style"].get(
                 "cornersDotOptions", {}
             ),
+            frame_text=qrcode_data_payload["qr_style"].get("frame_text"),
+            frame_color=qrcode_data_payload["qr_style"].get("frame_color"),
             qrcode=qrcode_data,
         )
 
@@ -547,6 +553,10 @@ def qrcode_styling(payload, qrcode_id, user_id):
         existing_style.corners_dot_options = (
             payload.get("cornersDotOptions") or existing_style.corners_dot_options
         )
+        existing_style.frame_text = payload.get("frame_text") or existing_style.frame_text
+        existing_style.frame_color = (
+            payload.get("frame_color") or existing_style.frame_color
+        )
 
         existing_style.update()
         return existing_style, True
@@ -562,6 +572,8 @@ def qrcode_styling(payload, qrcode_id, user_id):
         background_options=payload.get("backgroundOptions"),
         corners_square_options=payload.get("cornersSquareOptions"),
         corners_dot_options=payload.get("cornersDotOptions"),
+        frame_text=payload.get("frame_text"),
+        frame_color=payload.get("frame_color"),
         qrcode_id=qrcode_id,
     )
 
@@ -621,6 +633,8 @@ def save_want_qr_code(category, short_url, short_id, url, user_id, title, qr_sty
             corners_dot_options=qr_style.get(
                 "cornersDotOptions", {}
             ),
+            frame_text=qr_style.get("frame_text"),
+            frame_color=qr_style.get("frame_color"),
             qrcode=qr_code_data,
         )
 
