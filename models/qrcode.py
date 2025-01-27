@@ -2,7 +2,7 @@ from extensions import db
 from func import hex_id
 from sqlalchemy import func
 from flask import request
-from utils import gen_short_code, return_host_url
+from utils import gen_short_code, return_host_url, remove_host_url
 from decorators import retry_on_exception
 from datetime import datetime, timedelta
 from default_style import return_default_style
@@ -142,6 +142,8 @@ class QRCodeData(db.Model):
             "bitcoin_message": self.bitcoin_message,
             "state": self.state,
             "duplicate": self.duplicate or False,
+            "host_url": remove_host_url(request.host_url),
+            "short_link": self.short_url or None,
             "short_url": (
                 f"{return_host_url(request.host_url)}{self.short_url}"
                 if self.short_url
