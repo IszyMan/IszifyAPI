@@ -337,6 +337,8 @@ def style_qrcode(qr_code_id):
         background_options = data.get("backgroundOptions", {})
         corners_square_options = data.get("cornersSquareOptions", {})
         corners_dot_options = data.get("cornersDotOptions", {})
+        frame_text = data.get("frame_text")
+        frame_color = data.get("frame_color")
 
         if not isinstance(qr_options, dict):
             return return_response(
@@ -391,6 +393,8 @@ def style_qrcode(qr_code_id):
             backgroundOptions=background_options,
             cornersSquareOptions=corners_square_options,
             cornersDotOptions=corners_dot_options,
+            frame_text=frame_text,
+            frame_color=frame_color,
         )
 
         _, exist = qrcode_styling(payload, qrcode_id, current_user.id)
