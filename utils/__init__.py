@@ -34,11 +34,15 @@ def gen_uuid():
 
 
 def return_access_token(user):
-    return create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=1))
+    return create_access_token(
+        identity=user.id, expires_delta=datetime.timedelta(days=1)
+    )
 
 
 def is_valid_email(email):
-    regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    regex = re.compile(
+        r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
+    )
     if re.fullmatch(regex, email):
         return True
     return False
@@ -64,7 +68,7 @@ def generate_otp():
 
 def generate_random_string(length=20):
     characters = string.ascii_letters + string.digits
-    random_string = ''.join(choice(characters) for _ in range(length))
+    random_string = "".join(choice(characters) for _ in range(length))
     return random_string
 
 
@@ -87,10 +91,14 @@ def convert_binary(base64_file):
 
 def generate_signature(params_to_sign, api_secret):
     try:
-        params_to_sign['timestamp'] = int(time.time())
-        sorted_params = '&'.join([f'{k}={params_to_sign[k]}' for k in sorted(params_to_sign)])
-        to_sign = f'{sorted_params}{api_secret}'
-        signature = hmac.new(api_secret.encode('utf-8'), to_sign.encode('utf-8'), hashlib.sha1).hexdigest()
+        params_to_sign["timestamp"] = int(time.time())
+        sorted_params = "&".join(
+            [f"{k}={params_to_sign[k]}" for k in sorted(params_to_sign)]
+        )
+        to_sign = f"{sorted_params}{api_secret}"
+        signature = hmac.new(
+            api_secret.encode("utf-8"), to_sign.encode("utf-8"), hashlib.sha1
+        ).hexdigest()
         print(signature, "signature from generate_signature")
         return signature
     except Exception as e:
@@ -102,14 +110,14 @@ def get_browser_info(request):
     user_agent = request.user_agent
     user_agent = str(user_agent)
     browsers = {
-        'Chrome': r'Chrome\/([0-9\.]+)',
-        'Firefox': r'Firefox\/([0-9\.]+)',
-        'Safari': r'Version\/([0-9\.]+).*Safari',
-        'Edge': r'Edge\/([0-9\.]+)',
-        'Opera': r'OPR\/([0-9\.]+)'
+        "Chrome": r"Chrome\/([0-9\.]+)",
+        "Firefox": r"Firefox\/([0-9\.]+)",
+        "Safari": r"Version\/([0-9\.]+).*Safari",
+        "Edge": r"Edge\/([0-9\.]+)",
+        "Opera": r"OPR\/([0-9\.]+)",
     }
 
-    browser_name = 'Unknown'
+    browser_name = "Unknown"
     # browser_version = 'Unknown'
 
     for name, pattern in browsers.items():
@@ -127,13 +135,13 @@ def get_computer_name():
 
 
 def get_info():
-    url = 'http://ipinfo.io/json'
+    url = "http://ipinfo.io/json"
     response = urlopen(url)
     data = json.load(response)
 
-    ip = data['ip']
-    city = data['city']
-    country = data['country']
+    ip = data["ip"]
+    city = data["city"]
+    country = data["country"]
 
     return ip, city, country
 
@@ -168,7 +176,7 @@ def gen_short_code(url_short=False, un_auth=False):
     # Define the possible characters for the short code (A-Z, a-z, 0-9)
     characters = string.ascii_uppercase + string.ascii_lowercase + string.digits
     # Generate a random string of the specified length with mixed case
-    short_code = ''.join(secrets.choice(characters) for _ in range(length))
+    short_code = "".join(secrets.choice(characters) for _ in range(length))
 
     return f"{initial}{short_code}"
 
@@ -180,7 +188,7 @@ def get_website_title(url):
         response.raise_for_status()  # Raise an error for bad responses
 
         # Parse the HTML content
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(response.text, "html.parser")
 
         # Find the title tag and get its text
         title = soup.title.string if soup.title else None
