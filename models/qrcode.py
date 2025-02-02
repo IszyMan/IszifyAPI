@@ -161,7 +161,9 @@ class QRCodeData(db.Model):
             "qr_frame": self.qr_frame.to_dict() if self.qr_frame else {},
         }
         return {
-            key: value for key, value in result.items() if value or key in ["duplicate", "hidden"]
+            key: value
+            for key, value in result.items()
+            if value or key in ["duplicate", "hidden"]
         }
 
 
@@ -365,7 +367,9 @@ def save_qrcode_data(qrcode_data_payload, user_id):
 def get_qrcode_data(
     page, per_page, user_id, category=None, start_date=None, end_date=None, hidden=False
 ):
-    query = QRCodeData.query.filter(QRCodeData.user_id == user_id, QRCodeData.hidden == hidden)
+    query = QRCodeData.query.filter(
+        QRCodeData.user_id == user_id, QRCodeData.hidden == hidden
+    )
 
     # Filter by category if provided
     if category:
@@ -553,7 +557,9 @@ def qrcode_styling(payload, qrcode_id, user_id):
         existing_style.corners_dot_options = (
             payload.get("cornersDotOptions") or existing_style.corners_dot_options
         )
-        existing_style.frame_text = payload.get("frame_text") or existing_style.frame_text
+        existing_style.frame_text = (
+            payload.get("frame_text") or existing_style.frame_text
+        )
         existing_style.frame_color = (
             payload.get("frame_color") or existing_style.frame_color
         )
@@ -598,7 +604,9 @@ def check_url_category_exists(url, category, user_id):
     ).first()
 
 
-def save_want_qr_code(category, short_url, short_id, url, user_id, title, qr_style=None, qr_frame=None):
+def save_want_qr_code(
+    category, short_url, short_id, url, user_id, title, qr_style=None, qr_frame=None
+):
     if qr_frame is None:
         qr_frame = {}
     if qr_style is None:
@@ -624,15 +632,9 @@ def save_want_qr_code(category, short_url, short_id, url, user_id, title, qr_sty
             qr_options=qr_style.get("qrOptions", {}),
             image_options=qr_style.get("imageOptions", {}),
             dots_options=qr_style.get("dotsOptions", {}),
-            background_options=qr_style.get(
-                "backgroundOptions", {}
-            ),
-            corners_square_options=qr_style.get(
-                "cornersSquareOptions", {}
-            ),
-            corners_dot_options=qr_style.get(
-                "cornersDotOptions", {}
-            ),
+            background_options=qr_style.get("backgroundOptions", {}),
+            corners_square_options=qr_style.get("cornersSquareOptions", {}),
+            corners_dot_options=qr_style.get("cornersDotOptions", {}),
             frame_text=qr_style.get("frame_text"),
             frame_color=qr_style.get("frame_color"),
             qrcode=qr_code_data,
