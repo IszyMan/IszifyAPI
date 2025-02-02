@@ -270,9 +270,7 @@ def edit_short_url(short_url_id):
 
 
 # create qr code for short url
-@url_short_blp.route(
-    f"{USER_PREFIX}/create_qr_short", methods=["POST"]
-)
+@url_short_blp.route(f"{USER_PREFIX}/create_qr_short", methods=["POST"])
 @jwt_required()
 @email_verified
 @limiter.limit("5 per minute", key_func=user_id_limiter)
@@ -309,8 +307,14 @@ def create_qr_code():
         short_url.want_qr_code = True
         short_url.update()
         save_want_qr_code(
-            "url", short_url.short_url, short_url.id,
-            short_url.url, current_user.id, short_url.title, qr_style=qr_style, qr_frame=qr_frame
+            "url",
+            short_url.short_url,
+            short_url.id,
+            short_url.url,
+            current_user.id,
+            short_url.title,
+            qr_style=qr_style,
+            qr_frame=qr_frame,
         )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code created"
