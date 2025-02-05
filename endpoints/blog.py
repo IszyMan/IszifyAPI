@@ -12,7 +12,7 @@ from models import (
 )
 from utils import return_response
 from extensions import db
-import traceback
+from logger import logger
 
 BLOG_PREFIX = "blog"
 
@@ -44,8 +44,8 @@ def create_blog():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/create_blog")
-        print(e, "error@blog_blp/create_blog")
+        logger.exception("traceback@blog_blp/create_blog")
+        logger.error(f"{e}: error@blog_blp/create_blog")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -75,8 +75,8 @@ def get_blog():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/get_blog")
-        print(e, "error@blog_blp/get_blog")
+        logger.exception("traceback@blog_blp/get_blog")
+        logger.error(f"{e}: error@blog_blp/get_blog")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -104,8 +104,8 @@ def get_blogs_per_cat_id(cat_id):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/get_blog")
-        print(e, "error@blog_blp/get_blog")
+        logger.exception("traceback@blog_blp/get_blog")
+        logger.error(f"{e}: error@blog_blp/get_blog")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -124,8 +124,8 @@ def get_one_blog(blog_id):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/get_blog")
-        print(e, "error@blog_blp/get_blog")
+        logger.exception("traceback@blog_blp/get_blog")
+        logger.error(f"{e}: error@blog_blp/get_blog")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -147,8 +147,8 @@ def get_all_categories():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/get_blog")
-        print(e, "error@blog_blp/get_blog")
+        logger.exception("traceback@blog_blp/get_blog")
+        logger.error(f"{e}: error@blog_blp/get_blog")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -187,8 +187,8 @@ def create_category():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@blog_blp/create_category")
-        print(e, "error@blog_blp/create_category")
+        logger.exception("traceback@blog_blp/create_category")
+        logger.error(f"{e}: error@blog_blp/create_category")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
