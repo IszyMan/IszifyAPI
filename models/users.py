@@ -3,7 +3,6 @@ from func import hex_id, generate_otp
 from passlib.hash import pbkdf2_sha256 as hasher
 from datetime import datetime, timedelta
 from utils import generate_random_string, validate_password
-from decorators import retry_on_exception
 
 
 class Users(db.Model):
@@ -78,7 +77,6 @@ class UserSession(db.Model):
         db.session.commit()
 
 
-@retry_on_exception(retries=3, delay=1)
 def authenticate(email, password):
     user = Users.query.filter_by(email=email).first()
     if user and hasher.verify(password, user.password):
@@ -86,7 +84,6 @@ def authenticate(email, password):
     return None
 
 
-@retry_on_exception(retries=3, delay=1)
 def username_exist(username):
     user = Users.query.filter_by(username=username).first()
     if user:
@@ -94,7 +91,6 @@ def username_exist(username):
     return False
 
 
-@retry_on_exception(retries=3, delay=1)
 def email_exist(email):
     user = Users.query.filter_by(email=email).first()
     if user:
@@ -102,7 +98,6 @@ def email_exist(email):
     return False
 
 
-@retry_on_exception(retries=3, delay=1)
 def create_user(email, password, first_name, last_name, username):
     if email_exist(email):
         return None, "Email already exist"
@@ -114,7 +109,6 @@ def create_user(email, password, first_name, last_name, username):
     return user, None
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_user(email):
     if not email_exist(email):
         return None
@@ -122,7 +116,6 @@ def get_user(email):
     return user
 
 
-@retry_on_exception(retries=3, delay=1)
 def create_otp(user_id):
     # expiry time is 10 minutes
     expiry = datetime.now() + timedelta(minutes=10)
@@ -138,7 +131,6 @@ def create_otp(user_id):
     return usersession
 
 
-@retry_on_exception(retries=3, delay=1)
 def create_reset_p(user_id):
     # expiry time is 10 minutes
     expiry = datetime.now() + timedelta(minutes=10)
@@ -157,7 +149,6 @@ def create_reset_p(user_id):
     return usersession
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_user_by_email(email):
     return Users.query.filter_by(email=email).first()
 
@@ -167,7 +158,6 @@ def get_user_by_email(email):
 #     return usersession
 
 
-@retry_on_exception(retries=3, delay=1)
 def update_password(user, password):
     user.password = hasher.hash(password)
     user.update()
@@ -175,7 +165,6 @@ def update_password(user, password):
     return user
 
 
-@retry_on_exception(retries=3, delay=1)
 def current_user_info(user):
     return {
         "id": user.id,
@@ -187,12 +176,10 @@ def current_user_info(user):
     }
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_user_by_id(user_id):
     return Users.query.filter_by(id=user_id).first()
 
 
-@retry_on_exception(retries=3, delay=1)
 def update_user_role(user_id, is_admin, is_super_admin):
     user = get_user_by_id(user_id)
     user.is_admin = is_admin
@@ -201,7 +188,6 @@ def update_user_role(user_id, is_admin, is_super_admin):
     return user
 
 
-@retry_on_exception(retries=3, delay=1)
 def change_password(current_user, new_password):
     pass_val = validate_password(new_password)
     if pass_val:
@@ -211,7 +197,6 @@ def change_password(current_user, new_password):
     return None
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_user_by_reset_p(reset_p):
     usersession = UserSession.query.filter_by(reset_p=reset_p).first()
     return usersession.user if usersession else None
