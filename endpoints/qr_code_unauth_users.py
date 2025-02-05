@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
+from logger import logger
 from status_res import StatusRes
 from models import (
     save_qrcode_data_unauth,
@@ -22,7 +23,7 @@ def qrcode():
         data = request.get_json()
         user_agent = request.user_agent
 
-        pprint.pprint(data)
+        logger.info(f"Data: {data} User Agent: {user_agent}")
 
         category = data.get("category")
         if not category:
@@ -33,7 +34,7 @@ def qrcode():
             )
 
         if data.get("url"):
-            print("checking if url exists in category")
+            logger.info("checking if url exists in category")
             res = check_unauth_url_category_exists(data.get("url"), category)
             if res:
                 return return_response(
@@ -85,8 +86,8 @@ def qrcode():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/qrcode")
-        print(e, "error@qrcode_blp/qrcode")
+        logger.exception("traceback@qrcode_blp/qrcode")
+        logger.error(f"error@qrcode_blp/qrcode: {e}")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
