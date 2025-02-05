@@ -2,10 +2,12 @@ from extensions import db
 from func import hex_id
 from sqlalchemy import func
 from flask import request
+
+from logger import logger
 from utils import gen_short_code, return_host_url, remove_host_url
-from decorators import retry_on_exception
 from datetime import datetime, timedelta
 from default_style import return_default_style
+from sqlalchemy import extract
 
 
 class QRCodeCategories(db.Model):
@@ -276,7 +278,6 @@ def get_qrcode_categories():
     return [cat.to_dict() for cat in cats]
 
 
-@retry_on_exception(retries=3, delay=1)
 def save_qrcode_data(qrcode_data_payload, user_id):
     qrcode_data = QRCodeData(
         url=qrcode_data_payload["url"],
@@ -316,7 +317,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
     )
 
     if qrcode_data_payload["social_media"]:
-        print("social media")
+        logger.info("social media")
         for sm in qrcode_data_payload["social_media"]:
             social_media = SocialMedia(
                 name=sm["name"], url=sm["url"], qrcode=qrcode_data
@@ -324,7 +325,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
             db.session.add(social_media)
 
     if qrcode_data_payload["qr_style"]:
-        print("qr style")
+        logger.info("qr style")
         qr_styling = QrCodeStyling(
             width=qrcode_data_payload["qr_style"].get("width"),
             height=qrcode_data_payload["qr_style"].get("height"),
@@ -350,7 +351,7 @@ def save_qrcode_data(qrcode_data_payload, user_id):
         db.session.add(qr_styling)
 
     if qrcode_data_payload["qr_frame"]:
-        print("qr frame")
+        logger.info("qr frame")
         qr_frame = QrFrame(
             frame=qrcode_data_payload["frame"],
             scan_name=qrcode_data_payload["scan_name"],
@@ -363,7 +364,6 @@ def save_qrcode_data(qrcode_data_payload, user_id):
     return qrcode_data
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_qrcode_data(
     page, per_page, user_id, category=None, start_date=None, end_date=None, hidden=False
 ):
@@ -395,7 +395,6 @@ def get_qrcode_data(
     }
 
 
-@retry_on_exception(retries=3, delay=1)
 def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     qrcode_data = QRCodeData.query.filter(
         QRCodeData.user_id == user_id, QRCodeData.id == qr_id
@@ -518,7 +517,6 @@ def update_qrcode_data(qrcode_data_payload, user_id, qr_id):
     return True
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
     qrcode_data = QRCodeData.query.filter_by(user_id=user_id, id=qr_id).first()
     if not qrcode_data:
@@ -526,7 +524,6 @@ def get_qrcode_data_by_id(user_id, qr_id, fetch_type=None):
     return qrcode_data if fetch_type else qrcode_data.to_dict()
 
 
-@retry_on_exception(retries=3, delay=1)
 def qrcode_styling(payload, qrcode_id, user_id):
     existing_style = (
         QrCodeStyling.query.join(QRCodeData)
@@ -534,7 +531,7 @@ def qrcode_styling(payload, qrcode_id, user_id):
         .first()
     )
     if existing_style:
-        print("update existing style")
+        logger.info("update existing style")
         existing_style.width = payload.get("width") or existing_style.width
         existing_style.height = payload.get("height") or existing_style.height
         existing_style.image = payload.get("image") or existing_style.image
@@ -566,7 +563,7 @@ def qrcode_styling(payload, qrcode_id, user_id):
 
         existing_style.update()
         return existing_style, True
-    print("create new style")
+    logger.info("create new style")
     qr_styling = QrCodeStyling(
         width=payload.get("width"),
         height=payload.get("height"),
@@ -587,7 +584,6 @@ def qrcode_styling(payload, qrcode_id, user_id):
     return qr_styling, False
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_url_by_short_url(short_url):
     original_url = QRCodeData.query.filter(
         func.lower(QRCodeData.short_url) == short_url.lower()
@@ -623,7 +619,7 @@ def save_want_qr_code(
     db.session.add(qr_code_data)
 
     if qr_style and isinstance(qr_style, dict):
-        print(f"qr style {qr_style}")
+        logger.info(f"qr style {qr_style}")
         qr_styling = QrCodeStyling(
             width=qr_style.get("width"),
             height=qr_style.get("height"),
@@ -643,7 +639,7 @@ def save_want_qr_code(
         db.session.add(qr_styling)
 
     if qr_frame and isinstance(qr_frame, dict):
-        print("qr frame")
+        logger.info("qr frame")
         # Implement this later
         pass
 
@@ -727,6 +723,17 @@ def duplicate_qr_code(qr_code_id, user_id, short_url):
         db.session.commit()
         return qr_code
     except Exception as e:
-        print(e)
+        logger.error(e)
         db.session.rollback()
         return None
+
+
+def get_current_qr_code_count(current_user):
+    """Return the count of QRCodeData records created in the current month."""
+    now = datetime.utcnow()  # Use datetime.now() if your app isn't in UTC
+    return (
+        QRCodeData.query.filter_by(user=current_user)
+        .filter(extract("year", QRCodeData.created) == now.year)
+        .filter(extract("month", QRCodeData.created) == now.month)
+        .count()
+    )
