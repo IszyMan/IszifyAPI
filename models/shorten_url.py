@@ -11,7 +11,7 @@ from sqlalchemy import extract, func
 
 from extensions import db
 from func import hex_id
-from decorators import retry_on_exception
+from logger import logger
 from utils import return_host_url, remove_host_url
 from flask import request
 
@@ -132,11 +132,11 @@ def save_url_clicks(url_id, payload):
     ).first()
 
     if not clicks:
-        print("save new click record")
+        logger.info("save new click record")
         new_clicks = UrlShortenerClicks(count=1, url_id=url_id)
         db.session.add(new_clicks)
     else:
-        print("update click record")
+        logger.info("update click record")
         clicks.count += 1
 
     db.session.commit()
@@ -192,7 +192,6 @@ def save_url_click_location(ip_address, country, city, device, browser, url_id):
     return True
 
 
-@retry_on_exception(retries=3, delay=1)
 def get_original_url_by_short_url(short_url):
     origin_url = Urlshort.query.filter(
         func.lower(Urlshort.short_url) == short_url.lower()
@@ -232,3 +231,14 @@ def get_shorten_url_for_user(page, per_page, user_id, hidden):
 
 def check_short_url_exist(short_url):
     return Urlshort.query.filter(Urlshort.short_url == short_url).first()
+
+
+def get_current_shortlink_count(current_user):
+    """Return the current count of Urlshort records."""
+    now = datetime.datetime.utcnow()
+    return (
+        Urlshort.query.filter_by(user=current_user)
+        .filter(extract("year", Urlshort.created) == now.year)
+        .filter(extract("month", Urlshort.created) == now.month)
+        .count()
+    )
