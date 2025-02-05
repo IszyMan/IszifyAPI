@@ -10,7 +10,7 @@ from models import (
     change_password,
     create_otp,
     username_exist,
-    email_exist,
+    email_exist, subscribe_for_beginner
 )
 from extensions import db
 from utils import (
@@ -20,10 +20,10 @@ from utils import (
     validate_password,
     detect_disposable_email,
 )
-import traceback
 from datetime import datetime
 from api_services import send_mail
 from passlib.hash import pbkdf2_sha256 as hasher
+from logger  import logger
 
 AUTH_PREFIX = "auth"
 
@@ -38,7 +38,7 @@ def login():
         email = data.get("email")
         password = data.get("password")
 
-        print(email, password)
+        logger.info(f"Email: {email} Password: {password}")
 
         if not email or not password:
             return return_response(
@@ -68,8 +68,8 @@ def login():
             message="Invalid Email or Password",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/login")
-        print(e, "error@auth_blp/login")
+        logger.exception("traceback@auth_blp/login")
+        logger.error(f"{e}: error@auth_blp/login")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -150,7 +150,7 @@ def register():
             )
 
         otp = user.user_session.otp
-        print(otp, "OTP")
+        logger.info(f"OTP: {otp}")
         # implement where to send the user an otp after registration
         email_payload = {
             "otp": otp,
@@ -168,8 +168,8 @@ def register():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/register")
-        print(e, "error@auth_blp/register")
+        logger.exception("traceback@auth_blp/register")
+        logger.error(f"{e}: error@auth_blp/register")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -211,7 +211,7 @@ def resend_otp():
         user_session = create_otp(user.id)
 
         otp = user_session.otp
-        print(otp, "OTP")
+        logger.info(f"OTP: {otp}")
         # implement where to send the user an otp
         email_payload = {
             "otp": otp,
@@ -229,8 +229,8 @@ def resend_otp():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/resend-otp")
-        print(e, "error@auth_blp/resend-otp")
+        logger.exception("traceback@auth_blp/resend-otp")
+        logger.error(f"{e}: error@auth_blp/resend-otp")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -292,6 +292,7 @@ def verify_account():
             )
 
         user.email_verified = True
+        subscribe_for_beginner(user.id)
         db.session.commit()
 
         return return_response(
@@ -302,8 +303,8 @@ def verify_account():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/verify-account")
-        print(e, "error@auth_blp/verify-account")
+        logger.exception("traceback@auth_blp/verify-account")
+        logger.error(f"{e}: error@auth_blp/verify-account")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -346,7 +347,7 @@ def forgot_password_request():
 
         user_reset = create_reset_p(user.id)
 
-        print(frontend_url, "frontend_url before checking")
+        logger.info(f"Frontend URL: {frontend_url}")
 
         frontend_url = (
             f"http://{frontend_url}"
@@ -354,7 +355,7 @@ def forgot_password_request():
             else frontend_url
         )
         reset_link = f"{frontend_url}/{user_reset.reset_p}"
-        print(reset_link, "reset_link")
+        logger.info(f"Reset Link: {reset_link}")
         # send this reset link to the user
 
         email_payload = {
@@ -373,8 +374,8 @@ def forgot_password_request():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/forgot-password-request")
-        print(e, "error@auth_blp/forgot-password-request")
+        logger.exception("traceback@auth_blp/forgot-password-request")
+        logger.error(f"{e}: error@auth_blp/forgot-password-request")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -480,8 +481,8 @@ def reset_password(reset_p):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@auth_blp/reset-password")
-        print(e, "error@auth_blp/reset-password")
+        logger.exception("traceback@auth_blp/reset-password")
+        logger.error(f"{e}: error@auth_blp/reset-password")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
