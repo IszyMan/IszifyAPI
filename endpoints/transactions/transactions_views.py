@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from extensions import db
 from utils import return_response
-import traceback
+from logger import logger
 from status_res import StatusRes
 from http_status import HttpStatus
 from . import pay_stack
@@ -37,8 +37,8 @@ def list_banks():
             banks=res["data"],
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/list_banks")
-        print(e, "error@transactions_blp/list_banks")
+        logger.exception("traceback@transactions_blp/list_banks")
+        logger.error(f"{e}: error@transactions_blp/list_banks")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -61,7 +61,7 @@ def verify_transaction():
                 message="Reference number is required",
             )
         res = pay_stack.verify_transaction(reference_number)
-        print(res, "Result of verify transaction")
+        logger.info(f"{res}: Result of verify transaction")
         if not res:
             return return_response(
                 HttpStatus.INTERNAL_SERVER_ERROR,
@@ -75,8 +75,8 @@ def verify_transaction():
             message="Transaction Verified",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/verify_transaction")
-        print(e, "error@transactions_blp/verify_transaction")
+        logger.exception("traceback@transactions_blp/verify_transaction")
+        logger.error(f"{e}: error@transactions_blp/verify_transaction")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -112,8 +112,8 @@ def subscribe_plan():
             message="Plan Subscribed",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/subscribe")
-        print(e, "error@transactions_blp/subscribe")
+        logger.exception("traceback@transactions_blp/subscribe")
+        logger.error(f"{e}: error@transactions_blp/subscribe")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -141,8 +141,8 @@ def get_all_payment_plans():
             plans=res,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/get_payment_plans")
-        print(e, "error@transactions_blp/get_payment_plans")
+        logger.exception("traceback@transactions_blp/get_payment_plans")
+        logger.error(f"{e}: error@transactions_blp/get_payment_plans")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -185,8 +185,8 @@ def get_all_transactions():
             **res,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/get_transactions")
-        print(e, "error@transactions_blp/get_transactions")
+        logger.exception("traceback@transactions_blp/get_transactions")
+        logger.error(f"{e}: error@transactions_blp/get_transactions")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -216,8 +216,8 @@ def get_transaction(transaction_id):
             transaction=res,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@transactions_blp/get_one_transaction")
-        print(e, "error@transactions_blp/get_one_transaction")
+        logger.exception("traceback@transactions_blp/get_one_transaction")
+        logger.error(f"{e}: error@transactions_blp/get_one_transaction")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -241,10 +241,8 @@ def get_subscriptions():
             **res,
         )
     except Exception as e:
-        print(
-            traceback.format_exc(), "traceback@transactions_blp/get_all_subscriptions"
-        )
-        print(e, "error@transactions_blp/get_all_subscriptions")
+        logger.exception("traceback@transactions_blp/get_all_subscriptions")
+        logger.error(f"{e}: error@transactions_blp/get_all_subscriptions")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
