@@ -2,6 +2,7 @@ from extensions import db
 from func import hex_id
 from sqlalchemy import func
 from datetime import datetime, timedelta
+from sqlalchemy import extract
 
 
 class BioLink(db.Model):
@@ -29,3 +30,14 @@ class BioLink(db.Model):
 #     db.session.add(bio_link)
 #     db.session.commit()
 #     return True
+
+
+def get_current_bio_link_count(current_user):
+    """Return the current count of BioLink records."""
+    now = datetime.utcnow()
+    return (
+        BioLink.query.filter_by(user=current_user)
+        .filter(extract("year", BioLink.created) == now.year)
+        .filter(extract("month", BioLink.created) == now.month)
+        .count()
+    )
