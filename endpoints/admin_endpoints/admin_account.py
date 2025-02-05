@@ -22,7 +22,7 @@ from utils import (
     is_valid_email,
     detect_disposable_email,
 )
-import traceback
+from logger import logger
 from flask_jwt_extended import current_user, jwt_required
 
 USER_PREFIX = "admin_account"
@@ -41,7 +41,7 @@ def create_admin():
         last_name = data.get("last_name")
         role_id = data.get("role_id")
 
-        print(email, password)
+        logger.info(f"email: {email}, password: {password}")
 
         if not email or not password or not first_name or not last_name or not role_id:
             return return_response(
@@ -96,8 +96,8 @@ def create_admin():
             message=f"{admin_create.last_name} {admin_create.first_name} created successfully",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/admin_login")
-        print(e, "error@user_blp/admin_login")
+        logger.exception("traceback@user_blp/admin_login")
+        logger.error(f"{e}: error@user_blp/admin_login")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -141,8 +141,8 @@ def edit_admin(admin_id):
             message="Admin updated successfully",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/edit_admin")
-        print(e, "error@user_blp/edit_admin")
+        logger.exception("traceback@user_blp/edit_admin")
+        logger.error(f"{e}: error@user_blp/edit_admin")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -188,8 +188,8 @@ def get_admins():
             total_pages=admins.pages,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_admins")
-        print(e, "error@user_blp/get_admins")
+        logger.exception("traceback@user_blp/get_admins")
+        logger.error(f"{e}: error@user_blp/get_admins")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -226,8 +226,8 @@ def get_roles():
             data=[role.to_dict() for role in roles],
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_roles")
-        print(e, "error@user_blp/get_roles")
+        logger.exception("traceback@user_blp/get_roles")
+        logger.error(f"{e}: error@user_blp/get_roles")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -248,8 +248,8 @@ def get_admin_details():
             data=current_user.to_dict(),
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_admin_details")
-        print(e, "error@user_blp/get_admin_details")
+        logger.exception("traceback@user_blp/get_admin_details")
+        logger.error(f"{e}: error@user_blp/get_admin_details")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -325,8 +325,8 @@ def add_payment_plan():
             message=f"Payment Plan: {plan.name} Added",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/add_payment_plan")
-        print(e, "error@user_blp/add_payment_plan")
+        logger.exception("traceback@user_blp/add_payment_plan")
+        logger.error(f"{e}: error@user_blp/add_payment_plan")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -390,8 +390,8 @@ def modify_payment_plan(plan_id):
             message=f"Payment Plan Updated",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/modify_payment_plan")
-        print(e, "error@user_blp/modify_payment_plan")
+        logger.exception("traceback@user_blp/modify_payment_plan")
+        logger.error(f"{e}: error@user_blp/modify_payment_plan")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
