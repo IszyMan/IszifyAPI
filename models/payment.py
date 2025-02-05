@@ -1,23 +1,54 @@
 from extensions import db
 from func import hex_id
 from datetime import datetime, timedelta
+from logger import logger
 
 
 class PaymentPlans(db.Model):
     __tablename__ = "payment_plans"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
-    name = db.Column(db.String(100))
-    amount = db.Column(db.Float)
-    currency = db.Column(db.String(50))
-    duration = db.Column(db.Integer)
+    name = db.Column(db.String(100), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(50), nullable=False)
+    duration = db.Column(db.Integer, nullable=False)  # Duration in months or other unit
+    unlimited_link_clicks = db.Column(db.Boolean, default=False)
+    unlimited_qr_scans = db.Column(db.Boolean, default=False)
+    shortlinks_per_month = db.Column(db.Integer, default=0)
+    qr_codes_per_month = db.Column(db.Integer, default=0)
+    link_in_bio = db.Column(db.Integer, default=0)
+    analytics_access = db.Column(db.Boolean, default=False)
+    qr_code_customization = db.Column(db.Boolean, default=False)
+    qr_code_watermark = db.Column(db.Boolean, default=True)
 
     user_sub = db.relationship("Subscriptions", backref="plan", lazy=True)
 
-    def __init__(self, name, amount, currency, duration):
+    def __init__(
+        self,
+        name,
+        amount,
+        currency,
+        duration,
+        unlimited_link_clicks=False,
+        unlimited_qr_scans=False,
+        shortlinks_per_month=0,
+        qr_codes_per_month=0,
+        link_in_bio=0,
+        analytics_access=False,
+        qr_code_customization=False,
+        qr_code_watermark=True,
+    ):
         self.name = name.title()
         self.amount = amount
         self.currency = currency
         self.duration = duration
+        self.unlimited_link_clicks = unlimited_link_clicks
+        self.unlimited_qr_scans = unlimited_qr_scans
+        self.shortlinks_per_month = shortlinks_per_month
+        self.qr_codes_per_month = qr_codes_per_month
+        self.link_in_bio = link_in_bio
+        self.analytics_access = analytics_access
+        self.qr_code_customization = qr_code_customization
+        self.qr_code_watermark = qr_code_watermark
 
     def to_dict(self):
         return {
@@ -26,6 +57,14 @@ class PaymentPlans(db.Model):
             "amount": self.amount,
             "currency": self.currency,
             "duration": self.duration,
+            "unlimited_link_clicks": self.unlimited_link_clicks,
+            "unlimited_qr_scans": self.unlimited_qr_scans,
+            "shortlinks_per_month": self.shortlinks_per_month,
+            "qr_codes_per_month": self.qr_codes_per_month,
+            "link_in_bio": self.link_in_bio,
+            "analytics_access": self.analytics_access,
+            "qr_code_customization": self.qr_code_customization,
+            "qr_code_watermark": self.qr_code_watermark,
         }
 
     def save(self):
@@ -62,6 +101,19 @@ class Subscriptions(db.Model):
             "status": self.status,
         }
 
+    def user_to_dict(self):
+        return {
+            "id": self.id,
+            "plan_id": self.plan_id,
+            "start_date": self.start_date,
+            "end_date": (
+                self.end_date
+                if "beginner" not in self.plan.name.lower()
+                else "No Expiration"
+            ),
+            "plan": self.plan.to_dict(),
+        }
+
     def save(self):
         db.session.add(self)
         db.session.commit()
@@ -84,10 +136,41 @@ class Transactions(db.Model):
 
 
 # create payment plan
-def create_payment_plan(name, amount, currency, duration):
+def create_payment_plan(
+    name,
+    amount,
+    currency,
+    duration,
+    unlimited_link_clicks=False,
+    unlimited_qr_scans=False,
+    shortlinks_per_month=0,
+    qr_codes_per_month=0,
+    link_in_bio=0,
+    analytics_access=False,
+    qr_code_customization=False,
+    qr_code_watermark=True,
+):
+    # Check if a plan with the same name already exists
     if PaymentPlans.query.filter_by(name=name.title()).first():
         return False
-    plan = PaymentPlans(name, amount, currency, duration)
+
+    # Create a new payment plan instance
+    plan = PaymentPlans(
+        name=name.title(),
+        amount=amount,
+        currency=currency,
+        duration=duration,
+        unlimited_link_clicks=unlimited_link_clicks,
+        unlimited_qr_scans=unlimited_qr_scans,
+        shortlinks_per_month=shortlinks_per_month,
+        qr_codes_per_month=qr_codes_per_month,
+        link_in_bio=link_in_bio,
+        analytics_access=analytics_access,
+        qr_code_customization=qr_code_customization,
+        qr_code_watermark=qr_code_watermark,
+    )
+
+    # Save the plan to the database
     plan.save()
     return plan
 
@@ -136,7 +219,7 @@ def subscribe(user_id, plan_id, status):
     if not plan:
         return False
     start_date = datetime.now()
-    end_date = start_date + timedelta(days=plan.duration)
+    end_date = start_date + timedelta(days=30 * plan.duration)
     sub = Subscriptions(user_id, plan_id, start_date, end_date, status)
     sub.save()
     return sub
@@ -200,3 +283,58 @@ def get_one_transaction(transaction_id, user_id):
         id=transaction_id, user_id=user_id
     ).first()
     return transaction.to_dict() if transaction else None
+
+
+# subscribe for beginner payment plan for user
+def subscribe_for_beginner(user_id):
+    plan = PaymentPlans.query.filter(PaymentPlans.name.ilike("%Beginner%")).first()
+    if not plan:
+        plan = create_beginner_payment_plan()
+        logger.info("Beginner plan not found")
+    return subscribe(user_id, plan.id, "active")
+
+
+# create_beginner_payment_plan
+def create_beginner_payment_plan():
+    logger.info("Creating Beginner plan")
+    new_plan = create_payment_plan(
+        name="Beginner",
+        amount=0,
+        currency="USD",
+        duration=0,
+        unlimited_link_clicks=True,
+        unlimited_qr_scans=True,
+        shortlinks_per_month=10,
+        qr_codes_per_month=2,
+        link_in_bio=1,
+        analytics_access=False,
+        qr_code_customization=True,
+        qr_code_watermark=True,
+    )
+    return new_plan
+
+
+# get user current subscription
+def get_user_current_subscription(user):
+    subscription = (
+        Subscriptions.query.filter_by(user=user)
+        .order_by(Subscriptions.start_date.desc())
+        .first()
+    )
+    return subscription.user_to_dict() if subscription else {}
+
+
+# get all user sub
+def get_users_subscriptions(page, per_page, user):
+    subscriptions = Subscriptions.query.filter(Subscriptions.user == user)
+    subscriptions = subscriptions.order_by(Subscriptions.start_date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+
+    return {
+        "data": [subscription.user_to_dict() for subscription in subscriptions.items],
+        "total_items": subscriptions.total,
+        "page": subscriptions.page,
+        "total_pages": subscriptions.pages,
+        "per_page": subscriptions.per_page,
+    }
