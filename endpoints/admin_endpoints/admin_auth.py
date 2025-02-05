@@ -1,5 +1,6 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
+from logger import logger
 from status_res import StatusRes
 from models import (
     admin_authenticate,
@@ -25,7 +26,7 @@ def admin_login():
         email = data.get("email")
         password = data.get("password")
 
-        print(email, password)
+        logger.info(f"Email: {email} Password: {password}")
 
         if not email or not password:
             return return_response(
@@ -47,8 +48,8 @@ def admin_login():
             message="Invalid Email or Password",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/admin_login")
-        print(e, "error@user_blp/admin_login")
+        logger.exception("traceback@user_blp/admin_login")
+        logger.error(f"{e}: error@user_blp/admin_login")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
