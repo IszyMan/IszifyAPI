@@ -18,6 +18,8 @@ import string
 import secrets
 from bs4 import BeautifulSoup
 
+from logger import logger
+
 
 def return_response(status_code, status=None, message=None, **data):
     res_data = {
@@ -78,14 +80,14 @@ def return_user_dict(user):
 
 def convert_binary(base64_file):
     try:
-        print("got here")
+        logger.info("got here")
         binary_data = base64.b64decode(base64_file)
         # Convert binary data to a file-like object
         file_like = BytesIO(binary_data)
-        print(file_like, "file_like from convert_binary")
+        logger.info(f"{file_like} file_like from convert_binary")
         return file_like
     except Exception as e:
-        print(e, "error from convert_binary")
+        logger.error(f"{e}: error from convert_binary")
         return None
 
 
@@ -99,10 +101,10 @@ def generate_signature(params_to_sign, api_secret):
         signature = hmac.new(
             api_secret.encode("utf-8"), to_sign.encode("utf-8"), hashlib.sha1
         ).hexdigest()
-        print(signature, "signature from generate_signature")
+        logger.info(f"{signature}: signature from generate_signature")
         return signature
     except Exception as e:
-        print(e, "error from generate_signature")
+        logger.error(f"{e}: error from generate_signature")
         return None
 
 
@@ -152,10 +154,10 @@ def detect_disposable_email(email):
         headers = {"accept": "application/json"}
         response = requests.get(url, headers=headers)
         res = response.json()
-        print(res, "result of disposable email")
+        logger.info(f"{res}: result of disposable email")
         return res.get("disposable")
     except Exception as e:
-        print(e, "error@disposable_email")
+        logger.error(f"{e}: error@disposable_email")
         return "Error"
 
 
@@ -192,13 +194,13 @@ def get_website_title(url):
 
         # Find the title tag and get its text
         title = soup.title.string if soup.title else None
-        print(title, "title from getWebsiteTitle")
+        logger.info(f"{title}: title from getWebsiteTitle")
         return title
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching the URL: {e}")
+        logger.error(f"Error fetching the URL: {e}")
         return None
     except Exception as e:
-        print(e, "error@getWebsiteTitle")
+        logger.error(f"{e}: error@getWebsiteTitle")
         return None
 
 
