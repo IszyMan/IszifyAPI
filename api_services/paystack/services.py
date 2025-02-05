@@ -1,5 +1,6 @@
 from .base import PaystackBase
 import requests
+from logger import logger
 
 
 class PaystackClient(PaystackBase):
@@ -10,7 +11,7 @@ class PaystackClient(PaystackBase):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            print("error", e)
+            logger.error(f"error {e}")
             return None
 
     # verify transaction
@@ -21,5 +22,5 @@ class PaystackClient(PaystackBase):
             response.raise_for_status()
             return response.json()
         except Exception as e:
-            print("error", e)
+            logger.error(f"error {e}")
             return None
