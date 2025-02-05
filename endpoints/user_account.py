@@ -5,6 +5,8 @@ from models import (
     current_user_info,
     Urlshort,
     save_url_clicks,
+    get_user_current_subscription,
+    get_users_subscriptions,
 )
 from extensions import db, limiter
 from utils import (
@@ -15,7 +17,7 @@ from utils import (
     user_id_limiter,
     validate_password,
 )
-import traceback
+from logger import logger
 from decorators import email_verified
 from flask_jwt_extended import current_user, jwt_required
 from passlib.hash import pbkdf2_sha256 as hasher
@@ -36,8 +38,8 @@ def dashboard():
             HttpStatus.OK, message="User Dashboard", status=StatusRes.SUCCESS, data=res
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/dashboard")
-        print(e, "error@user_blp/dashboard")
+        logger.exception("traceback@user_blp/dashboard")
+        logger.error(f"{e}: error@user_blp/dashboard")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -70,7 +72,6 @@ def dashboard():
 #     save_url_clicks(url.id, payload)
 #
 #     db.session.commit()
-#     print(url.url, "the real url")
 #     return redirect(url.url)
 
 
@@ -89,8 +90,8 @@ def dashboard():
 #             HttpStatus.OK, message="User Settings", status=StatusRes.SUCCESS
 #         )
 #     except Exception as e:
-#         print(traceback.format_exc(), "traceback@user_blp/settings")
-#         print(e, "error@user_blp/settings")
+#         logger.exception( "traceback@user_blp/settings")
+#         logger.error(f"{e}: error@user_blp/settings")
 #         db.session.rollback()
 #         return return_response(
 #             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -145,8 +146,8 @@ def change_password():
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Password changed"
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/settings")
-        print(e, "error@user_blp/settings")
+        logger.exception("traceback@user_blp/settings")
+        logger.error(f"{e}: error@user_blp/settings")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -167,8 +168,54 @@ def get_user_details():
             data=current_user.to_dict(),
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_user_details")
-        print(e, "error@user_blp/get_user_details")
+        logger.exception("traceback@user_blp/get_user_details")
+        logger.error(f"{e}: error@user_blp/get_user_details")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get user current sub
+@user_blp.route(f"/{USER_PREFIX}/sub", methods=["GET"])
+@jwt_required()
+def get_user_sub():
+    try:
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="User Subscription",
+            data=get_user_current_subscription(current_user),
+        )
+    except Exception as e:
+        logger.exception("traceback@user_blp/get_user_sub")
+        logger.error(f"{e}: error@user_blp/get_user_sub")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get all user subs
+@user_blp.route(f"/{USER_PREFIX}/all-sub", methods=["GET"])
+@jwt_required()
+def get_user_subs():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="User Subscriptions",
+            **get_users_subscriptions(page, per_page, current_user),
+        )
+    except Exception as e:
+        logger.exception("traceback@user_blp/get_user_subs")
+        logger.error(f"{e}: error@user_blp/get_user_subs")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
