@@ -10,7 +10,6 @@ import os
 redirect_url_blp = Blueprint("redirect_url_blp", __name__)
 
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL")
-# print("DEFAULT_REDIRECT_URL", DEFAULT_REDIRECT_URL)
 
 
 @redirect_url_blp.route("/<short_url>", methods=["GET"])
