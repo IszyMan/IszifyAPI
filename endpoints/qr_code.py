@@ -15,11 +15,11 @@ from models import (
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter, get_website_title
-import traceback
 from flask_jwt_extended import jwt_required, current_user
 from datetime import datetime
 import pprint
-from decorators import email_verified
+from decorators import email_verified, check_qr_code_limit, check_subscription_expired
+from logger import logger
 
 QR_PREFIX = "qr_code"
 
@@ -52,8 +52,8 @@ def qrcode_categories():
             data=cats,
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/qrcode_categories")
-        print(e, "error@qrcode_blp/qrcode_categories")
+        logger.exception("traceback@qrcode_blp/qrcode_categories")
+        logger.error(f"{e}: error@qrcode_blp/qrcode_categories")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -66,13 +66,15 @@ def qrcode_categories():
 @qrcode_blp.route(f"/{QR_PREFIX}/qrcode", methods=["GET", "POST"])
 @jwt_required()
 @email_verified
+@check_subscription_expired
+@check_qr_code_limit
 @limiter.limit("15 per minute", key_func=user_id_limiter)
 def qrcode():
     try:
         if request.method == "POST":
             data = request.get_json()
 
-            pprint.pprint(data)
+            logger.info(data)
 
             category = data.get("category")
             title = data.get("title")
@@ -101,7 +103,7 @@ def qrcode():
                 )
 
             if data.get("url"):
-                print("checking if url exists in category")
+                logger.info("checking if url exists in category")
                 res = check_url_category_exists(
                     data.get("url"), category, current_user.id
                 )
@@ -178,8 +180,8 @@ def qrcode():
             )
             end_date = datetime.strptime(end_date, "%d-%m-%Y") if end_date else None
         except ValueError as e:
-            print(traceback.format_exc(), "traceback@qrcode_blp/qrcode")
-            print(e, "error at date conversion")
+            logger.exception("traceback@qrcode_blp/qrcode")
+            logger.error(f"{e}: error at date conversion")
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
@@ -193,8 +195,8 @@ def qrcode():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/qrcode")
-        print(e, "error@qrcode_blp/qrcode")
+        logger.exception("traceback@qrcode_blp/qrcode")
+        logger.error(f"{e}: error@qrcode_blp/qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -213,7 +215,7 @@ def edit_qrcode(qr_code_id):
         if request.method == "PATCH":
             data = request.get_json()
 
-            pprint.pprint(data)
+            logger.info(data)
 
             if not qr_code_id:
                 return return_response(
@@ -301,8 +303,8 @@ def edit_qrcode(qr_code_id):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/edit_qrcode")
-        print(e, "error@qrcode_blp/edit_qrcode")
+        logger.exception("traceback@qrcode_blp/edit_qrcode")
+        logger.error(f"{e}: error@qrcode_blp/edit_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -405,8 +407,8 @@ def style_qrcode(qr_code_id):
             message="QR Code Styled",
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/style_qrcode")
-        print(e, "error@qrcode_blp/style_qrcode")
+        logger.exception("traceback@qrcode_blp/style_qrcode")
+        logger.error(f"{e}: error@qrcode_blp/style_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -451,8 +453,8 @@ def delete_qrcode(qr_code_id):
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Deleted"
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/delete_qrcode")
-        print(e, "error@qrcode_blp/delete_qrcode")
+        logger.exception("traceback@qrcode_blp/delete_qrcode")
+        logger.error(f"{e}: error@qrcode_blp/delete_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -499,8 +501,8 @@ def duplicate_a_qrcode():
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Duplicated"
         )
     except Exception as e:
-        print(traceback.format_exc(), "traceback@qrcode_blp/duplicate_qrcode")
-        print(e, "error@qrcode_blp/duplicate_qrcode")
+        logger.exception("traceback@qrcode_blp/duplicate_qrcode")
+        logger.error(f"{e}: error@qrcode_blp/duplicate_qrcode")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
