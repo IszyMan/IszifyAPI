@@ -14,11 +14,11 @@ from utils import (
     user_id_limiter,
     gen_short_code,
 )
-import traceback
+from logger import logger
 from datetime import datetime
 
 # from api_services import send_mail
-from decorators import email_verified
+from decorators import email_verified, check_shortlink_limit, check_subscription_expired
 from flask_jwt_extended import current_user, jwt_required
 from utils import get_website_title
 
@@ -30,10 +30,12 @@ url_short_blp = Blueprint("url_short_blp", __name__)
 @url_short_blp.route(f"{USER_PREFIX}/short_url/create", methods=["POST"])
 @jwt_required()
 @email_verified
+@check_subscription_expired
+@check_shortlink_limit
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def shorten_url():
     try:
-        print("got here")
+        logger.info("got here")
         data = request.get_json()
         original_url = data.get("original_url")
         custom_url = data.get("custom_url")
@@ -41,7 +43,7 @@ def shorten_url():
 
         title = data.get("title")
 
-        print(
+        logger.info(
             f"original_url: {original_url}, custom_url: {custom_url}, title: {title}, "
             f"want_qr_code: {want_qr_code}"
         )
@@ -74,7 +76,7 @@ def shorten_url():
         #     )
 
         if custom_url:
-            print(custom_url, "custom_url")
+            logger.info(f"custom_url: {custom_url}")
             short_url = custom_url
             has_half_back = True
             if Urlshort.query.filter_by(short_url=short_url).first():
@@ -103,7 +105,7 @@ def shorten_url():
         url.save()
 
         if want_qr_code:
-            print("want_qr_code")
+            logger.info("want_qr_code")
             save_want_qr_code(
                 "url", short_url, url.id, original_url, current_user.id, title
             )
@@ -115,8 +117,8 @@ def shorten_url():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/shorten_url")
-        print(e, "error@user_blp/shorten_url")
+        logger.exception("traceback@user_blp/shorten_url")
+        logger.error(f"{e}: error@user_blp/shorten_url")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -141,8 +143,8 @@ def get_short_urls():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_short_urls")
-        print(e, "error@user_blp/get_short_urls")
+        logger.exception("traceback@user_blp/get_short_urls")
+        logger.error(f"{e}: error@user_blp/get_short_urls")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -175,8 +177,8 @@ def get_one_short_url(short_url_id):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/get_one_short_url")
-        print(e, "error@user_blp/get_one_short_url")
+        logger.exception("traceback@user_blp/get_one_short_url")
+        logger.error(f"{e}: error@user_blp/get_one_short_url")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -259,8 +261,8 @@ def edit_short_url(short_url_id):
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/edit_short_url")
-        print(e, "error@user_blp/edit_short_url")
+        logger.exception("traceback@user_blp/edit_short_url")
+        logger.error(f"{e}: error@user_blp/edit_short_url")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -321,8 +323,8 @@ def create_qr_code():
         )
 
     except Exception as e:
-        print(traceback.format_exc(), "traceback@user_blp/create_qr_code")
-        print(e, "error@user_blp/create_qr_code")
+        logger.exception("traceback@user_blp/create_qr_code")
+        logger.error(f"{e}: error@user_blp/create_qr_code")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
