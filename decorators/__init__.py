@@ -9,8 +9,14 @@ from datetime import datetime
 from sqlalchemy.exc import OperationalError
 from extensions import db
 from logger import logger
-from models import (Subscriptions, PaymentPlans, get_current_bio_link_count,
-                    get_current_shortlink_count, get_current_qr_code_count)
+from models import (
+    Subscriptions,
+    PaymentPlans,
+    get_current_bio_link_count,
+    get_current_shortlink_count,
+    get_current_qr_code_count,
+)
+
 
 # email verified decorator
 def email_verified(f):
@@ -58,7 +64,9 @@ def retry_on_exception(retries=3, delay=1, exceptions=(OperationalError,)):
                     return func(*args, **kwargs)
                 except exceptions as e:
                     if attempt < retries - 1:
-                        logger.info(f"Retrying due to: {e}. Attempt {attempt + 1}/{retries}.")
+                        logger.info(
+                            f"Retrying due to: {e}. Attempt {attempt + 1}/{retries}."
+                        )
                         time.sleep(delay)
                     else:
                         logger.info(f"Failed after {retries} attempts.")
@@ -76,7 +84,11 @@ def check_qr_code_limit(f):
     def decorated_function(*args, **kwargs):
         if request.method == "GET":
             return f(*args, **kwargs)
-        subscription = Subscriptions.query.filter_by(user=current_user).order_by(Subscriptions.start_date.desc()).first()
+        subscription = (
+            Subscriptions.query.filter_by(user=current_user)
+            .order_by(Subscriptions.start_date.desc())
+            .first()
+        )
 
         if not subscription:
             return return_response(
@@ -94,7 +106,9 @@ def check_qr_code_limit(f):
                 message="Subscription plan not found.",
             )
 
-        current_qr_codes = get_current_qr_code_count(current_user)  # Function to get current QR code count
+        current_qr_codes = get_current_qr_code_count(
+            current_user
+        )  # Function to get current QR code count
 
         if current_qr_codes >= plan.qr_codes_per_month:
             return return_response(
@@ -111,7 +125,11 @@ def check_qr_code_limit(f):
 def check_shortlink_limit(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        subscription = Subscriptions.query.filter_by(user=current_user).order_by(Subscriptions.start_date.desc()).first()
+        subscription = (
+            Subscriptions.query.filter_by(user=current_user)
+            .order_by(Subscriptions.start_date.desc())
+            .first()
+        )
 
         if not subscription:
             return return_response(
@@ -129,7 +147,9 @@ def check_shortlink_limit(f):
                 message="Subscription plan not found.",
             )
 
-        current_shortlinks = get_current_shortlink_count(current_user)  # Function to get current shortlink count
+        current_shortlinks = get_current_shortlink_count(
+            current_user
+        )  # Function to get current shortlink count
 
         if current_shortlinks >= plan.shortlinks_per_month:
             return return_response(
@@ -146,8 +166,11 @@ def check_shortlink_limit(f):
 def check_bio_link_limit(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        subscription = Subscriptions.query.filter_by(
-            user=current_user).order_by(Subscriptions.start_date.desc()).first()
+        subscription = (
+            Subscriptions.query.filter_by(user=current_user)
+            .order_by(Subscriptions.start_date.desc())
+            .first()
+        )
 
         if not subscription:
             return return_response(
@@ -165,7 +188,9 @@ def check_bio_link_limit(f):
                 message="Subscription plan not found.",
             )
 
-        current_bio_links = get_current_bio_link_count(current_user)  # Function to get current bio link count
+        current_bio_links = get_current_bio_link_count(
+            current_user
+        )  # Function to get current bio link count
 
         if current_bio_links >= subscription.plan.link_in_bio:
             logger.info(f"{current_bio_links} >= {subscription.plan.link_in_bio}")
@@ -183,8 +208,11 @@ def check_bio_link_limit(f):
 def check_analytics_access(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        subscription = Subscriptions.query.filter_by(
-            user=current_user).order_by(Subscriptions.start_date.desc()).first()
+        subscription = (
+            Subscriptions.query.filter_by(user=current_user)
+            .order_by(Subscriptions.start_date.desc())
+            .first()
+        )
 
         if not subscription:
             return return_response(
@@ -220,8 +248,11 @@ def check_subscription_expired(f):
     def decorated_function(*args, **kwargs):
         if request.method == "GET":
             return f(*args, **kwargs)
-        subscription = Subscriptions.query.filter_by(
-            user=current_user).order_by(Subscriptions.start_date.desc()).first()
+        subscription = (
+            Subscriptions.query.filter_by(user=current_user)
+            .order_by(Subscriptions.start_date.desc())
+            .first()
+        )
 
         if not subscription:
             return return_response(

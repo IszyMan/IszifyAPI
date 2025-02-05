@@ -10,7 +10,8 @@ from models import (
     change_password,
     create_otp,
     username_exist,
-    email_exist, subscribe_for_beginner
+    email_exist,
+    subscribe_for_beginner,
 )
 from extensions import db
 from utils import (
@@ -23,7 +24,7 @@ from utils import (
 from datetime import datetime
 from api_services import send_mail
 from passlib.hash import pbkdf2_sha256 as hasher
-from logger  import logger
+from logger import logger
 
 AUTH_PREFIX = "auth"
 
