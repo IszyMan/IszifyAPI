@@ -25,6 +25,7 @@ from http_status import HttpStatus
 from status_res import StatusRes
 from flask_limiter.errors import RateLimitExceeded
 from sqlalchemy.exc import OperationalError
+from logger import logger
 
 
 def create_app(config_name="development"):
@@ -101,7 +102,7 @@ def create_app(config_name="development"):
     # 500
     @app.errorhandler(500)
     def internal_server_error(e):
-        print(e, "internal_server_error")
+        logger.error(f"{e}: internal_server_error")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -111,7 +112,7 @@ def create_app(config_name="development"):
 
     @app.errorhandler(OperationalError)
     def handle_operational_error(e):
-        print(e, "OperationalError")
+        logger.error(f"{e}: OperationalError")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -122,7 +123,7 @@ def create_app(config_name="development"):
     # rate limit exceeded
     @app.errorhandler(RateLimitExceeded)
     def ratelimit_handler(e):
-        print(e, "ratelimit@errorhandler")
+        logger.error(f"{e}: ratelimit@errorhandler")
         return return_response(
             HttpStatus.TOO_MANY_REQUESTS,
             status=StatusRes.FAILED,
