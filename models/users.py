@@ -31,6 +31,10 @@ class Users(db.Model):
         "Subscriptions", backref="user", lazy=True, cascade="all, delete"
     )
 
+    url_short = db.relationship(
+        "Urlshort", backref="user", lazy=True, cascade="all, delete"
+    )
+
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
         self.password = hasher.hash(password)
