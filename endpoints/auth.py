@@ -13,7 +13,7 @@ from models import (
     email_exist,
     subscribe_for_beginner,
 )
-from extensions import db
+from extensions import db, limiter
 from utils import (
     return_response,
     return_access_token,
@@ -33,6 +33,7 @@ auth_blp = Blueprint("auth_blp", __name__)
 
 
 @auth_blp.route(f"/{AUTH_PREFIX}/login", methods=["POST"])
+@limiter.limit("3 per minute")
 def login():
     try:
         data = request.get_json()
