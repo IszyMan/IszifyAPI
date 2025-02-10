@@ -132,6 +132,7 @@ def check_shortlink_limit(f):
         )
 
         if not subscription:
+            logger.info("No active subscription found.")
             return return_response(
                 HttpStatus.FORBIDDEN,
                 status=StatusRes.FAILED,
@@ -141,6 +142,7 @@ def check_shortlink_limit(f):
         plan = PaymentPlans.query.get(subscription.plan_id)
 
         if not plan:
+            logger.info("Subscription plan not found.")
             return return_response(
                 HttpStatus.FORBIDDEN,
                 status=StatusRes.FAILED,
@@ -152,6 +154,7 @@ def check_shortlink_limit(f):
         )  # Function to get current shortlink count
 
         if current_shortlinks >= plan.shortlinks_per_month:
+            logger.info(f"{current_shortlinks} >= {plan.shortlinks_per_month}")
             return return_response(
                 HttpStatus.FORBIDDEN,
                 status=StatusRes.FAILED,
@@ -255,6 +258,7 @@ def check_subscription_expired(f):
         )
 
         if not subscription:
+            logger.info("No active subscription found.")
             return return_response(
                 HttpStatus.FORBIDDEN,
                 status=StatusRes.FAILED,
@@ -262,6 +266,7 @@ def check_subscription_expired(f):
             )
 
         if "beginner" in subscription.plan.name.lower():
+            logger.info("Beginner plan")
             return f(*args, **kwargs)
 
         if subscription.end_date < datetime.now():
