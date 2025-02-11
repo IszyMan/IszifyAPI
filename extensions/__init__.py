@@ -24,6 +24,6 @@ mail = Mail()
 cors = CORS()
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=["20000 per day", "1500 per minute"],
     storage_uri=os.environ.get("REDIS_URL"),
 )
