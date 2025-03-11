@@ -58,7 +58,7 @@ def create_app(config_name="development"):
         return Users.query.get(user_id) or Admin.query.get(user_id)
 
     @jwt.expired_token_loader
-    def my_expired_token_callback(jwt_header, jwt_payload):
+    def my_expired_token_callback(jwt_header=None, jwt_payload=None):
         return return_response(
             HttpStatus.UNAUTHORIZED,
             status=StatusRes.FAILED,
@@ -66,7 +66,7 @@ def create_app(config_name="development"):
         )
 
     @jwt.invalid_token_loader
-    def my_invalid_token_callback(jwt_header, jwt_payload):
+    def my_invalid_token_callback(jwt_header=None, jwt_payload=None):
         return return_response(
             HttpStatus.UNAUTHORIZED,
             status=StatusRes.FAILED,
@@ -74,7 +74,7 @@ def create_app(config_name="development"):
         )
 
     @jwt.unauthorized_loader
-    def my_unauthorized_callback(jwt_header, jwt_payload):
+    def my_unauthorized_callback(jwt_header=None, jwt_payload=None):
         return return_response(
             HttpStatus.UNAUTHORIZED,
             status=StatusRes.FAILED,
