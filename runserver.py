@@ -1,7 +1,5 @@
 from app_config import create_app
 from dotenv import load_dotenv
-from asgiref.wsgi import WsgiToAsgi
-import uvicorn
 
 # from models import Users, subscribe_for_beginner
 # from logger import logger
@@ -12,7 +10,6 @@ load_dotenv()
 
 app = create_app()
 
-asgi_app = WsgiToAsgi(app)
 
 if __name__ == "__main__":
     # gunicorn -w 4 -b 0.0.0.0:7000 'app_config:create_app()'
@@ -22,5 +19,4 @@ if __name__ == "__main__":
     #         if not user.subscriptions:
     #             logger.info(f"Subscribing user {user.id}")
     #             subscribe_for_beginner(user.id)
-    # app.run(host="0.0.0.0", port=7000)
-    uvicorn.run(asgi_app, host="0.0.0.0", port=7000)
+    app.run(host="0.0.0.0", port=7000)
