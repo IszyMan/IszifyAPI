@@ -25,5 +25,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 7000
-
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7000", "runserver:app"]
+#"uvicorn app_config:create_app --host 0.0.0.0 --port 8000 --workers 4 --factory"
+#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:7000", "runserver:app"]
+CMD ["uvicorn", "runserver:asgi_app", "--host", "0.0.0.0", "--port", "7000", "--workers", "4"]
