@@ -6,7 +6,7 @@ import os
 base_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-def send_mail(payload):
+async def send_mail(payload):
     msg = Message(
         subject=payload["subject"],
         sender="Izly <iszify.send@gmail.com>",
