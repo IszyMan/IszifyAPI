@@ -25,6 +25,7 @@ from datetime import datetime
 from api_services import send_mail
 from passlib.hash import pbkdf2_sha256 as hasher
 from logger import logger
+import asyncio
 
 AUTH_PREFIX = "auth"
 
@@ -160,7 +161,8 @@ def register():
             "subject": "Verify your account",
             "template_name": "otp.html",
         }
-        send_mail(email_payload)
+        # send_mail(email_payload)
+        asyncio.create_task(send_mail(email_payload))
 
         return return_response(
             HttpStatus.CREATED,
@@ -221,7 +223,8 @@ def resend_otp():
             "subject": "(Otp Resend)-Verify your account",
             "template_name": "otp.html",
         }
-        send_mail(email_payload)
+        # send_mail(email_payload)
+        asyncio.create_task(send_mail(email_payload))
 
         return return_response(
             HttpStatus.OK,
@@ -366,7 +369,8 @@ def forgot_password_request():
             "subject": "Reset your password",
             "template_name": "reset_password.html",
         }
-        send_mail(email_payload)
+        # send_mail(email_payload)
+        asyncio.create_task(send_mail(email_payload))
 
         return return_response(
             HttpStatus.OK,
