@@ -1,5 +1,5 @@
 name: Deploy Api
-run-name: Deploy to Main Environment
+run-name: Deploy - ${{ github.event.head_commit.message }}
 on:
   push:
     branches:
