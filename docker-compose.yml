@@ -5,8 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 7000:7000
+    expose:
+      - 7000
     volumes:
       - .:/app
     env_file:
