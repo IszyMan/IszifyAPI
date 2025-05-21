@@ -22,7 +22,7 @@ from utils import (
     detect_disposable_email,
 )
 from datetime import datetime
-from api_services import send_mail
+from api_services import send_mail, send_html_email
 from passlib.hash import pbkdf2_sha256 as hasher
 from logger import logger
 
@@ -155,13 +155,20 @@ def register():
         otp = user.user_session.otp
         logger.info(f"OTP: {otp}")
         # implement where to send the user an otp after registration
-        email_payload = {
-            "otp": otp,
-            "email": user.email,
-            "subject": "Verify your account",
-            "template_name": "otp.html",
-        }
-        send_mail(email_payload)
+        # email_payload = {
+        #     "otp": otp,
+        #     "email": user.email,
+        #     "subject": "Verify your account",
+        #     "template_name": "otp.html",
+        # }
+        # send_mail(email_payload)
+
+        send_html_email(
+            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            subject="Verify your account",
+            template_path="otp.html",
+            template_context={"otp": otp},
+        )
 
         return return_response(
             HttpStatus.CREATED,
@@ -216,13 +223,20 @@ def resend_otp():
         otp = user_session.otp
         logger.info(f"OTP: {otp}")
         # implement where to send the user an otp
-        email_payload = {
-            "otp": otp,
-            "email": user.email,
-            "subject": "(Otp Resend)-Verify your account",
-            "template_name": "otp.html",
-        }
-        send_mail(email_payload)
+        # email_payload = {
+        #     "otp": otp,
+        #     "email": user.email,
+        #     "subject": "(Otp Resend)-Verify your account",
+        #     "template_name": "otp.html",
+        # }
+        # send_mail(email_payload)
+
+        send_html_email(
+            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            subject="(Otp Resend)-Verify your account",
+            template_path="otp.html",
+            template_context={"otp": otp},
+        )
 
         return return_response(
             HttpStatus.OK,
@@ -361,13 +375,20 @@ def forgot_password_request():
         logger.info(f"Reset Link: {reset_link}")
         # send this reset link to the user
 
-        email_payload = {
-            "reset_link": reset_link,
-            "email": user.email,
-            "subject": "Reset your password",
-            "template_name": "reset_password.html",
-        }
-        send_mail(email_payload)
+        # email_payload = {
+        #     "reset_link": reset_link,
+        #     "email": user.email,
+        #     "subject": "Reset your password",
+        #     "template_name": "reset_password.html",
+        # }
+        # send_mail(email_payload)
+
+        send_html_email(
+            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            subject="Reset your password",
+            template_path="reset_password.html",
+            template_context={"reset_link": reset_link},
+        )
 
         return return_response(
             HttpStatus.OK,
