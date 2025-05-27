@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (
+from crud import (
     get_all_blogs,
     get_blogs_per_category,
     get_blog,
