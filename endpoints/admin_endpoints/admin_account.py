@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (
+from crud import (
     check_email_role_exist,
     get_one_admin,
     edit_one_admin,
@@ -9,11 +9,10 @@ from models import (
     get_all_roles,
     create_admin_account,
     save_role,
-    create_payment_plan,
+create_payment_plan,
     get_payment_plans,
     edit_payment_plan,
-    delete_payment_plan,
-)
+    delete_payment_plan,)
 from extensions import db, limiter
 from utils import (
     return_response,
