@@ -6,7 +6,7 @@ from status_res import StatusRes
 from http_status import HttpStatus
 from . import pay_stack
 from flask_jwt_extended import jwt_required, current_user
-from models import (
+from crud import (
     get_all_subscriptions,
     get_payment_plans,
     subscribe,
