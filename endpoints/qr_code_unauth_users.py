@@ -2,7 +2,7 @@ from flask import Blueprint, request
 from http_status import HttpStatus
 from logger import logger
 from status_res import StatusRes
-from models import (
+from crud import (
     save_qrcode_data_unauth,
     check_unauth_url_category_exists,
 )
