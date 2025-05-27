@@ -1,13 +1,13 @@
 from flask import Blueprint, request
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (
-    Urlshort,
+from crud import (
     validate_url,
     save_want_qr_code,
     get_shorten_url_for_user,
     check_short_url_exist,
 )
+from models.shorten_url import Urlshort
 from extensions import db, limiter
 from utils import (
     return_response,
