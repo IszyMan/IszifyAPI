@@ -9,13 +9,13 @@ from datetime import datetime
 from sqlalchemy.exc import OperationalError
 from extensions import db
 from logger import logger
-from models import (
+from models.payment import (
     Subscriptions,
     PaymentPlans,
-    get_current_bio_link_count,
-    get_current_shortlink_count,
-    get_current_qr_code_count,
 )
+from crud import get_current_bio_link_count, \
+    get_current_shortlink_count, \
+    get_current_qr_code_count
 
 
 # email verified decorator
