@@ -1,13 +1,13 @@
 from flask import Blueprint, request, redirect
 from http_status import HttpStatus
 from status_res import StatusRes
-from models import (
+from crud import (
     current_user_info,
-    Urlshort,
     save_url_clicks,
     get_user_current_subscription,
     get_users_subscriptions,
 )
+from models.shorten_url import Urlshort
 from extensions import db, limiter
 from utils import (
     return_response,
