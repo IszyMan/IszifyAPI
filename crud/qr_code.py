@@ -4,7 +4,8 @@ from models.qrcode import (
     QrcodeRecord,
     SocialMedia,
     QrCodeStyling,
-    QrFrame, QrCodeClickLocation
+    QrFrame,
+    QrCodeClickLocation,
 )
 from extensions import db
 from utils import gen_short_code
@@ -486,6 +487,7 @@ def get_current_qr_code_count(current_user):
 
 def save_qrcode_clicks(url_id, payload):
     import datetime
+
     # Get today's date components
     today = datetime.datetime.today()
     current_year = today.year
