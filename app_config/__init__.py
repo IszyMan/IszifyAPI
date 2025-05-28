@@ -19,6 +19,7 @@ from endpoints import (
     AdminAccountBlueprint,
     AdminAuthBlueprint,
     TransactionsBlueprint,
+    AnalyticsBlueprint,
 )
 from utils import return_response
 from http_status import HttpStatus
@@ -139,6 +140,7 @@ def create_app(config_name="development"):
     app.register_blueprint(AdminAccountBlueprint, url_prefix="/api/v1")
     app.register_blueprint(AdminAuthBlueprint, url_prefix="/api/v1")
     app.register_blueprint(TransactionsBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(AnalyticsBlueprint, url_prefix="/api/v1")
     app.register_blueprint(RedirectUrlBlueprint)
 
     return app
