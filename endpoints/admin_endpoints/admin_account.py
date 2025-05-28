@@ -9,10 +9,11 @@ from crud import (
     get_all_roles,
     create_admin_account,
     save_role,
-create_payment_plan,
+    create_payment_plan,
     get_payment_plans,
     edit_payment_plan,
-    delete_payment_plan,)
+    delete_payment_plan,
+)
 from extensions import db, limiter
 from utils import (
     return_response,
