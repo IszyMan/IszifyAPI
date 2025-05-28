@@ -13,9 +13,11 @@ from models.payment import (
     Subscriptions,
     PaymentPlans,
 )
-from crud import get_current_bio_link_count, \
-    get_current_shortlink_count, \
-    get_current_qr_code_count
+from crud import (
+    get_current_bio_link_count,
+    get_current_shortlink_count,
+    get_current_qr_code_count,
+)
 
 
 # email verified decorator
