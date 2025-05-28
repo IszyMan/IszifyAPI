@@ -24,7 +24,7 @@ from celery.schedules import crontab
 # }
 
 
-imports = ('celery_config.utils.celery_works',)
+imports = ("celery_config.utils.celery_works",)
 result_expires = 30
 timezone = "UTC"
 accept_content = ["json", "msgpack", "yaml"]
