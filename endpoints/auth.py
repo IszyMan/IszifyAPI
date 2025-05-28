@@ -164,7 +164,9 @@ def register():
         # send_mail(email_payload)
 
         send_html_email(
-            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            recipients=[
+                {"email": user.email, "name": f"{user.last_name} {user.first_name}"}
+            ],
             subject="Verify your account",
             template_path="otp.html",
             template_context={"otp": otp},
@@ -232,7 +234,9 @@ def resend_otp():
         # send_mail(email_payload)
 
         send_html_email(
-            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            recipients=[
+                {"email": user.email, "name": f"{user.last_name} {user.first_name}"}
+            ],
             subject="(Otp Resend)-Verify your account",
             template_path="otp.html",
             template_context={"otp": otp},
@@ -384,7 +388,9 @@ def forgot_password_request():
         # send_mail(email_payload)
 
         send_html_email(
-            recipients=[{"email": user.email, "name": f"{user.last_name} {user.first_name}"}],
+            recipients=[
+                {"email": user.email, "name": f"{user.last_name} {user.first_name}"}
+            ],
             subject="Reset your password",
             template_path="reset_password.html",
             template_context={"reset_link": reset_link},
