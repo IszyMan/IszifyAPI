@@ -1,4 +1,3 @@
-
 from models.bio_link import BioLink
 from extensions import db
 from datetime import datetime, timedelta
