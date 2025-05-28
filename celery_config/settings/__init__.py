@@ -5,6 +5,7 @@ from app_config import create_app
 
 app = create_app()
 
+
 def make_celery(app=app):
     """
     As described in the doc
