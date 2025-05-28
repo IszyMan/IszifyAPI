@@ -271,21 +271,23 @@ class SocialMedia(db.Model):
 class QrcodeRecord(db.Model):
     __tablename__ = "qr_code_record"
     __table_args__ = (
-        db.Index('idx_qr_code_record_qr_code_id', 'qr_code_id'),  # Added index for faster queries
+        db.Index(
+            "idx_qr_code_record_qr_code_id", "qr_code_id"
+        ),  # Added index for faster queries
     )
 
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     qr_code_id = db.Column(
         db.String(50),
-        db.ForeignKey("qrcode_data.id", ondelete='CASCADE'),  # Added cascade
+        db.ForeignKey("qrcode_data.id", ondelete="CASCADE"),  # Added cascade
         nullable=False,  # Explicitly marked as non-nullable
-        index=True  # Index for faster joins
+        index=True,  # Index for faster joins
     )
     date = db.Column(
         db.DateTime,
         nullable=False,
         default=db.func.now(),
-        server_default=db.func.now()  # Added server default
+        server_default=db.func.now(),  # Added server default
     )
     clicks = db.Column(
         db.Integer,
@@ -297,8 +299,10 @@ class QrcodeRecord(db.Model):
 class QrCodeClickLocation(db.Model):
     __tablename__ = "qr_code_click_location"
     __table_args__ = (
-        db.Index('idx_qr_code_click_location_qr_code_id', 'qr_code_id'),  # Added index
-        db.Index('idx_qr_code_click_location_created', 'created'),  # Added index for time-based queries
+        db.Index("idx_qr_code_click_location_qr_code_id", "qr_code_id"),  # Added index
+        db.Index(
+            "idx_qr_code_click_location_created", "created"
+        ),  # Added index for time-based queries
     )
 
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
@@ -309,13 +313,13 @@ class QrCodeClickLocation(db.Model):
     browser = db.Column(db.String(50))  # Reduced length
     qr_code_id = db.Column(
         db.String(50),
-        db.ForeignKey("qrcode_data.id", ondelete='CASCADE'),  # Added cascade
+        db.ForeignKey("qrcode_data.id", ondelete="CASCADE"),  # Added cascade
         nullable=False,  # Explicitly marked as non-nullable
-        index=True  # Index for faster joins
+        index=True,  # Index for faster joins
     )
     created = db.Column(
         db.DateTime,
         nullable=False,
         default=db.func.now(),
-        server_default=db.func.now()  # Added server default
+        server_default=db.func.now(),  # Added server default
     )
