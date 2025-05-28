@@ -1,5 +1,9 @@
 from flask import Blueprint, redirect, request
-from crud import get_original_url_by_short_url, get_url_by_short_url, get_unauth_url_by_short_url
+from crud import (
+    get_original_url_by_short_url,
+    get_url_by_short_url,
+    get_unauth_url_by_short_url,
+)
 import os
 from utils import get_info, get_browser_info, get_computer_name
 
