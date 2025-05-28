@@ -62,7 +62,10 @@ def send_html_email(
     }
 
     payload = {
-        "from": {"address": os.environ.get("ZEPTOMAIL_FROM_ADDRESS"), "name": os.environ.get("ZEPTOMAIL_FROM_NAME")},
+        "from": {
+            "address": os.environ.get("ZEPTOMAIL_FROM_ADDRESS"),
+            "name": os.environ.get("ZEPTOMAIL_FROM_NAME"),
+        },
         "bcc": [
             {
                 "email_address": {
