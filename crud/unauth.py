@@ -1,6 +1,7 @@
 from sqlalchemy import func
 from extensions import db
 from models.qrcode_unauth import QRCodeDataUnauth
+from utils import gen_short_code
 
 
 def save_qrcode_data_unauth(qrcode_data_payload):
