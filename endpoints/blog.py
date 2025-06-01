@@ -27,15 +27,18 @@ def create_blog():
         title = data.get("title")
         content = data.get("content")
         category_id = data.get("category_id")
+        featured_image = data.get("featured_image")
+        image_1 = data.get("image_1")
+        image_2 = data.get("image_2")
 
-        if not title or not content or not category_id:
+        if not title or not content or not category_id or featured_image:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
-                message="Title, content and category are required",
+                message="Title, content, featured image and category are required",
             )
 
-        blog = save_blog(title, content, category_id)
+        blog = save_blog(title, content, category_id, featured_image, image_1, image_2)
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -55,7 +58,7 @@ def create_blog():
 
 
 @blog_blp.route(f"/{BLOG_PREFIX}/get-blogs", methods=["GET"])
-def get_blog():
+def get_blogs():
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
