@@ -34,6 +34,9 @@ class Blogs(db.Model):
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     title = db.Column(db.String(100))
     content = db.Column(db.Text)
+    featured_image = db.Column(db.Text)
+    image_1 = db.Column(db.Text)
+    image_2  = db.Column(db.Text)
     deleted = db.Column(db.Boolean, default=False)
     display = db.Column(db.Boolean, default=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -44,10 +47,13 @@ class Blogs(db.Model):
         db.String(50), db.ForeignKey("categories.id"), nullable=False
     )
 
-    def __init__(self, title, content, category_id):
+    def __init__(self, title, content, category_id, featured_image, image_1=None, image_2=None):
         self.title = title
         self.content = content
         self.category_id = category_id
+        self.featured_image = featured_image,
+        self.image_1 = image_1,
+        self.image_2 = image_2
 
     def to_dict(self):
         return {
@@ -56,6 +62,9 @@ class Blogs(db.Model):
             "content": self.content,
             "deleted": self.deleted,
             "display": self.display,
+            "featured_image": self.featured_image,
+            "image_1": self.image_1,
+            "image_2": self.image_2,
             "created": self.created.strftime("%a, %d %b %Y %H:%M:%S"),
             "updated": self.updated.strftime("%a, %d %b %Y %H:%M:%S"),
             "category": self.category.name.title(),
