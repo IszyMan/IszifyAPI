@@ -1,8 +1,8 @@
 from models.blogs import Blogs, Catgories
 
 
-def save_blog(title, content, category_id):
-    blog = Blogs(title, content, category_id)
+def save_blog(title, content, category_id, featured_image, image_1, image_2):
+    blog = Blogs(title, content, category_id, featured_image, image_1, image_2)
     blog.save()
     return blog
 
