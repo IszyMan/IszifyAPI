@@ -534,3 +534,95 @@ def save_qrcode_click_location(ip_address, country, city, device, browser, url_i
     db.session.add(new_record)
     db.session.commit()
     return True
+
+
+# most 7 clicked qrcodes for a user
+def get_top_7_qrcodes(user_id):
+    top_qrs = (
+        QrcodeRecord.query.join(QRCodeData, QRCodeData.id == QrcodeRecord.qr_code_id)
+        .filter(QRCodeData.user_id == user_id)
+        .order_by(QrcodeRecord.clicks.desc())
+        .limit(7)
+        .all()
+    )
+    return [top_qr.to_dict_qrcode_data() for top_qr in top_qrs]
+
+
+def get_top_location_qrcodes(user_id):
+    # Total clicks for the user
+    total_clicks = QrCodeClickLocation.query.join(QRCodeData).filter(QRCodeData.user_id == user_id).count()
+
+    # Top countries
+    top_countries = (
+        db.session.query(
+            QrCodeClickLocation.country,
+            func.count(QrCodeClickLocation.id).label('count')
+        )
+        .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
+        .filter(QRCodeData.user_id == user_id)
+        .group_by(QrCodeClickLocation.country)
+        .order_by(func.count(QrCodeClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top cities
+    top_cities = (
+        db.session.query(
+            QrCodeClickLocation.city,
+            func.count(QrCodeClickLocation.id).label('count')
+        )
+        .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
+        .filter(QRCodeData.user_id == user_id)
+        .group_by(QrCodeClickLocation.city)
+        .order_by(func.count(QrCodeClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top devices
+    top_devices = (
+        db.session.query(
+            QrCodeClickLocation.device,
+            func.count(QrCodeClickLocation.id).label('count')
+        )
+        .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
+        .filter(QRCodeData.user_id == user_id)
+        .group_by(QrCodeClickLocation.device)
+        .order_by(func.count(QrCodeClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top browsers
+    top_browsers = (
+        db.session.query(
+            QrCodeClickLocation.browser,
+            func.count(QrCodeClickLocation.id).label('count')
+        )
+        .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
+        .filter(QRCodeData.user_id == user_id)
+        .group_by(QrCodeClickLocation.browser)
+        .order_by(func.count(QrCodeClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Helper function to calculate percentages
+    def calculate_percentage(data):
+        return [
+            {
+                "name": item[0],  # The grouped value (country, city, device, browser)
+                "count": item[1],  # The count value
+                "percentage": (item[1] / total_clicks * 100) if total_clicks > 0 else 0
+            }
+            for item in data
+        ]
+
+    # Creating the final output
+    return {
+        "top_countries": calculate_percentage(top_countries),
+        "top_cities": calculate_percentage(top_cities),
+        "top_devices": calculate_percentage(top_devices),
+        "top_browsers": calculate_percentage(top_browsers),
+    }
