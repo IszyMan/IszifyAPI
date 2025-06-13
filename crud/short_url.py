@@ -140,10 +140,12 @@ def get_current_shortlink_count(current_user):
 
 
 # most 7 click url
-def get_most_clicked_url_short(user_id):
+def get_most_clicked_url_short(user_id, short_id=None):
     top_shorts = (
         UrlShortenerClicks.query.join(Urlshort, Urlshort.id == UrlShortenerClicks.url_id)
-        .filter(Urlshort.user_id == user_id)
+        .filter(Urlshort.user_id == user_id,
+                Urlshort.id == short_id if short_id else True
+        )
         .order_by(UrlShortenerClicks.count.desc())
         .limit(7)
         .all()
@@ -151,7 +153,7 @@ def get_most_clicked_url_short(user_id):
     return [top_short.to_dict_urlshort() for top_short in top_shorts]
 
 
-def get_top_location_short_url(user_id):
+def get_top_location_short_url(user_id, short_id=None):
     # Total clicks for the user
     total_clicks = ShortUrlClickLocation.query.join(Urlshort).filter(Urlshort.user_id == user_id).count()
 
@@ -162,7 +164,9 @@ def get_top_location_short_url(user_id):
             func.count(ShortUrlClickLocation.id).label('count')
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id)
+        .filter(Urlshort.user_id == user_id,
+                Urlshort.id == short_id if short_id else True
+            )
         .group_by(ShortUrlClickLocation.country)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -176,7 +180,9 @@ def get_top_location_short_url(user_id):
             func.count(ShortUrlClickLocation.id).label('count')
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id)
+        .filter(Urlshort.user_id == user_id,
+                Urlshort.id == short_id if short_id else True
+            )
         .group_by(ShortUrlClickLocation.city)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -190,7 +196,9 @@ def get_top_location_short_url(user_id):
             func.count(ShortUrlClickLocation.id).label('count')
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id)
+        .filter(Urlshort.user_id == user_id,
+                Urlshort.id == short_id if short_id else True
+            )
         .group_by(ShortUrlClickLocation.device)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -204,7 +212,9 @@ def get_top_location_short_url(user_id):
             func.count(ShortUrlClickLocation.id).label('count')
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id)
+        .filter(Urlshort.user_id == user_id,
+                Urlshort.id == short_id if short_id else True
+            )
         .group_by(ShortUrlClickLocation.browser)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -229,4 +239,3 @@ def get_top_location_short_url(user_id):
         "top_devices": calculate_percentage(top_devices),
         "top_browsers": calculate_percentage(top_browsers),
     }
-
