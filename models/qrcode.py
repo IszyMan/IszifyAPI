@@ -94,6 +94,14 @@ class QRCodeData(db.Model):
         uselist=False,
         cascade="all, delete",
     )
+    # the record
+    qr_record = db.relationship(
+        "QrcodeRecord",
+        backref="qrcode",
+        lazy=True,
+        uselist=False,
+        cascade="all, delete",
+    )
 
     def save(self):
         db.session.add(self)
@@ -295,6 +303,14 @@ class QrcodeRecord(db.Model):
         nullable=False,  # Explicitly marked as non-nullable
     )
 
+    def to_dict_qrcode_data(self):
+        return {
+            "id": self.id,
+            "clicks": self.clicks,
+            "long_url": self.qrcode.url,
+            "short_url": f"{return_host_url(request.host_url)}{self.qrcode.short_url}",
+        }
+
 
 class QrCodeClickLocation(db.Model):
     __tablename__ = "qr_code_click_location"
@@ -323,3 +339,18 @@ class QrCodeClickLocation(db.Model):
         default=db.func.now(),
         server_default=db.func.now(),  # Added server default
     )
+
+    def to_dict(self, city=False, country=False, device=False, browser=False):
+        pre_dict = {
+            "id": self.id,
+            "ip_address": self.ip_address,
+        }
+        if city:
+            pre_dict["city"] = self.city
+        if country:
+            pre_dict["country"] = self.country
+        if device:
+            pre_dict["device"] = self.device
+        if browser:
+            pre_dict["browser"] = self.browser
+        return pre_dict
