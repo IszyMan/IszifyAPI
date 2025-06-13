@@ -26,6 +26,7 @@ def redirect_url(short_url):
         "browser_name": browser_name,
         "device": computer_name,
     }
+    print(payload, "redirect payload")
     url = (
         get_url_by_short_url(short_url)
         or get_original_url_by_short_url(short_url)
