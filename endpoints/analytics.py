@@ -10,6 +10,8 @@ from decorators import email_verified
 from logger import logger
 from sqlalchemy import extract
 from http_status import HttpStatus
+from crud import get_top_7_qrcodes, get_most_clicked_url_short, \
+get_top_location_qrcodes, get_top_location_short_url
 
 ANALYTICS_PREFIX = "analytics"
 
@@ -139,6 +141,12 @@ def get_all_analytics():
                     "url_shorts_generated": url_shorts_generated,
                     "shortener_analytics": res,
                     "qr_code_analytics": res2,
+                    "qr_code_location_history": get_top_location_qrcodes(current_user.id),
+                    "short_url_location_history": get_top_location_short_url(current_user.id),
+                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id),
+                    "top_7_shorts": get_most_clicked_url_short(
+                        current_user.id
+                    ),
                     # "res3": res3,
                 }
             },
