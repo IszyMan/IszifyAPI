@@ -8,6 +8,10 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 naming_convention = {
     "ix": "ix_%(column_0_label)s",
