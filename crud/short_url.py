@@ -137,3 +137,96 @@ def get_current_shortlink_count(current_user):
         .filter(extract("month", Urlshort.created) == now.month)
         .count()
     )
+
+
+# most 7 click url
+def get_most_clicked_url_short(user_id):
+    top_shorts = (
+        UrlShortenerClicks.query.join(Urlshort, Urlshort.id == UrlShortenerClicks.url_id)
+        .filter(Urlshort.user_id == user_id)
+        .order_by(UrlShortenerClicks.count.desc())
+        .limit(7)
+        .all()
+    )
+    return [top_short.to_dict_urlshort() for top_short in top_shorts]
+
+
+def get_top_location_short_url(user_id):
+    # Total clicks for the user
+    total_clicks = ShortUrlClickLocation.query.join(Urlshort).filter(Urlshort.user_id == user_id).count()
+
+    # Top countries
+    top_countries = (
+        db.session.query(
+            ShortUrlClickLocation.country,
+            func.count(ShortUrlClickLocation.id).label('count')
+        )
+        .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
+        .filter(Urlshort.user_id == user_id)
+        .group_by(ShortUrlClickLocation.country)
+        .order_by(func.count(ShortUrlClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top cities
+    top_cities = (
+        db.session.query(
+            ShortUrlClickLocation.city,
+            func.count(ShortUrlClickLocation.id).label('count')
+        )
+        .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
+        .filter(Urlshort.user_id == user_id)
+        .group_by(ShortUrlClickLocation.city)
+        .order_by(func.count(ShortUrlClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top devices
+    top_devices = (
+        db.session.query(
+            ShortUrlClickLocation.device,
+            func.count(ShortUrlClickLocation.id).label('count')
+        )
+        .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
+        .filter(Urlshort.user_id == user_id)
+        .group_by(ShortUrlClickLocation.device)
+        .order_by(func.count(ShortUrlClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Top browsers
+    top_browsers = (
+        db.session.query(
+            ShortUrlClickLocation.browser,
+            func.count(ShortUrlClickLocation.id).label('count')
+        )
+        .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
+        .filter(Urlshort.user_id == user_id)
+        .group_by(ShortUrlClickLocation.browser)
+        .order_by(func.count(ShortUrlClickLocation.id).desc())
+        .limit(7)
+        .all()
+    )
+
+    # Helper function to calculate percentages
+    def calculate_percentage(data):
+        return [
+            {
+                "name": item[0],  # The grouped value (country, city, device, browser)
+                "count": item[1],  # The count value
+                "percentage": (item[1] / total_clicks * 100) if total_clicks > 0 else 0
+            }
+            for item in data
+        ]
+
+    # Creating the final output
+    return {
+        "top_countries": calculate_percentage(top_countries),
+        "top_cities": calculate_percentage(top_cities),
+        "top_devices": calculate_percentage(top_devices),
+        "top_browsers": calculate_percentage(top_browsers),
+    }
+
