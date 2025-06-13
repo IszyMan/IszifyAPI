@@ -537,10 +537,12 @@ def save_qrcode_click_location(ip_address, country, city, device, browser, url_i
 
 
 # most 7 clicked qrcodes for a user
-def get_top_7_qrcodes(user_id):
+def get_top_7_qrcodes(user_id, qr_id=None):
     top_qrs = (
         QrcodeRecord.query.join(QRCodeData, QRCodeData.id == QrcodeRecord.qr_code_id)
-        .filter(QRCodeData.user_id == user_id)
+        .filter(QRCodeData.user_id == user_id, 
+                QRCodeData.id == qr_id if qr_id else True
+        )
         .order_by(QrcodeRecord.clicks.desc())
         .limit(7)
         .all()
@@ -548,7 +550,7 @@ def get_top_7_qrcodes(user_id):
     return [top_qr.to_dict_qrcode_data() for top_qr in top_qrs]
 
 
-def get_top_location_qrcodes(user_id):
+def get_top_location_qrcodes(user_id, qr_id=None):
     # Total clicks for the user
     total_clicks = QrCodeClickLocation.query.join(QRCodeData).filter(QRCodeData.user_id == user_id).count()
 
@@ -559,7 +561,9 @@ def get_top_location_qrcodes(user_id):
             func.count(QrCodeClickLocation.id).label('count')
         )
         .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
-        .filter(QRCodeData.user_id == user_id)
+        .filter(QRCodeData.user_id == user_id,
+                QRCodeData.id == qr_id if qr_id else True
+            )
         .group_by(QrCodeClickLocation.country)
         .order_by(func.count(QrCodeClickLocation.id).desc())
         .limit(7)
@@ -573,7 +577,9 @@ def get_top_location_qrcodes(user_id):
             func.count(QrCodeClickLocation.id).label('count')
         )
         .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
-        .filter(QRCodeData.user_id == user_id)
+        .filter(QRCodeData.user_id == user_id,
+                QRCodeData.id == qr_id if qr_id else True
+            )
         .group_by(QrCodeClickLocation.city)
         .order_by(func.count(QrCodeClickLocation.id).desc())
         .limit(7)
@@ -587,7 +593,9 @@ def get_top_location_qrcodes(user_id):
             func.count(QrCodeClickLocation.id).label('count')
         )
         .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
-        .filter(QRCodeData.user_id == user_id)
+        .filter(QRCodeData.user_id == user_id,
+                QRCodeData.id == qr_id if qr_id else True
+            )
         .group_by(QrCodeClickLocation.device)
         .order_by(func.count(QrCodeClickLocation.id).desc())
         .limit(7)
@@ -601,7 +609,9 @@ def get_top_location_qrcodes(user_id):
             func.count(QrCodeClickLocation.id).label('count')
         )
         .join(QRCodeData, QRCodeData.id == QrCodeClickLocation.qr_code_id)
-        .filter(QRCodeData.user_id == user_id)
+        .filter(QRCodeData.user_id == user_id,
+                QRCodeData.id == qr_id if qr_id else True
+            )
         .group_by(QrCodeClickLocation.browser)
         .order_by(func.count(QrCodeClickLocation.id).desc())
         .limit(7)
