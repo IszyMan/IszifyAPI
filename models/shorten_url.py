@@ -40,6 +40,10 @@ class Urlshort(db.Model):
     )
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    # the clicks
+    url_shortener_clicks = db.relationship(
+        "UrlShortenerClicks", backref="url_shortener", cascade="all, delete"
+    )
 
     def __repr__(self):
         return f"Urlshort('{self.url}', '{self.short_url}', '{self.created}')"
@@ -93,6 +97,14 @@ class UrlShortenerClicks(db.Model):
 
     def update(self):
         db.session.commit()
+    
+    def to_dict_urlshort(self):
+        return {
+            "id": self.id,
+            "count": self.count,
+            "long_url": self.url_shortener.url,
+            "short_url": f"{return_host_url(request.host_url)}{self.url_shortener.short_url}",
+        }
 
 
 class ShortUrlClickLocation(db.Model):
@@ -115,3 +127,17 @@ class ShortUrlClickLocation(db.Model):
 
     def update(self):
         db.session.commit()
+
+    def to_dict(self, city=False, country=False, device=False, browser=False):
+        pre_dict = {
+            "id": self.id,
+        }
+        if city:
+            pre_dict["city"] = self.city
+        if country:
+            pre_dict["country"] = self.country
+        if device:
+            pre_dict["device"] = self.device
+        if browser:
+            pre_dict["browser"] = self.browser
+        return pre_dict
