@@ -160,3 +160,60 @@ def get_all_analytics():
             status=StatusRes.FAILED,
             message="Network Error",
         )
+
+
+# qrcode analytics
+@analytics_blp.route(f"/{ANALYTICS_PREFIX}/qrcode-analytics/<string:qr_code_id>", methods=["GET"])
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def qrcode_analytics(qr_code_id):
+    try:
+        return return_response(HttpStatus.OK, status=StatusRes.SUCCESS, message="Success",
+                               **{
+                                "analytics": {
+                                    "qr_code_location_history": get_top_location_qrcodes(current_user.id, qr_code_id),
+                                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id, qr_code_id),
+                                }
+                            },
+                               )
+    except Exception as e:
+        logger.exception("traceback@analytics_blp/qrcode_analytics")
+        logger.error(f"{e}: error@analytics_blp/qrcode_analytics")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# short url analytics
+@analytics_blp.route(f"/{ANALYTICS_PREFIX}/shorturl-analytics/<short_id>", methods=["GET"])
+@jwt_required()
+@email_verified
+@limiter.limit("5 per minute", key_func=user_id_limiter)
+def short_url_analytics(short_id):
+    try:
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Success",
+            **{
+                "analytics": {
+                    "short_url_location_history": get_top_location_short_url(current_user.id, short_id),
+                    "top_7_shorts": get_most_clicked_url_short(
+                        current_user.id, short_id
+                    ),
+                }
+            },
+        )
+    except Exception as e:
+        logger.exception("error@analytics_blp/get_short_url_analytics")
+        logger.error(f"{e}: error@analytics_blp/get_short_url_analytics")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
