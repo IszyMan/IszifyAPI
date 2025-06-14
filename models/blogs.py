@@ -36,7 +36,7 @@ class Blogs(db.Model):
     content = db.Column(db.Text)
     featured_image = db.Column(db.Text)
     image_1 = db.Column(db.Text)
-    image_2  = db.Column(db.Text)
+    image_2 = db.Column(db.Text)
     deleted = db.Column(db.Boolean, default=False)
     display = db.Column(db.Boolean, default=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -47,12 +47,14 @@ class Blogs(db.Model):
         db.String(50), db.ForeignKey("categories.id"), nullable=False
     )
 
-    def __init__(self, title, content, category_id, featured_image, image_1=None, image_2=None):
+    def __init__(
+        self, title, content, category_id, featured_image, image_1=None, image_2=None
+    ):
         self.title = title
         self.content = content
         self.category_id = category_id
-        self.featured_image = featured_image,
-        self.image_1 = image_1,
+        self.featured_image = featured_image
+        self.image_1 = image_1
         self.image_2 = image_2
 
     def to_dict(self):
