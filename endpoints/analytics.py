@@ -10,8 +10,12 @@ from decorators import email_verified
 from logger import logger
 from sqlalchemy import extract
 from http_status import HttpStatus
-from crud import get_top_7_qrcodes, get_most_clicked_url_short, \
-get_top_location_qrcodes, get_top_location_short_url
+from crud import (
+    get_top_7_qrcodes,
+    get_most_clicked_url_short,
+    get_top_location_qrcodes,
+    get_top_location_short_url,
+)
 
 ANALYTICS_PREFIX = "analytics"
 
@@ -141,12 +145,14 @@ def get_all_analytics():
                     "url_shorts_generated": url_shorts_generated,
                     "shortener_analytics": res,
                     "qr_code_analytics": res2,
-                    "qr_code_location_history": get_top_location_qrcodes(current_user.id),
-                    "short_url_location_history": get_top_location_short_url(current_user.id),
-                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id),
-                    "top_7_shorts": get_most_clicked_url_short(
+                    "qr_code_location_history": get_top_location_qrcodes(
                         current_user.id
                     ),
+                    "short_url_location_history": get_top_location_short_url(
+                        current_user.id
+                    ),
+                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id),
+                    "top_7_shorts": get_most_clicked_url_short(current_user.id),
                     # "res3": res3,
                 }
             },
@@ -163,20 +169,27 @@ def get_all_analytics():
 
 
 # qrcode analytics
-@analytics_blp.route(f"/{ANALYTICS_PREFIX}/qrcode-analytics/<string:qr_code_id>", methods=["GET"])
+@analytics_blp.route(
+    f"/{ANALYTICS_PREFIX}/qrcode-analytics/<string:qr_code_id>", methods=["GET"]
+)
 @jwt_required()
 @email_verified
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def qrcode_analytics(qr_code_id):
     try:
-        return return_response(HttpStatus.OK, status=StatusRes.SUCCESS, message="Success",
-                               **{
-                                "analytics": {
-                                    "qr_code_location_history": get_top_location_qrcodes(current_user.id, qr_code_id),
-                                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id, qr_code_id),
-                                }
-                            },
-                               )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Success",
+            **{
+                "analytics": {
+                    "qr_code_location_history": get_top_location_qrcodes(
+                        current_user.id, qr_code_id
+                    ),
+                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id, qr_code_id),
+                }
+            },
+        )
     except Exception as e:
         logger.exception("traceback@analytics_blp/qrcode_analytics")
         logger.error(f"{e}: error@analytics_blp/qrcode_analytics")
@@ -189,7 +202,9 @@ def qrcode_analytics(qr_code_id):
 
 
 # short url analytics
-@analytics_blp.route(f"/{ANALYTICS_PREFIX}/shorturl-analytics/<short_id>", methods=["GET"])
+@analytics_blp.route(
+    f"/{ANALYTICS_PREFIX}/shorturl-analytics/<short_id>", methods=["GET"]
+)
 @jwt_required()
 @email_verified
 @limiter.limit("5 per minute", key_func=user_id_limiter)
@@ -201,7 +216,9 @@ def short_url_analytics(short_id):
             message="Success",
             **{
                 "analytics": {
-                    "short_url_location_history": get_top_location_short_url(current_user.id, short_id),
+                    "short_url_location_history": get_top_location_short_url(
+                        current_user.id, short_id
+                    ),
                     "top_7_shorts": get_most_clicked_url_short(
                         current_user.id, short_id
                     ),
