@@ -177,6 +177,36 @@ def get_all_analytics():
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def qrcode_analytics(qr_code_id):
     try:
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+
+        res2_dict = {}
+        click_per_month_qrcode_s = (
+            QrcodeRecord.query.join(
+                QRCodeData, QRCodeData.id == QrcodeRecord.qr_code_id
+            )
+            .filter(
+                QRCodeData.user_id == current_user.id,
+                QRCodeData.id == qr_code_id,
+                extract("month", QrcodeRecord.date) == current_month,
+                extract("year", QrcodeRecord.date) == current_year,
+            )
+            .all()
+        )
+        for clicks_per_month in click_per_month_qrcode_s:
+            res2_dict[clicks_per_month.date.strftime("%d-%b-%Y")] = (
+                clicks_per_month.clicks
+                if not res2_dict.get(clicks_per_month.date.strftime("%d-%b-%Y"))
+                else res2_dict[clicks_per_month.date.strftime("%d-%b-%Y")]
+                + clicks_per_month.clicks
+            )
+        res2 = [
+            {
+                "date": key,
+                "clicks": val,
+            }
+            for key, val in res2_dict.items()
+        ]
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -186,7 +216,8 @@ def qrcode_analytics(qr_code_id):
                     "qr_code_location_history": get_top_location_qrcodes(
                         current_user.id, qr_code_id
                     ),
-                    "top_7_qrcodes": get_top_7_qrcodes(current_user.id, qr_code_id),
+                    "qr_code_analytics": res2,
+                    # "top_7_qrcodes": get_top_7_qrcodes(current_user.id, qr_code_id),
                 }
             },
         )
@@ -210,6 +241,36 @@ def qrcode_analytics(qr_code_id):
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def short_url_analytics(short_id):
     try:
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+
+        clicks_per_month_s = (
+            UrlShortenerClicks.query.join(
+                Urlshort, Urlshort.id == UrlShortenerClicks.url_id
+            )
+            .filter(
+                Urlshort.user_id == current_user.id,
+                Urlshort.id == short_id,
+                extract("month", UrlShortenerClicks.created) == current_month,
+                extract("year", UrlShortenerClicks.created) == current_year,
+            )
+            .all()
+        )
+        res_dict = {}
+        for clicks_per_month in clicks_per_month_s:
+            res_dict[clicks_per_month.created.strftime("%d-%b-%Y")] = (
+                clicks_per_month.count
+                if not res_dict.get(clicks_per_month.created.strftime("%d-%b-%Y"))
+                else res_dict[clicks_per_month.created.strftime("%d-%b-%Y")]
+                + clicks_per_month.count
+            )
+        res = [
+        {
+            "date": key,
+            "clicks": val,
+        }
+        for key, val in res_dict.items()
+        ]
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -219,9 +280,10 @@ def short_url_analytics(short_id):
                     "short_url_location_history": get_top_location_short_url(
                         current_user.id, short_id
                     ),
-                    "top_7_shorts": get_most_clicked_url_short(
-                        current_user.id, short_id
-                    ),
+                    "short_url_analytics": res,
+                    # "top_7_shorts": get_most_clicked_url_short(
+                    #     current_user.id, short_id
+                    # ),
                 }
             },
         )
