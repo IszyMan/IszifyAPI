@@ -104,6 +104,7 @@ class UrlShortenerClicks(db.Model):
             "count": self.count,
             "long_url": self.url_shortener.url,
             "short_url": f"{return_host_url(request.host_url)}{self.url_shortener.short_url}",
+            "title": self.url_shortener.title,
         }
 
 
