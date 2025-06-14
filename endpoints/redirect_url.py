@@ -6,6 +6,7 @@ from crud import (
 )
 import os
 from utils import get_info, get_browser_info, get_computer_name
+import httpagentparser
 
 redirect_url_blp = Blueprint("redirect_url_blp", __name__)
 
@@ -18,7 +19,9 @@ def redirect_url(short_url):
 
     ip, city, country = get_info()
     browser_name = get_browser_info(request)
-    computer_name = get_computer_name()
+    user_agent = request.headers.get("User-Agent")
+    # computer_name = get_computer_name()
+    computer_name = httpagentparser.detect(user_agent)["platform"]["name"]
     payload = {
         "ip_address": ip,
         "city": city,
