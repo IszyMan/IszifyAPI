@@ -20,7 +20,7 @@ from endpoints import (
     AdminAuthBlueprint,
     TransactionsBlueprint,
     AnalyticsBlueprint,
-    CloudNaryBlueprint
+    CloudNaryBlueprint,
 )
 from utils import return_response
 from http_status import HttpStatus
