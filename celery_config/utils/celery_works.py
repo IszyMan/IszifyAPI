@@ -14,6 +14,11 @@ def save_clicks_for_analytics(short_url, payload):
             return ""
         save_qrcode_clicks(url.id, payload)
     else:
+        if url.want_qr_code:
+            qr_url = url.qr_code_rel
+            if qr_url:
+                save_qrcode_clicks(qr_url.id, payload)
+                qr_url.clicks += 1
         save_url_clicks(url.id, payload)
 
     url.clicks += 1
