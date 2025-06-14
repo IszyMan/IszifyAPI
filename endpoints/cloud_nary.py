@@ -33,7 +33,6 @@ def manage_file():
         api_key = str(api_key[0]) if isinstance(api_key, tuple) else api_key
         api_secret = str(api_secret[0]) if isinstance(api_secret, tuple) else api_secret
 
-
         if not action:
             return return_response(
                 HttpStatus.BAD_REQUEST,
