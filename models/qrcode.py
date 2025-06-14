@@ -309,6 +309,7 @@ class QrcodeRecord(db.Model):
             "clicks": self.clicks,
             "long_url": self.qrcode.url,
             "short_url": f"{return_host_url(request.host_url)}{self.qrcode.short_url}",
+            "title": self.qrcode.title,
         }
 
 
