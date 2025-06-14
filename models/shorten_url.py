@@ -97,7 +97,7 @@ class UrlShortenerClicks(db.Model):
 
     def update(self):
         db.session.commit()
-    
+
     def to_dict_urlshort(self):
         return {
             "id": self.id,
