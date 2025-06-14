@@ -142,9 +142,11 @@ def get_current_shortlink_count(current_user):
 # most 7 click url
 def get_most_clicked_url_short(user_id, short_id=None):
     top_shorts = (
-        UrlShortenerClicks.query.join(Urlshort, Urlshort.id == UrlShortenerClicks.url_id)
-        .filter(Urlshort.user_id == user_id,
-                Urlshort.id == short_id if short_id else True
+        UrlShortenerClicks.query.join(
+            Urlshort, Urlshort.id == UrlShortenerClicks.url_id
+        )
+        .filter(
+            Urlshort.user_id == user_id, Urlshort.id == short_id if short_id else True
         )
         .order_by(UrlShortenerClicks.count.desc())
         .limit(7)
@@ -155,18 +157,22 @@ def get_most_clicked_url_short(user_id, short_id=None):
 
 def get_top_location_short_url(user_id, short_id=None):
     # Total clicks for the user
-    total_clicks = ShortUrlClickLocation.query.join(Urlshort).filter(Urlshort.user_id == user_id).count()
+    total_clicks = (
+        ShortUrlClickLocation.query.join(Urlshort)
+        .filter(Urlshort.user_id == user_id)
+        .count()
+    )
 
     # Top countries
     top_countries = (
         db.session.query(
             ShortUrlClickLocation.country,
-            func.count(ShortUrlClickLocation.id).label('count')
+            func.count(ShortUrlClickLocation.id).label("count"),
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id,
-                Urlshort.id == short_id if short_id else True
-            )
+        .filter(
+            Urlshort.user_id == user_id, Urlshort.id == short_id if short_id else True
+        )
         .group_by(ShortUrlClickLocation.country)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -177,12 +183,12 @@ def get_top_location_short_url(user_id, short_id=None):
     top_cities = (
         db.session.query(
             ShortUrlClickLocation.city,
-            func.count(ShortUrlClickLocation.id).label('count')
+            func.count(ShortUrlClickLocation.id).label("count"),
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id,
-                Urlshort.id == short_id if short_id else True
-            )
+        .filter(
+            Urlshort.user_id == user_id, Urlshort.id == short_id if short_id else True
+        )
         .group_by(ShortUrlClickLocation.city)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -193,12 +199,12 @@ def get_top_location_short_url(user_id, short_id=None):
     top_devices = (
         db.session.query(
             ShortUrlClickLocation.device,
-            func.count(ShortUrlClickLocation.id).label('count')
+            func.count(ShortUrlClickLocation.id).label("count"),
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id,
-                Urlshort.id == short_id if short_id else True
-            )
+        .filter(
+            Urlshort.user_id == user_id, Urlshort.id == short_id if short_id else True
+        )
         .group_by(ShortUrlClickLocation.device)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -209,12 +215,12 @@ def get_top_location_short_url(user_id, short_id=None):
     top_browsers = (
         db.session.query(
             ShortUrlClickLocation.browser,
-            func.count(ShortUrlClickLocation.id).label('count')
+            func.count(ShortUrlClickLocation.id).label("count"),
         )
         .join(Urlshort, Urlshort.id == ShortUrlClickLocation.url_id)
-        .filter(Urlshort.user_id == user_id,
-                Urlshort.id == short_id if short_id else True
-            )
+        .filter(
+            Urlshort.user_id == user_id, Urlshort.id == short_id if short_id else True
+        )
         .group_by(ShortUrlClickLocation.browser)
         .order_by(func.count(ShortUrlClickLocation.id).desc())
         .limit(7)
@@ -227,7 +233,7 @@ def get_top_location_short_url(user_id, short_id=None):
             {
                 "name": item[0],  # The grouped value (country, city, device, browser)
                 "count": item[1],  # The count value
-                "percentage": (item[1] / total_clicks * 100) if total_clicks > 0 else 0
+                "percentage": (item[1] / total_clicks * 100) if total_clicks > 0 else 0,
             }
             for item in data
         ]
