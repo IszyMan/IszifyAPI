@@ -17,10 +17,13 @@ def save_clicks_for_analytics(short_url, payload):
         if url.want_qr_code:
             qr_url = url.qr_code_rel
             if qr_url:
+                print(qr_url.id, "qr_url.id")
                 save_qrcode_clicks(qr_url.id, payload)
                 qr_url.clicks += 1
+                db.session.commit()
         save_url_clicks(url.id, payload)
 
+    print("saving url clicks +1")
     url.clicks += 1
     db.session.commit()
     print(url.url, "the real url")
