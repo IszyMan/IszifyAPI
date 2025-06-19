@@ -136,8 +136,8 @@ def get_computer_name():
     return hostname
 
 
-def get_info():
-    url = "http://ipinfo.io/json"
+def get_info(user_ip):
+    url = f"http://ipinfo.io/{user_ip}/json"
     response = urlopen(url)
     data = json.load(response)
 
