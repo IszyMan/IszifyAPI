@@ -16,7 +16,7 @@ DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL")
 @redirect_url_blp.route("/<short_url>", methods=["GET"])
 def redirect_url(short_url):
     from celery_config.utils.celery_works import save_clicks_for_analytics
-    user_ip = request.headers.get("x-forwarded-for", request.client.host)
+    user_ip = request.headers.get("x-forwarded-for", request.remote_addr)
 
     ip, city, country = get_info(user_ip)
     browser_name = get_browser_info(request)
