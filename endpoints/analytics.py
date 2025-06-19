@@ -265,11 +265,11 @@ def short_url_analytics(short_id):
                 + clicks_per_month.count
             )
         res = [
-        {
-            "date": key,
-            "clicks": val,
-        }
-        for key, val in res_dict.items()
+            {
+                "date": key,
+                "clicks": val,
+            }
+            for key, val in res_dict.items()
         ]
         return return_response(
             HttpStatus.OK,
