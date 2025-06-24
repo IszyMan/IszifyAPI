@@ -11,6 +11,7 @@ from extensions import db
 from utils import gen_short_code
 from sqlalchemy import func, extract
 from datetime import datetime
+from logger import logger
 
 
 def save_qrcode_category(name):
