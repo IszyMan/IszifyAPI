@@ -124,7 +124,7 @@ def subscribe_plan():
 
 # get all payment plans
 @transactions_blp.route(f"{TRANSACT_PREFIX}/plans", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_all_payment_plans():
     try:
         res = get_payment_plans()
