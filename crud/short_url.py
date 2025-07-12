@@ -233,7 +233,9 @@ def get_top_location_short_url(user_id, short_id=None):
             {
                 "name": item[0],  # The grouped value (country, city, device, browser)
                 "count": item[1],  # The count value
-                "percentage": round((item[1] / total_clicks * 100), 2) if total_clicks > 0 else 0,
+                "percentage": (
+                    round((item[1] / total_clicks * 100), 2) if total_clicks > 0 else 0
+                ),
             }
             for item in data
         ]
