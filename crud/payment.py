@@ -48,7 +48,11 @@ def get_payment_plans():
 
 
 # edit payment plan
-def edit_payment_plan(plan_id, name, amount, currency, duration):
+def edit_payment_plan(plan_id, name, amount, currency, duration, 
+                      unlimited_link_clicks, unlimited_qr_scans,
+                                 shortlinks_per_month, qr_codes_per_month,
+                                 link_in_bio, analytics_access,
+                                 qr_code_customization, qr_code_watermark):
     plan = PaymentPlans.query.filter_by(id=plan_id).first()
     if not plan:
         return False
@@ -65,6 +69,15 @@ def edit_payment_plan(plan_id, name, amount, currency, duration):
         plan.currency = currency
     if duration:
         plan.duration = int(duration)
+    
+    plan.unlimited_link_clicks = unlimited_link_clicks or plan.unlimited_link_clicks
+    plan.unlimited_qr_scans = unlimited_qr_scans or plan.unlimited_qr_scans
+    plan.shortlinks_per_month = shortlinks_per_month or plan.shortlinks_per_month
+    plan.qr_codes_per_month = qr_codes_per_month or plan.qr_codes_per_month
+    plan.link_in_bio = link_in_bio or plan.link_in_bio
+    plan.analytics_access = analytics_access or plan.analytics_access
+    plan.qr_code_customization = qr_code_customization or plan.qr_code_customization
+    plan.qr_code_watermark = qr_code_watermark or plan.qr_code_watermark
     plan.update()
     return plan
 
