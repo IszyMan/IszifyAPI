@@ -275,6 +275,15 @@ def add_payment_plan():
         amount = float(data.get("amount"))
         currency = data.get("currency")
         duration = int(data.get("duration", 1))
+        unlimited_link_clicks = bool(data.get("unlimited_link_clicks", False))
+        unlimited_qr_scans = bool(data.get("unlimited_qr_scans", False))
+        shortlinks_per_month = int(data.get("shortlinks_per_month", 0))
+        qr_codes_per_month = int(data.get("qr_codes_per_month", 0))
+        link_in_bio = int(data.get("link_in_bio", 0))
+        analytics_access = bool(data.get("analytics_access", False))
+        qr_code_customization = bool(data.get("qr_code_customization", False))
+        qr_code_watermark = bool(data.get("qr_code_watermark", True))
+        
         if not name:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -312,7 +321,11 @@ def add_payment_plan():
                 status=StatusRes.FAILED,
                 message="Duration must be a number",
             )
-        plan = create_payment_plan(name, amount, currency, duration)
+        plan = create_payment_plan(name, amount, currency, duration,
+                                   unlimited_link_clicks, unlimited_qr_scans,
+                                   shortlinks_per_month, qr_codes_per_month,
+                                   link_in_bio, analytics_access,
+                                   qr_code_customization, qr_code_watermark)
         if not plan:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -358,6 +371,14 @@ def modify_payment_plan(plan_id):
         amount = data.get("amount")
         currency = data.get("currency")
         duration = data.get("duration")
+        unlimited_link_clicks = data.get("unlimited_link_clicks")
+        unlimited_qr_scans = data.get("unlimited_qr_scans")
+        shortlinks_per_month = data.get("shortlinks_per_month")
+        qr_codes_per_month = data.get("qr_codes_per_month")
+        link_in_bio = data.get("link_in_bio")
+        analytics_access = data.get("analytics_access")
+        qr_code_customization = data.get("qr_code_customization")
+        qr_code_watermark = data.get("qr_code_watermark")
 
         if amount and not isinstance(amount, float) and not isinstance(amount, int):
             return return_response(
@@ -371,7 +392,12 @@ def modify_payment_plan(plan_id):
                 status=StatusRes.FAILED,
                 message="Duration must be a number",
             )
-        plan = edit_payment_plan(plan_id, name, amount, currency, duration)
+        plan = edit_payment_plan(plan_id, name, amount, currency, duration,
+                                 unlimited_link_clicks, unlimited_qr_scans,
+                                 shortlinks_per_month, qr_codes_per_month,
+                                 link_in_bio, analytics_access,
+                                 qr_code_customization, qr_code_watermark
+                                 )
         if not plan:
             return return_response(
                 HttpStatus.BAD_REQUEST,
