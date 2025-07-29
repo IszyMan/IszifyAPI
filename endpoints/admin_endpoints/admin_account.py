@@ -283,7 +283,9 @@ def add_payment_plan():
         analytics_access = bool(data.get("analytics_access", False))
         qr_code_customization = bool(data.get("qr_code_customization", False))
         qr_code_watermark = bool(data.get("qr_code_watermark", True))
-        
+        halve_backs = int(data.get("halve_backs", 0))
+        customer_support = bool(data.get("customer_support", False))
+
         if not name:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -325,7 +327,8 @@ def add_payment_plan():
                                    unlimited_link_clicks, unlimited_qr_scans,
                                    shortlinks_per_month, qr_codes_per_month,
                                    link_in_bio, analytics_access,
-                                   qr_code_customization, qr_code_watermark)
+                                   qr_code_customization, qr_code_watermark,
+                                   customer_support, halve_backs)
         if not plan:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -379,6 +382,8 @@ def modify_payment_plan(plan_id):
         analytics_access = data.get("analytics_access")
         qr_code_customization = data.get("qr_code_customization")
         qr_code_watermark = data.get("qr_code_watermark")
+        halve_backs = data.get("halve_backs")
+        customer_support = data.get("customer_support")
 
         if amount and not isinstance(amount, float) and not isinstance(amount, int):
             return return_response(
@@ -396,7 +401,8 @@ def modify_payment_plan(plan_id):
                                  unlimited_link_clicks, unlimited_qr_scans,
                                  shortlinks_per_month, qr_codes_per_month,
                                  link_in_bio, analytics_access,
-                                 qr_code_customization, qr_code_watermark
+                                 qr_code_customization, qr_code_watermark,
+                                    customer_support, halve_backs
                                  )
         if not plan:
             return return_response(
