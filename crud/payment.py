@@ -16,6 +16,8 @@ def create_payment_plan(
     analytics_access=False,
     qr_code_customization=False,
     qr_code_watermark=True,
+    customer_support=False,
+    halve_backs=0
 ):
     # Check if a plan with the same name already exists
     if PaymentPlans.query.filter_by(name=name.title()).first():
@@ -52,7 +54,8 @@ def edit_payment_plan(plan_id, name, amount, currency, duration,
                       unlimited_link_clicks, unlimited_qr_scans,
                                  shortlinks_per_month, qr_codes_per_month,
                                  link_in_bio, analytics_access,
-                                 qr_code_customization, qr_code_watermark):
+                                 qr_code_customization, qr_code_watermark,
+                                 customer_support, halve_backs):
     plan = PaymentPlans.query.filter_by(id=plan_id).first()
     if not plan:
         return False
@@ -78,6 +81,8 @@ def edit_payment_plan(plan_id, name, amount, currency, duration,
     plan.analytics_access = analytics_access or plan.analytics_access
     plan.qr_code_customization = qr_code_customization or plan.qr_code_customization
     plan.qr_code_watermark = qr_code_watermark or plan.qr_code_watermark
+    plan.customer_support = customer_support or plan.customer_support
+    plan.halve_backs = halve_backs or plan.halve_backs
     plan.update()
     return plan
 
