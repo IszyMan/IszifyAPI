@@ -10,6 +10,8 @@ class PaymentPlans(db.Model):
     name = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(50), nullable=False)
+    halve_backs = db.Column(db.Integer, default=0)
+    customer_support = db.Column(db.Boolean, default=False)
     duration = db.Column(db.Integer, nullable=False)  # Duration in months or other unit
     unlimited_link_clicks = db.Column(db.Boolean, default=False)
     unlimited_qr_scans = db.Column(db.Boolean, default=False)
@@ -36,6 +38,8 @@ class PaymentPlans(db.Model):
         analytics_access=False,
         qr_code_customization=False,
         qr_code_watermark=True,
+        customer_support=False,
+        halve_backs=0,
     ):
         self.name = name.title()
         self.amount = amount
@@ -49,6 +53,8 @@ class PaymentPlans(db.Model):
         self.analytics_access = analytics_access
         self.qr_code_customization = qr_code_customization
         self.qr_code_watermark = qr_code_watermark
+        self.customer_support = customer_support
+        self.halve_backs = halve_backs
 
     def to_dict(self):
         return {
@@ -65,6 +71,8 @@ class PaymentPlans(db.Model):
             "analytics_access": self.analytics_access,
             "qr_code_customization": self.qr_code_customization,
             "qr_code_watermark": self.qr_code_watermark,
+            "customer_support": self.customer_support or False,
+            "halve_backs": self.halve_backs or 0,
         }
 
     def save(self):
