@@ -45,8 +45,6 @@ def edit_one_admin(admin_id, email, first_name, last_name, role_id):
 
 def delete_one_admin(admin_id):
     admin = Admin.query.filter_by(id=admin_id).first()
-    if not admin:
-        return "Admin does not exist"
     admin.delete()
     return True
 
@@ -105,3 +103,7 @@ def save_role(name):
     role = Roles(name)
     role.save()
     return role
+
+
+def get_one_role(role_id):
+    return Roles.query.filter(Roles.id == role_id).first()
