@@ -317,7 +317,7 @@ def get_admin_details():
 
 # add payment plan
 @admin_blp.route(f"/{USER_PREFIX}/payment_plan", methods=["GET", "POST"])
-# @jwt_required()
+@jwt_required()
 def add_payment_plan():
     try:
         if request.method == "GET":
@@ -410,7 +410,7 @@ def add_payment_plan():
 
 # modify payment plan
 @admin_blp.route(f"/{USER_PREFIX}/payment_plan/<plan_id>", methods=["PATCH", "DELETE"])
-# @jwt_required()
+@jwt_required()
 def modify_payment_plan(plan_id):
     try:
         if request.method == "DELETE":
