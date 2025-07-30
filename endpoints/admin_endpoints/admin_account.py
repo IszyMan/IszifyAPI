@@ -13,6 +13,8 @@ from crud import (
     get_payment_plans,
     edit_payment_plan,
     delete_payment_plan,
+    get_one_role,
+    delete_one_admin
 )
 from extensions import db, limiter
 from utils import (
@@ -107,16 +109,10 @@ def create_admin():
 
 
 # edit admin
-@admin_blp.route(f"/{USER_PREFIX}/edit_admin/<admin_id>", methods=["PATCH"])
+@admin_blp.route(f"/{USER_PREFIX}/edit_admin/<admin_id>", methods=["PATCH", "DELETE"])
 @jwt_required()
 def edit_admin(admin_id):
     try:
-        data = request.get_json()
-        first_name = data.get("first_name")
-        last_name = data.get("last_name")
-        role_id = data.get("role_id")
-        email = data.get("email")
-
         admin = get_one_admin(admin_id)
         if not admin:
             return return_response(
@@ -125,21 +121,35 @@ def edit_admin(admin_id):
                 message="Admin does not exist",
             )
 
-        if role_id:
-            resp = check_email_role_exist(email, role_id, exist_admin=admin)
-            if resp:
-                return return_response(
-                    HttpStatus.BAD_REQUEST,
-                    status=StatusRes.FAILED,
-                    message=resp,
-                )
-        edit_one_admin(admin_id, email, first_name, last_name, role_id)
+        if request.method == "PATCH":
+            data = request.get_json()
+            first_name = data.get("first_name")
+            last_name = data.get("last_name")
+            role_id = data.get("role_id")
+            email = data.get("email")
 
-        return return_response(
-            HttpStatus.OK,
-            status=StatusRes.SUCCESS,
-            message="Admin updated successfully",
-        )
+            if role_id:
+                resp = check_email_role_exist(email, role_id, exist_admin=admin)
+                if resp:
+                    return return_response(
+                        HttpStatus.BAD_REQUEST,
+                        status=StatusRes.FAILED,
+                        message=resp,
+                    )
+            edit_one_admin(admin_id, email, first_name, last_name, role_id)
+
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Admin updated successfully",
+            )
+        elif request.method == "DELETE":
+            delete_one_admin(admin_id)
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Admin deleted successfully",
+            )
     except Exception as e:
         logger.exception("traceback@user_blp/edit_admin")
         logger.error(f"{e}: error@user_blp/edit_admin")
@@ -228,6 +238,53 @@ def get_roles():
     except Exception as e:
         logger.exception("traceback@user_blp/get_roles")
         logger.error(f"{e}: error@user_blp/get_roles")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# edit and delete role
+@admin_blp.route(f"/{USER_PREFIX}/role/<role_id>", methods=["PATCH", "DELETE"])
+@jwt_required()
+def role_operation(role_id):
+    try:
+        role = get_one_role(role_id)
+        if not role:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Role does not exist",
+            )
+        
+        if request.method == "DELETE":
+            role.delete()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Role Deleted",
+            )
+        elif request.method == "PATCH":
+            data = request.get_json()
+            name = data.get("name", role.name)
+            role.name = name
+            role.update()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Role Updated",
+            )
+        else:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Invalid Request Method",
+            )
+    except Exception as e:
+        logger.exception("traceback@user_blp/role_operation")
+        logger.error(f"{e}: error@user_blp/role_operation")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
