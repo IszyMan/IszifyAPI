@@ -349,12 +349,12 @@ def add_payment_plan():
                 status=StatusRes.FAILED,
                 message="Name is required",
             )
-        if not amount:
-            return return_response(
-                HttpStatus.BAD_REQUEST,
-                status=StatusRes.FAILED,
-                message="Amount is required",
-            )
+        # if not amount:
+        #     return return_response(
+        #         HttpStatus.BAD_REQUEST,
+        #         status=StatusRes.FAILED,
+        #         message="Amount is required",
+        #     )
         if not currency:
             return return_response(
                 HttpStatus.BAD_REQUEST,
