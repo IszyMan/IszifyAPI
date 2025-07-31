@@ -31,7 +31,7 @@ def create_blog():
         image_1 = data.get("image_1")
         image_2 = data.get("image_2")
 
-        if not title or not content or not category_id or featured_image:
+        if not title or not content or not category_id or not featured_image:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
