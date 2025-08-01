@@ -14,7 +14,7 @@ from crud import (
     edit_payment_plan,
     delete_payment_plan,
     get_one_role,
-    delete_one_admin
+    delete_one_admin,
 )
 from extensions import db, limiter
 from utils import (
@@ -258,7 +258,7 @@ def role_operation(role_id):
                 status=StatusRes.FAILED,
                 message="Role does not exist",
             )
-        
+
         if request.method == "DELETE":
             role.delete()
             return return_response(
@@ -380,12 +380,22 @@ def add_payment_plan():
                 status=StatusRes.FAILED,
                 message="Duration must be a number",
             )
-        plan = create_payment_plan(name, amount, currency, duration,
-                                   unlimited_link_clicks, unlimited_qr_scans,
-                                   shortlinks_per_month, qr_codes_per_month,
-                                   link_in_bio, analytics_access,
-                                   qr_code_customization, qr_code_watermark,
-                                   customer_support, halve_backs)
+        plan = create_payment_plan(
+            name,
+            amount,
+            currency,
+            duration,
+            unlimited_link_clicks,
+            unlimited_qr_scans,
+            shortlinks_per_month,
+            qr_codes_per_month,
+            link_in_bio,
+            analytics_access,
+            qr_code_customization,
+            qr_code_watermark,
+            customer_support,
+            halve_backs,
+        )
         if not plan:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -454,13 +464,23 @@ def modify_payment_plan(plan_id):
                 status=StatusRes.FAILED,
                 message="Duration must be a number",
             )
-        plan = edit_payment_plan(plan_id, name, amount, currency, duration,
-                                 unlimited_link_clicks, unlimited_qr_scans,
-                                 shortlinks_per_month, qr_codes_per_month,
-                                 link_in_bio, analytics_access,
-                                 qr_code_customization, qr_code_watermark,
-                                    customer_support, halve_backs
-                                 )
+        plan = edit_payment_plan(
+            plan_id,
+            name,
+            amount,
+            currency,
+            duration,
+            unlimited_link_clicks,
+            unlimited_qr_scans,
+            shortlinks_per_month,
+            qr_codes_per_month,
+            link_in_bio,
+            analytics_access,
+            qr_code_customization,
+            qr_code_watermark,
+            customer_support,
+            halve_backs,
+        )
         if not plan:
             return return_response(
                 HttpStatus.BAD_REQUEST,
