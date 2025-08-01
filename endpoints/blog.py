@@ -21,6 +21,7 @@ blog_blp = Blueprint("blog_blp", __name__)
 
 # create blog
 @blog_blp.route(f"/{BLOG_PREFIX}/create-blog", methods=["POST"])
+@jwt_required()
 def create_blog():
     try:
         data = request.get_json()
@@ -136,6 +137,62 @@ def get_one_blog(blog_id):
             message="Network Error",
         )
 
+# delete and edit blog
+@blog_blp.route(f"/{BLOG_PREFIX}/blog/<blog_id>", methods=["PATCH", "DELETE"])
+@jwt_required()
+def blog_operation(blog_id):
+    try:
+        blog = get_blog(blog_id)
+        if not blog:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Blog does not exist",
+            )
+        
+        if request.method == "DELETE":
+            blog.delete()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Blog Deleted",
+            )
+        elif request.method == "PATCH":
+            data = request.get_json()
+            title = data.get("title", blog.title)
+            content = data.get("content", blog.content)
+            category_id = data.get("category_id", blog.category_id)
+            featured_image = data.get("featured_image", blog.featured_image)
+            image_1 = data.get("image_1", blog.image_1)
+            image_2 = data.get("image_2", blog.image_2)
+            blog.title = title
+            blog.content = content
+            blog.category_id = category_id
+            blog.featured_image = featured_image
+            blog.image_1 = image_1
+            blog.image_2 = image_2
+            blog.update()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Blog Updated",
+            )
+        else:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Invalid Request Method",
+            )
+    except Exception as e:
+        logger.exception("traceback@blog_blp/blog_operation")
+        logger.error(f"{e}: error@blog_blp/blog_operation")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
 
 # get categories
 @blog_blp.route(f"/{BLOG_PREFIX}/get-categories", methods=["GET"])
@@ -162,6 +219,7 @@ def get_all_categories():
 
 # create category
 @blog_blp.route(f"/{BLOG_PREFIX}/create-category", methods=["POST"])
+@jwt_required()
 def create_category():
     try:
         data = request.get_json()
