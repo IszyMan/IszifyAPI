@@ -137,6 +137,7 @@ def get_one_blog(blog_id):
             message="Network Error",
         )
 
+
 # delete and edit blog
 @blog_blp.route(f"/{BLOG_PREFIX}/blog/<blog_id>", methods=["PATCH", "DELETE"])
 @jwt_required()
@@ -149,7 +150,7 @@ def blog_operation(blog_id):
                 status=StatusRes.FAILED,
                 message="Blog does not exist",
             )
-        
+
         if request.method == "DELETE":
             blog.delete()
             return return_response(
