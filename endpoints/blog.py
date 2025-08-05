@@ -5,6 +5,7 @@ from crud import (
     get_all_blogs,
     get_blogs_per_category,
     get_blog,
+    get_blog_inst,
     get_categories,
     save_blog,
     save_category,
@@ -144,7 +145,7 @@ def get_one_blog(blog_id):
 @jwt_required()
 def blog_operation(blog_id):
     try:
-        blog = get_blog(blog_id)
+        blog = get_blog_inst(blog_id)
         if not blog:
             return return_response(
                 HttpStatus.BAD_REQUEST,
