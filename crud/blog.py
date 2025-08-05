@@ -25,6 +25,10 @@ def get_blog(blog_id):
     return blog.to_dict()
 
 
+def get_blog_inst(blog_id):
+    return Blogs.query.filter_by(id=blog_id, deleted=False, display=True).first()
+
+
 def get_all_blogs(page, per_page, blog_id, cat_id):
     query = Blogs.query.filter_by(deleted=False, display=True)
 
