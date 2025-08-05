@@ -13,6 +13,7 @@ from crud import (
 from utils import return_response
 from extensions import db
 from logger import logger
+from flask_jwt_extended import current_user, jwt_required
 
 BLOG_PREFIX = "blog"
 
