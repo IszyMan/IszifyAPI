@@ -234,7 +234,7 @@ def edit_short_url(short_url_id):
 
         if short_link:
             resp = check_short_url_exist(short_link)
-            if resp:
+            if resp and short_url.short_url != short_link:
                 return return_response(
                     HttpStatus.BAD_REQUEST,
                     status=StatusRes.FAILED,
