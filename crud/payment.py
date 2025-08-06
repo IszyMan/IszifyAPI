@@ -184,18 +184,18 @@ def get_one_transaction(transaction_id, user_id):
 
 # subscribe for beginner payment plan for user
 def subscribe_for_beginner(user_id):
-    plan = PaymentPlans.query.filter(PaymentPlans.name.ilike("%Beginner%")).first()
+    plan = PaymentPlans.query.filter(PaymentPlans.name.ilike("%Free%")).first()
     if not plan:
         plan = create_beginner_payment_plan()
-        logger.info("Beginner plan not found")
+        logger.info("Free plan not found")
     return subscribe(user_id, plan.id, "active")
 
 
 # create_beginner_payment_plan
 def create_beginner_payment_plan():
-    logger.info("Creating Beginner plan")
+    logger.info("Creating Free plan")
     new_plan = create_payment_plan(
-        name="Beginner",
+        name="Free",
         amount=0,
         currency="USD",
         duration=0,
