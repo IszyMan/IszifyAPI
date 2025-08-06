@@ -267,8 +267,8 @@ def check_subscription_expired(f):
                 message="No active subscription found.",
             )
 
-        if "beginner" in subscription.plan.name.lower():
-            logger.info("Beginner plan")
+        if "free" in subscription.plan.name.lower():
+            logger.info("Free plan")
             return f(*args, **kwargs)
 
         if subscription.end_date < datetime.now():
