@@ -64,11 +64,29 @@ def generate_short_url():
 
 
 # validate url
+# def validate_url(url):
+#     if not url.startswith("http://") and not url.startswith("https://"):
+#         url = "http://" + url
+#     try:
+#         response = requests.get(url, timeout=5)
+#         logger.info(f"response.status_code: {response.status_code}")
+#         return response.status_code == 200 or 300 <= response.status_code < 400
+#     except requests.RequestException as e:
+#         logger.error(f"{e}: error@short_url_blp/validate_url")
+#         return False
+
+
 def validate_url(url):
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "http://" + url
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive"
+    }
     try:
-        response = requests.get(url, timeout=5)
+        response = requests.get(url, headers=headers, timeout=5)
         logger.info(f"response.status_code: {response.status_code}")
         return response.status_code == 200 or 300 <= response.status_code < 400
     except requests.RequestException as e:
