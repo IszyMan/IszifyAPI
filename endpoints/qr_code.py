@@ -12,6 +12,7 @@ from crud import (
     check_url_category_exists,
     duplicate_qr_code,
     check_short_url_exist,
+    validate_url,
 )
 from extensions import db, limiter
 from utils import return_response, user_id_limiter, get_website_title
@@ -103,6 +104,12 @@ def qrcode():
                 )
 
             if data.get("url"):
+                if not validate_url(data.get("url")):
+                    return return_response(
+                        HttpStatus.BAD_REQUEST,
+                        status=StatusRes.FAILED,
+                        message="Invalid URL",
+                    )
                 logger.info("checking if url exists in category")
                 res = check_url_category_exists(
                     data.get("url"), category, current_user.id
