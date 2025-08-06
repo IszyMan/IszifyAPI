@@ -1,5 +1,6 @@
 from models.payment import PaymentPlans
 from datetime import datetime, timedelta
+from logger import logger
 
 
 # create payment plan
