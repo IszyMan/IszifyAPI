@@ -68,12 +68,12 @@ def shorten_url():
                 status=StatusRes.FAILED,
                 message="URL already exists, please search for the url to get the details",
             )
-        # if not validate_url(original_url):
-        #     return return_response(
-        #         HttpStatus.BAD_REQUEST,
-        #         status=StatusRes.FAILED,
-        #         message="Invalid URL",
-        #     )
+        if not validate_url(original_url):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Invalid URL",
+            )
 
         if custom_url:
             logger.info(f"custom_url: {custom_url}")
