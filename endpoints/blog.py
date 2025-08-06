@@ -10,6 +10,7 @@ from crud import (
     save_blog,
     save_category,
     category_exists,
+    get_category
 )
 from utils import return_response
 from extensions import db
@@ -253,6 +254,54 @@ def create_category():
     except Exception as e:
         logger.exception("traceback@blog_blp/create_category")
         logger.error(f"{e}: error@blog_blp/create_category")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# edit and delete category
+@blog_blp.route(f"/{BLOG_PREFIX}/category/<category_id>", methods=["PATCH", "DELETE"])
+@jwt_required()
+def edit_or_delete_blog_category(category_id):
+    try:
+        category = get_category(category_id)
+        if not category:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Category does not exist"
+            )
+
+        if request.method == "DELETE":
+            category.delete()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Category deleted successfully"
+            )
+        elif request.method == "PATCH":
+            data = request.get_json()
+            name = data.get("name", category.name)
+            category.name = name
+            category.update()
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Category updated successfully",
+                data=category.to_dict()
+            )
+        else:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Invalid Request Method"
+            )
+    except Exception as e:
+        logger.exception("traceback@blog_blp/edit_or_delete_blog_category")
+        logger.error(f"{e}: error@blog_blp/edit_or_delete_blog_category")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
