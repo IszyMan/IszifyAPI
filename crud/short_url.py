@@ -1,4 +1,5 @@
 from urllib import request
+import requests
 from urllib.error import HTTPError, URLError
 import uuid
 import hashlib
@@ -67,9 +68,11 @@ def validate_url(url):
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "http://" + url
     try:
-        request.urlopen(url)
-        return True
-    except (HTTPError, URLError):
+        response = requests.get(url, timeout=5)
+        logger.info(f"response.status_code: {response.status_code}")
+        return response.status_code == 200 or 300 <= response.status_code < 400
+    except requests.RequestException as e:
+        logger.error(f"{e}: error@short_url_blp/validate_url")
         return False
 
 
