@@ -93,7 +93,7 @@ def validate_url(url):
     }
     try:
         response = requests.get(url, headers=headers, timeout=5)
-        logger.info(f"response.status_code: {response.status_code}")
+        logger.info(f"response.status_code: {response.status_code} {response.content}")
         return response.status_code == 200 or 300 <= response.status_code < 400
     except requests.RequestException as e:
         logger.error(f"{e}: error@short_url_blp/validate_url")
