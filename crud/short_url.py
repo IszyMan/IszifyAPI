@@ -1,6 +1,7 @@
-from urllib import request
+# from urllib import request
+from urllib.parse import urlparse
 import requests
-from urllib.error import HTTPError, URLError
+# from urllib.error import HTTPError, URLError
 import uuid
 import hashlib
 import datetime
@@ -76,28 +77,36 @@ def generate_short_url():
 #         return False
 
 
+# def validate_url(url):
+#     if not url.startswith("http://") and not url.startswith("https://"):
+#         url = "http://" + url
+#     headers = {
+#         "User-Agent": (
+#             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+#             "AppleWebKit/537.36 (KHTML, like Gecko) "
+#             "Chrome/120.0.0.0 Safari/537.36"
+#         ),
+#         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+#         "Accept-Language": "en-US,en;q=0.5",
+#         "Connection": "keep-alive",
+#         "DNT": "1",  # Do Not Track
+#         "Upgrade-Insecure-Requests": "1"
+#     }
+#     try:
+#         response = requests.get(url, headers=headers, timeout=5)
+#         logger.info(f"response.status_code: {response.status_code} {response.content}")
+#         return response.status_code == 200 or 300 <= response.status_code < 400
+#     except requests.RequestException as e:
+#         logger.error(f"{e}: error@short_url_blp/validate_url")
+#         return False
+
+
 def validate_url(url):
     if not url.startswith("http://") and not url.startswith("https://"):
         url = "http://" + url
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/120.0.0.0 Safari/537.36"
-        ),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-        "Connection": "keep-alive",
-        "DNT": "1",  # Do Not Track
-        "Upgrade-Insecure-Requests": "1"
-    }
-    try:
-        response = requests.get(url, headers=headers, timeout=5)
-        logger.info(f"response.status_code: {response.status_code} {response.content}")
-        return response.status_code == 200 or 300 <= response.status_code < 400
-    except requests.RequestException as e:
-        logger.error(f"{e}: error@short_url_blp/validate_url")
-        return False
+
+    parsed = urlparse(url)
+    return all([parsed.scheme in ("http", "https"), parsed.netloc])
 
 
 def save_url_click_location(ip_address, country, city, device, browser, url_id):
