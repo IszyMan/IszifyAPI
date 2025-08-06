@@ -53,3 +53,8 @@ def save_category(name):
     category = Catgories(name.lower())
     category.save()
     return category
+
+
+# get cat by id
+def get_category(cat_id):
+    return Catgories.query.filter_by(id=cat_id).first()
