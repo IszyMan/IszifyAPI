@@ -1,4 +1,4 @@
-from models.payment import PaymentPlans
+from models.payment import PaymentPlans, Subscriptions
 from datetime import datetime, timedelta
 from logger import logger
 
