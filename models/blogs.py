@@ -62,6 +62,7 @@ class Blogs(db.Model):
             "id": self.id,
             "title": self.title.title(),
             "content": self.content,
+            "category_id": self.category_id,
             # "deleted": self.deleted,
             # "display": self.display,
             "featured_image": self.featured_image,
