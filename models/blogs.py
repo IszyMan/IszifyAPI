@@ -24,6 +24,10 @@ class Catgories(db.Model):
 
     def update(self):
         db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
     def __repr__(self):
         return f"<Category {self.name}>"
