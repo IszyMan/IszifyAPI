@@ -125,7 +125,13 @@ def get_blogs_per_cat_id(cat_id):
 @blog_blp.route(f"/{BLOG_PREFIX}/get-blog/<blog_id>", methods=["GET"])
 def get_one_blog(blog_id):
     try:
-        blog = get_blog(blog_id)
+        blog = get_blog(blog_id, related=True)
+        if not blog:
+            return return_response(
+            HttpStatus.BAD_REQUEST,
+            status=StatusRes.FAILED,
+            message="Blog does not exsit",
+            )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Blog", data=blog
         )
