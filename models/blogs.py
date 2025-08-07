@@ -61,8 +61,9 @@ class Blogs(db.Model):
         self.image_1 = image_1
         self.image_2 = image_2
 
-    def to_dict(self):
-        return {
+    def to_dict(self, related=False):
+        print(related, "related")
+        returned_dict = {
             "id": self.id,
             "title": self.title.title(),
             "content": self.content,
@@ -76,6 +77,16 @@ class Blogs(db.Model):
             "updated": self.updated.strftime("%a, %d %b %Y %H:%M:%S"),
             "category": self.category.name.title(),
         }
+        if related:
+            returned_dict["related_blogs"] = self.related_blogs()
+        return returned_dict
+    
+    # get related blogs, just 3 without the current
+    def related_blogs(self):
+        rel_blogs = Blogs.query.filter(
+            Blogs.category_id == self.category_id, Blogs.id != self.id
+        ).limit(3)
+        return [b.to_dict() for b in rel_blogs]
 
     def save(self):
         db.session.add(self)
