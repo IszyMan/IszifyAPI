@@ -22,7 +22,7 @@ def get_categories():
 
 def get_blog(blog_id):
     blog = Blogs.query.filter_by(id=blog_id, deleted=False, display=True).first()
-    return blog.to_dict()
+    return blog.to_dict() if blog else {}
 
 
 def get_blog_inst(blog_id):
