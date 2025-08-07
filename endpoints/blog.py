@@ -276,6 +276,12 @@ def edit_or_delete_blog_category(category_id):
             )
 
         if request.method == "DELETE":
+            if category.blogs:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="This category has blogs"
+                )
             category.delete()
             return return_response(
                 HttpStatus.OK,
