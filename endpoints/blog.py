@@ -10,7 +10,7 @@ from crud import (
     save_blog,
     save_category,
     category_exists,
-    get_category
+    get_category,
 )
 from utils import return_response
 from extensions import db
@@ -128,9 +128,9 @@ def get_one_blog(blog_id):
         blog = get_blog(blog_id, related=True)
         if not blog:
             return return_response(
-            HttpStatus.BAD_REQUEST,
-            status=StatusRes.FAILED,
-            message="Blog does not exsit",
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Blog does not exsit",
             )
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Blog", data=blog
@@ -278,7 +278,7 @@ def edit_or_delete_blog_category(category_id):
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
-                message="Category does not exist"
+                message="Category does not exist",
             )
 
         if request.method == "DELETE":
@@ -286,13 +286,13 @@ def edit_or_delete_blog_category(category_id):
                 return return_response(
                     HttpStatus.BAD_REQUEST,
                     status=StatusRes.FAILED,
-                    message="This category has blogs"
+                    message="This category has blogs",
                 )
             category.delete()
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
-                message="Category deleted successfully"
+                message="Category deleted successfully",
             )
         elif request.method == "PATCH":
             data = request.get_json()
@@ -303,13 +303,13 @@ def edit_or_delete_blog_category(category_id):
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Category updated successfully",
-                data=category.to_dict()
+                data=category.to_dict(),
             )
         else:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
-                message="Invalid Request Method"
+                message="Invalid Request Method",
             )
     except Exception as e:
         logger.exception("traceback@blog_blp/edit_or_delete_blog_category")
