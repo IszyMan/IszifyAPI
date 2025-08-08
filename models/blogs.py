@@ -24,7 +24,7 @@ class Catgories(db.Model):
 
     def update(self):
         db.session.commit()
-    
+
     def delete(self):
         db.session.delete(self)
         db.session.commit()
@@ -80,7 +80,7 @@ class Blogs(db.Model):
         if related:
             returned_dict["related_blogs"] = self.related_blogs()
         return returned_dict
-    
+
     # get related blogs, just 3 without the current
     def related_blogs(self):
         rel_blogs = Blogs.query.filter(
