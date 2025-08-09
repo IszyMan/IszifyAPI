@@ -62,7 +62,6 @@ class Blogs(db.Model):
         self.image_2 = image_2
 
     def to_dict(self, related=False):
-        print(related, "related")
         returned_dict = {
             "id": self.id,
             "title": self.title.title(),
