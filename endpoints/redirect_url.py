@@ -17,6 +17,8 @@ DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL")
 def redirect_url(short_url):
     from celery_config.utils.celery_works import save_clicks_for_analytics
 
+    print(short_url, "short_url")
+
     user_ip = request.headers.get("x-forwarded-for", request.remote_addr)
 
     ip, city, country = get_info(user_ip)
@@ -37,6 +39,8 @@ def redirect_url(short_url):
         or get_original_url_by_short_url(short_url)
         or get_unauth_url_by_short_url(short_url)
     )
+
+    print(url, "url")
 
     save_clicks_for_analytics.delay(short_url, payload)
 
