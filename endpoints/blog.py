@@ -16,6 +16,8 @@ from utils import return_response
 from extensions import db
 from logger import logger
 from flask_jwt_extended import current_user, jwt_required
+from connection.redis_connection import redis_conn
+import json
 
 BLOG_PREFIX = "blog"
 
@@ -69,16 +71,36 @@ def get_blogs():
         blog_id = request.args.get("blog_id")
         cat_id = request.args.get("cat_id")
 
+        key = f"all_blogs:{page}:{per_page}:{blog_id}:{cat_id}"
+
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            logger.info("Cache hit")
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="All blogs",
+                **json.loads(cached_data)
+            )
+
         all_blogs = get_all_blogs(page, per_page, blog_id, cat_id)
+
+        prepared_dict = {
+            "blogs": [blog.to_dict() for blog in all_blogs.items],
+            "pages": all_blogs.pages,
+            "per_page": all_blogs.per_page,
+            "total_items": all_blogs.total,
+            "total_pages": all_blogs.pages,
+        }
+
+        redis_conn.set(key, json.dumps(prepared_dict))
+
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="All blogs",
-            data=[blog.to_dict() for blog in all_blogs.items],
-            pages=all_blogs.pages,
-            per_page=all_blogs.per_page,
-            total_items=all_blogs.total,
-            total_pages=all_blogs.pages,
+            **prepared_dict
         )
 
     except Exception as e:
@@ -98,16 +120,35 @@ def get_blogs_per_cat_id(cat_id):
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
+
+        key = f"cat_blogs:{cat_id}:{page}:{per_page}"
+
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            logger.info("Cache hit")
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="All blogs",
+                **json.loads(cached_data)
+            )
         blog = get_blogs_per_category(cat_id, page, per_page)
+
+        prepared_dict = {
+            "data": [blog.to_dict() for blog in blog.items],
+            "pages": blog.pages,
+            "per_page": blog.per_page,
+            "total_items": blog.total,
+            "total_pages": blog.pages,
+        }
+
+        redis_conn.set(key, json.dumps(prepared_dict))
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="All blogs",
-            data=[blog.to_dict() for blog in blog.items],
-            pages=blog.page,
-            per_page=blog.per_page,
-            total_items=blog.total,
-            total_pages=blog.pages,
+            **prepared_dict
         )
 
     except Exception as e:
@@ -125,7 +166,21 @@ def get_blogs_per_cat_id(cat_id):
 @blog_blp.route(f"/{BLOG_PREFIX}/get-blog/<blog_id>", methods=["GET"])
 def get_one_blog(blog_id):
     try:
+        key = f"blog:{blog_id}"
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            logger.info("Cache hit")
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Blog",
+                data=json.loads(cached_data)
+            )
+        
         blog = get_blog(blog_id, related=True)
+
+        redis_conn.set(key, json.dumps(blog))
         if not blog:
             return return_response(
                 HttpStatus.BAD_REQUEST,
@@ -161,6 +216,7 @@ def blog_operation(blog_id):
             )
 
         if request.method == "DELETE":
+            redis_conn.delete(f"blog:{blog_id}")
             blog.delete()
             return return_response(
                 HttpStatus.OK,
@@ -182,6 +238,7 @@ def blog_operation(blog_id):
             blog.image_1 = image_1
             blog.image_2 = image_2
             blog.update()
+            redis_conn.delete(f"blog:{blog_id}")
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
@@ -208,7 +265,20 @@ def blog_operation(blog_id):
 @blog_blp.route(f"/{BLOG_PREFIX}/get-categories", methods=["GET"])
 def get_all_categories():
     try:
+        key = "categories"
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            logger.info("Cache hit")
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Categories",
+                data=json.loads(cached_data)
+            )
         categories = get_categories()
+
+        redis_conn.set(key, json.dumps(categories))
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -288,6 +358,7 @@ def edit_or_delete_blog_category(category_id):
                     status=StatusRes.FAILED,
                     message="This category has blogs",
                 )
+            redis_conn.delete("categories")
             category.delete()
             return return_response(
                 HttpStatus.OK,
@@ -299,6 +370,7 @@ def edit_or_delete_blog_category(category_id):
             name = data.get("name", category.name)
             category.name = name
             category.update()
+            redis_conn.delete("categories")
             return return_response(
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
