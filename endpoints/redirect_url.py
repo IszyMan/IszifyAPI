@@ -7,6 +7,7 @@ from crud import (
 import os
 from utils import get_info, get_browser_info, get_computer_name
 import httpagentparser
+from connection.redis_connection import redis_conn
 
 redirect_url_blp = Blueprint("redirect_url_blp", __name__)
 
@@ -34,11 +35,17 @@ def redirect_url(short_url):
         "device": computer_name,
     }
     print(payload, "redirect payload")
-    url = (
-        get_url_by_short_url(short_url)
-        or get_original_url_by_short_url(short_url)
-        or get_unauth_url_by_short_url(short_url)
-    )
+
+    key = f"redirect:{short_url}"
+    # get from redis
+    url = redis_conn.get(key)
+    if not url:
+        url = (
+            get_url_by_short_url(short_url)
+            or get_original_url_by_short_url(short_url)
+            or get_unauth_url_by_short_url(short_url)
+        )
+        redis_conn.set(key, url, 3000)
 
     print(url, "url")
 
