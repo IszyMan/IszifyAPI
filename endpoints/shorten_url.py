@@ -21,6 +21,8 @@ from datetime import datetime
 from decorators import email_verified, check_shortlink_limit, check_subscription_expired
 from flask_jwt_extended import current_user, jwt_required
 from utils import get_website_title
+from connection.redis_connection import redis_conn
+import json
 
 USER_PREFIX = "url_shortener"
 
@@ -137,7 +139,16 @@ def get_short_urls():
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
         hidden = bool(request.args.get("hidden", False))
-        urls = get_shorten_url_for_user(page, per_page, current_user.id, hidden)
+
+        key = f"short_urls:{current_user.id}:{page}:{per_page}:{hidden}"
+
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            urls = json.loads(cached_data)
+        else:
+            urls = get_shorten_url_for_user(page, per_page, current_user.id, hidden)
+            redis_conn.set(key, json.dumps(urls), 1600)
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URLs", **urls
         )
@@ -162,6 +173,18 @@ def get_short_urls():
 @limiter.limit("9 per minute", key_func=user_id_limiter)
 def get_one_short_url(short_url_id):
     try:
+        key = f"short_url:{current_user.id}:{short_url_id}"
+
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            logger.info("Cache hit")
+            return return_response(
+                HttpStatus.OK,
+                status=StatusRes.SUCCESS,
+                message="Short URL",
+                data=json.loads(cached_data),
+            )
         url = Urlshort.query.filter_by(id=short_url_id, user_id=current_user.id).first()
         if not url:
             return return_response(
@@ -169,6 +192,8 @@ def get_one_short_url(short_url_id):
                 status=StatusRes.FAILED,
                 message="Short URL not found",
             )
+
+        redis_conn.set(key, json.dumps(url.to_dict(get_qr_code=True)), 1600)
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -225,6 +250,7 @@ def edit_short_url(short_url_id):
                     message="You cannot delete this short url",
                 )
             short_url.delete()
+            redis_conn.delete(f"short_url:{current_user.id}:{short_url_id}")
             return return_response(
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL deleted"
             )
@@ -255,6 +281,8 @@ def edit_short_url(short_url_id):
             # short_url.qr_code_rel.url = url
             short_url.qr_code_rel.title = title
             short_url.qr_code_rel.update()
+
+        redis_conn.delete(f"short_url:{current_user.id}:{short_url_id}")
 
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="Short URL updated"
