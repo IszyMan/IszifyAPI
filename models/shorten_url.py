@@ -68,7 +68,7 @@ class Urlshort(db.Model):
             "host_url": remove_host_url(request.host_url),
             "title": self.title,
             "want_qr_code": self.want_qr_code,
-            "created": self.created,
+            "created": self.created.strftime("%d-%b-%Y %H:%M:%S"),
             "has_half_back": self.has_half_back or False,
             "has_redirected": self.has_redirected or False,
             "hidden": self.hidden or False,
