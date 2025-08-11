@@ -21,6 +21,8 @@ from datetime import datetime
 import pprint
 from decorators import email_verified, check_qr_code_limit, check_subscription_expired
 from logger import logger
+from connection.redis_connection import redis_conn
+import json
 
 QR_PREFIX = "qr_code"
 
@@ -45,7 +47,14 @@ def qrcode_categories():
                 status=StatusRes.SUCCESS,
                 message="QR Code Category Added",
             )
-        cats = get_qrcode_categories()
+        key = "qrcode_categories"
+        cats = redis_conn.get(key)
+
+        if not cats:
+            cats = get_qrcode_categories()
+            redis_conn.set(key, json.dumps(cats))
+        else:
+            cats = json.loads(cats)
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -194,9 +203,16 @@ def qrcode():
                 status=StatusRes.FAILED,
                 message="Invalid date format, should be dd-mm-yyyy",
             )
-        qrcodes = get_qrcode_data(
-            page, per_page, current_user.id, category, start_date, end_date, hidden
-        )
+        key = f"qrcodes:{current_user.id}:{page}:{per_page}:{category}:{start_date}:{end_date}:{hidden}"
+
+        qrcodes = redis_conn.get(key)
+        if qrcodes:
+            qrcodes = json.loads(qrcodes)
+        else:
+            qrcodes = get_qrcode_data(
+                page, per_page, current_user.id, category, start_date, end_date, hidden
+            )
+            redis_conn.set(key, json.dumps(qrcodes), 160)
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Codes", **qrcodes
         )
@@ -297,14 +313,22 @@ def edit_qrcode(qr_code_id):
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Updated"
             )
 
-        # get qr code
-        qr_code = get_qrcode_data_by_id(current_user.id, qr_code_id)
-        if not qr_code:
-            return return_response(
-                HttpStatus.NOT_FOUND,
-                status=StatusRes.FAILED,
-                message="QR Code not found",
-            )
+        
+        key = f"qrcode:{current_user.id}:{qr_code_id}"
+        cached_data = redis_conn.get(key)
+
+        if cached_data:
+            qr_code = json.loads(cached_data)
+        else:
+            # get qr code
+            qr_code = get_qrcode_data_by_id(current_user.id, qr_code_id)
+            if not qr_code:
+                return return_response(
+                    HttpStatus.NOT_FOUND,
+                    status=StatusRes.FAILED,
+                    message="QR Code not found",
+                )
+            redis_conn.set(key, json.dumps(qr_code), 160)
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code", **qr_code
         )
@@ -455,6 +479,8 @@ def delete_qrcode(qr_code_id):
 
         db.session.delete(res)
         db.session.commit()
+
+        redis_conn.delete(f"qrcode:{current_user.id}:{qr_code_id}")
 
         return return_response(
             HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Deleted"
