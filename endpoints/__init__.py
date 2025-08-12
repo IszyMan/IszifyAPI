@@ -10,3 +10,4 @@ from .admin_endpoints import admin_blp as AdminAccountBlueprint
 from .transactions.transactions_views import transactions_blp as TransactionsBlueprint
 from .analytics import analytics_blp as AnalyticsBlueprint
 from .cloud_nary import cloudnary as CloudNaryBlueprint
+from .giftlink import giftlink_blp as GiftlinkBlueprint
