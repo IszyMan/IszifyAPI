@@ -137,7 +137,15 @@ class Transactions(db.Model):
     description = db.Column(db.Text)
     amount = db.Column(db.Float)
     method = db.Column(db.String(50))
+    transaction_type = db.Column(
+        db.String(50), nullable=False, default="subscription"
+    )  # subscription/withdrawal
+    response_json = db.Column(db.JSON, nullable=True)
     transaction_reference = db.Column(db.String(150))
+    bank_code = db.Column(db.String(50))
+    bank_name = db.Column(db.String(150))
+    account_name = db.Column(db.String(150))
+    account_number = db.Column(db.String(50))
     currency = db.Column(db.String(50))
-    status = db.Column(db.String(50))
+    status = db.Column(db.String(50))  # pending/failed/success
     date = db.Column(db.DateTime, nullable=False, default=db.func.now())
