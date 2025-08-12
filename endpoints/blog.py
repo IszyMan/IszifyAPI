@@ -81,7 +81,7 @@ def get_blogs():
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="All blogs",
-                **json.loads(cached_data)
+                **json.loads(cached_data),
             )
 
         all_blogs = get_all_blogs(page, per_page, blog_id, cat_id)
@@ -100,7 +100,7 @@ def get_blogs():
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="All blogs",
-            **prepared_dict
+            **prepared_dict,
         )
 
     except Exception as e:
@@ -131,7 +131,7 @@ def get_blogs_per_cat_id(cat_id):
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="All blogs",
-                **json.loads(cached_data)
+                **json.loads(cached_data),
             )
         blog = get_blogs_per_category(cat_id, page, per_page)
 
@@ -148,7 +148,7 @@ def get_blogs_per_cat_id(cat_id):
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="All blogs",
-            **prepared_dict
+            **prepared_dict,
         )
 
     except Exception as e:
@@ -175,9 +175,9 @@ def get_one_blog(blog_id):
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Blog",
-                data=json.loads(cached_data)
+                data=json.loads(cached_data),
             )
-        
+
         blog = get_blog(blog_id, related=True)
 
         redis_conn.set(key, json.dumps(blog))
@@ -274,7 +274,7 @@ def get_all_categories():
                 HttpStatus.OK,
                 status=StatusRes.SUCCESS,
                 message="Categories",
-                data=json.loads(cached_data)
+                data=json.loads(cached_data),
             )
         categories = get_categories()
 
