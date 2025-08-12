@@ -47,6 +47,43 @@ def list_banks():
         )
 
 
+# resolve account number
+@transactions_blp.route(f"{TRANSACT_PREFIX}/resolve-account", methods=["POST"])
+def resolve_account():
+    try:
+        data = request.get_json()
+        account_number = data.get("account_number")
+        bank_code = data.get("bank_code")
+        if not account_number or not bank_code:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Account number and bank code is required",
+            )
+        res, status_code = pay_stack.resolve_account(account_number, bank_code)
+        if status_code != 200:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Failed to resolve account",
+            )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Account Resolved",
+            account=res.get("data"),
+        )
+    except Exception as e:
+        logger.exception("traceback@transactions_blp/resolve_account")
+        logger.error(f"{e}: error@transactions_blp/resolve_account")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
 # verify paystack transaction
 @transactions_blp.route(f"{TRANSACT_PREFIX}/verify-transaction", methods=["POST"])
 # @jwt_required()
