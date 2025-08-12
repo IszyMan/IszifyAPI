@@ -6,6 +6,7 @@ from logger import logger
 
 load_dotenv()
 
+
 class RedisConnection:
     def __init__(self, url=os.environ.get("REDIS_URL")):
         try:

@@ -6,3 +6,4 @@ from .qr_code import *
 from .payment import *
 from .biolink import *
 from .admin import *
+from .giftlink import *
