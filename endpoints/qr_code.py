@@ -313,7 +313,6 @@ def edit_qrcode(qr_code_id):
                 HttpStatus.OK, status=StatusRes.SUCCESS, message="QR Code Updated"
             )
 
-        
         key = f"qrcode:{current_user.id}:{qr_code_id}"
         cached_data = redis_conn.get(key)
 
