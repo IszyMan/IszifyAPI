@@ -8,6 +8,7 @@ from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMed
 from models.qrcode_unauth import QRCodeDataUnauth
 from models.payment import PaymentPlans, Subscriptions, Transactions
 from models.admin_models import Admin, AdminSession
+from models.giftlink import GiftLinks, Donation, UserWallet, SavedBank
 from endpoints import (
     AuthenticationBlueprint,
     UserBlueprint,
@@ -21,6 +22,7 @@ from endpoints import (
     TransactionsBlueprint,
     AnalyticsBlueprint,
     CloudNaryBlueprint,
+    GiftlinkBlueprint,
 )
 from utils import return_response
 from http_status import HttpStatus
@@ -143,6 +145,7 @@ def create_app(config_name="development"):
     app.register_blueprint(TransactionsBlueprint, url_prefix="/api/v1")
     app.register_blueprint(AnalyticsBlueprint, url_prefix="/api/v1")
     app.register_blueprint(CloudNaryBlueprint, url_prefix="/api/v1")
+    app.register_blueprint(GiftlinkBlueprint, url_prefix="/api/v1")
     app.register_blueprint(RedirectUrlBlueprint)
 
     return app
