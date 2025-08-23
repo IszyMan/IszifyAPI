@@ -166,7 +166,8 @@ def user_id_limiter():
 
 
 def gen_short_code(url_short=False, un_auth=False):
-    length = random.choice([6, 7, 8])
+    # length = random.choice([6, 7, 8])
+    length = 5
     # Randomly pick an initial from the list and randomly decide upper or lowercase
     if url_short:
         initial = random.choice(["A", "B", "C", "D", "E", "F", "G", "H", "I"])
