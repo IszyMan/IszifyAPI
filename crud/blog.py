@@ -24,6 +24,10 @@ def get_blog(blog_id, related=False):
     blog = Blogs.query.filter_by(id=blog_id, deleted=False, display=True).first()
     return blog.to_dict(related=related) if blog else None
 
+def get_blog_by_title(title, related=False):
+    blog = Blogs.query.filter_by(title=title, deleted=False, display=True).first()
+    return blog.to_dict(related=related) if blog else None
+
 
 def get_blog_inst(blog_id):
     return Blogs.query.filter_by(id=blog_id, deleted=False, display=True).first()
