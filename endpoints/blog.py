@@ -5,6 +5,7 @@ from crud import (
     get_all_blogs,
     get_blogs_per_category,
     get_blog,
+    get_blog_by_title,
     get_blog_inst,
     get_categories,
     save_blog,
@@ -163,10 +164,10 @@ def get_blogs_per_cat_id(cat_id):
 
 
 # get one blog
-@blog_blp.route(f"/{BLOG_PREFIX}/get-blog/<blog_id>", methods=["GET"])
-def get_one_blog(blog_id):
+@blog_blp.route(f"/{BLOG_PREFIX}/get-blog/<title>", methods=["GET"])
+def get_one_blog(title):
     try:
-        key = f"blog:{blog_id}"
+        key = f"blog:{title}"
         cached_data = redis_conn.get(key)
 
         if cached_data:
@@ -178,7 +179,7 @@ def get_one_blog(blog_id):
                 data=json.loads(cached_data),
             )
 
-        blog = get_blog(blog_id, related=True)
+        blog = get_blog_by_title(title, related=True)
 
         redis_conn.set(key, json.dumps(blog))
         if not blog:
