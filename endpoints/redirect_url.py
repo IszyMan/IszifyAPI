@@ -12,6 +12,12 @@ from connection.redis_connection import redis_conn
 redirect_url_blp = Blueprint("redirect_url_blp", __name__)
 
 DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL")
+FRONTEND_REDIRECT_URL = os.environ.get("FRONTEND_REDIRECT_URL")
+
+
+@redirect_url_blp.route("", methods=["GET"])
+def redirect_base_url():
+    return redirect(FRONTEND_REDIRECT_URL)
 
 
 @redirect_url_blp.route("/<short_url>", methods=["GET"])
