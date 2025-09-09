@@ -15,7 +15,7 @@ DEFAULT_REDIRECT_URL = os.environ.get("DEFAULT_REDIRECT_URL")
 FRONTEND_REDIRECT_URL = os.environ.get("FRONTEND_REDIRECT_URL")
 
 
-@redirect_url_blp.route("", methods=["GET"])
+@redirect_url_blp.route("/", methods=["GET"])
 def redirect_base_url():
     return redirect(FRONTEND_REDIRECT_URL)
 
