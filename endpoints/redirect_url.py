@@ -51,7 +51,7 @@ def redirect_url(short_url):
             or get_original_url_by_short_url(short_url)
             or get_unauth_url_by_short_url(short_url)
         )
-        redis_conn.set(key, url, 3000)
+        redis_conn.set(key, short_url, 3000)
 
     print(url, "url")
 
