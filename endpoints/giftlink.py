@@ -6,10 +6,18 @@ from crud import (
     get_bank_details,
     is_valid_enum_value,
     is_slug_exist,
+    is_username_exist,
+    create_fresh_giftlink,
     create_gift_link,
     get_user_wallet,
     get_gift_links_with_pagination,
+    create_gift_account,
+    update_gift_account,
     load_gift_link_by_slug,
+    get_all_gift_account,
+    get_one_gift_account,
+    get_all_gift_links,
+    update_gift_link,
 )
 from utils import return_response
 from extensions import db
@@ -226,7 +234,7 @@ def get_wallet():
 # get git links with pagination and filters
 @giftlink_blp.route(f"{GIFT_PREFIX}/get_gift_links", methods=["GET"])
 @jwt_required()
-def get_gift_links():
+def get_ggift_links():
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
@@ -311,6 +319,328 @@ def load_gift_link(slug):
     except Exception as e:
         logger.exception("traceback@giftlink_blp/load_gift_link")
         logger.error(f"{e}: error@giftlink_blp/load_gift_link")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# create gift account
+@giftlink_blp.route(f"{GIFT_PREFIX}/create_gift_account", methods=["POST"])
+@jwt_required()
+def gift_account():
+    try:
+        data = request.get_json()
+        full_name = data.get("full_name")
+        username = data.get("username")
+        bio = data.get("bio")
+        profile_image = data.get("profile_image")
+        cover_image = data.get("cover_image")
+        website = data.get("website")
+        niche = data.get("niche")
+        # username exist
+        if username and is_username_exist(username):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Username already exists",
+            )
+        create_gift_account(
+            current_user.id,
+            full_name,
+            username,
+            bio,
+            profile_image,
+            cover_image,
+            website,
+            niche,
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift account created successfully",
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/create_gift_account")
+        logger.error(f"{e}: error@giftlink_blp/create_gift_account")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get gift account
+@giftlink_blp.route(f"{GIFT_PREFIX}/get_gift_account", methods=["GET"])
+@jwt_required()
+def get_gift_account():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        giftaccounts = get_all_gift_account(current_user.id, page, per_page)
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift account fetched successfully",
+            data={
+                "accounts": [
+                    giftaccount.to_dict() for giftaccount in giftaccounts.items
+                ],
+                "page": page,
+                "per_page": per_page,
+                "total_items": giftaccounts.total,
+                "total_pages": giftaccounts.pages,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/get_gift_account")
+        logger.error(f"{e}: error@giftlink_blp/get_gift_account")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# create or update gift link
+@giftlink_blp.route(f"{GIFT_PREFIX}/gift_link/<gift_account_id>", methods=["POST"])
+@jwt_required()
+def create_fresh_gift_link(gift_account_id):
+    try:
+        data = request.get_json()
+        title = data.get("title")
+        description = data.get("description")
+        layout = data.get("layout")
+        buy_me = data.get("buy_me")
+        tip_unit_price = data.get("tip_unit_price")
+        min_price = data.get("min_price")
+        button_option = data.get("button_option")
+        sugg_amounts = data.get("suggested_amounts", [])
+        image = data.get("image")
+        link = data.get("link")
+        active = data.get("active", True)
+        goal_amount = data.get("goal_amount")
+        start_amount = data.get("start_amount")
+        profile_image = data.get("profile_image")
+        cover_image = data.get("cover_image")
+        font_style = data.get("font_style")
+        color_theme = data.get("color_theme")
+        social_links = data.get("social_links", [])
+        thanks_msg = data.get("thanks_msg")
+
+        # if gift link is valid
+        if not get_one_gift_account(current_user.id, gift_account_id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift account not found",
+            )
+
+        create_fresh_giftlink(
+            current_user.id,
+            gift_account_id,
+            title,
+            description,
+            layout,
+            buy_me,
+            tip_unit_price,
+            min_price,
+            button_option,
+            sugg_amounts,
+            image,
+            link,
+            active,
+            goal_amount,
+            start_amount,
+            profile_image,
+            cover_image,
+            font_style,
+            color_theme,
+            thanks_msg,
+            social_links,
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift link created successfully",
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/create_or_update_gift_link")
+        logger.error(f"{e}: error@giftlink_blp/create_or_update_gift_link")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# get git links by passing gift account id
+@giftlink_blp.route(f"{GIFT_PREFIX}/get_gift_links/<gift_account_id>", methods=["GET"])
+@jwt_required()
+def get_gift_links(gift_account_id):
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        if not get_one_gift_account(current_user.id, gift_account_id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift account not found",
+            )
+        gift_links = get_all_gift_links(
+            current_user.id, gift_account_id, page, per_page
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift links fetched successfully",
+            data={
+                "gift_links": [gift_link.to_dict() for gift_link in gift_links.items],
+                "total_items": gift_links.total,
+                "total_pages": gift_links.pages,
+                "page": page,
+                "per_page": per_page,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/get_gift_links")
+        logger.error(f"{e}: error@giftlink_blp/get_gift_links")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# edit gift link
+@giftlink_blp.route(f"{GIFT_PREFIX}/edit_gift_link/<gift_link_id>", methods=["PATCH"])
+@jwt_required()
+def edit_gift_link(gift_link_id):
+    try:
+        data = request.get_json()
+        title = data.get("title")
+        description = data.get("description")
+        layout = data.get("layout")
+        buy_me = data.get("buy_me")
+        tip_unit_price = data.get("tip_unit_price")
+        min_price = data.get("min_price")
+        button_option = data.get("button_option")
+        sugg_amounts = data.get("suggested_amounts", [])
+        image = data.get("image")
+        link = data.get("link")
+        active = data.get("active", True)
+        goal_amount = data.get("goal_amount")
+        start_amount = data.get("start_amount")
+        profile_image = data.get("profile_image")
+        cover_image = data.get("cover_image")
+        font_style = data.get("font_style")
+        color_theme = data.get("color_theme")
+        social_links = data.get("social_links", [])
+        thanks_msg = data.get("thanks_msg")
+
+        # if gift link is valid
+        if not get_one_gift_link(current_user.id, gift_link_id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift link not found",
+            )
+
+        update_gift_link(
+            current_user.id,
+            gift_link_id,
+            title,
+            description,
+            layout,
+            buy_me,
+            tip_unit_price,
+            min_price,
+            button_option,
+            sugg_amounts,
+            image,
+            link,
+            active,
+            goal_amount,
+            start_amount,
+            profile_image,
+            cover_image,
+            font_style,
+            color_theme,
+            social_links,
+            thanks_msg,
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift link edited successfully",
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/edit_gift_link")
+        logger.error(f"{e}: error@giftlink_blp/edit_gift_link")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# edit gift account
+@giftlink_blp.route(
+    f"{GIFT_PREFIX}/edit_gift_account/<gift_account_id>", methods=["PATCH"]
+)
+@jwt_required()
+def edit_gift_account(gift_account_id):
+    try:
+        data = request.get_json()
+        full_name = data.get("full_name")
+        username = data.get("username")
+        bio = data.get("bio")
+        profile_image = data.get("profile_image")
+        cover_image = data.get("cover_image")
+        website = data.get("website")
+        niche = data.get("niche")
+
+        # if gift account is valid
+        if not get_one_gift_account(current_user.id, gift_account_id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift account not found",
+            )
+
+        if username and is_username_exist(username):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Username already exists",
+            )
+
+        update_gift_account(
+            current_user.id,
+            gift_account_id,
+            full_name,
+            username,
+            bio,
+            profile_image,
+            cover_image,
+            website,
+            niche,
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift account edited successfully",
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/edit_gift_account")
+        logger.error(f"{e}: error@giftlink_blp/edit_gift_account")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
