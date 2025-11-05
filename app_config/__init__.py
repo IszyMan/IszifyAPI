@@ -8,7 +8,15 @@ from models.qrcode import QRCodeCategories, QRCodeData, QrCodeStyling, SocialMed
 from models.qrcode_unauth import QRCodeDataUnauth
 from models.payment import PaymentPlans, Subscriptions, Transactions
 from models.admin_models import Admin, AdminSession
-from models.giftlink import GiftLinks, Donation, UserWallet, SavedBank
+from models.giftlink import (
+    GiftLinks,
+    Donation,
+    UserWallet,
+    SavedBank,
+    GiftAccount,
+    SocialLinks,
+    NicheEnum,
+)
 from endpoints import (
     AuthenticationBlueprint,
     UserBlueprint,
