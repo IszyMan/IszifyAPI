@@ -3,6 +3,8 @@ from func import hex_id, format_datetime
 from passlib.hash import pbkdf2_sha256 as hasher
 from datetime import datetime, timedelta
 import enum
+from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy import JSON
 
 
 class CaseInsensitiveEnum(enum.Enum):
@@ -18,18 +20,32 @@ class CaseInsensitiveEnum(enum.Enum):
 
 
 class NicheEnum(CaseInsensitiveEnum):
-    blogger = "Blogger"
-    artiste = "Artiste"
-    musician = "Musician"
-    actor = "Actor"
-    skit_maker = "Skit Maker"
-    comedian = "Comedian"
-    writer = "Writer"
-    influencer = "Influencer"
-    entrepreneur = "Entrepreneur"
-    fashion_designer = "Fashion Designer"
-    podcaster = "Podcaster"
-    vlogger = "Vlogger"
+    blogger = "blogger"
+    artiste = "artiste"
+    musician = "musician"
+    actor = "actor"
+    skit_maker = "skit maker"
+    comedian = "comedian"
+    writer = "writer"
+    influencer = "influencer"
+    entrepreneur = "entrepreneur"
+    fashion_designer = "fashion designer"
+    podcaster = "podcaster"
+    vlogger = "vlogger"
+    social = "social"
+    art = "art"
+    music = "music"
+    comedy = "comedy"
+    education = "education"
+    fitness = "fitness"
+    health = "health"
+    lifestyle = "lifestyle"
+    travel = "travel"
+    tech = "tech"
+    business = "business"
+    finance = "finance"
+    gaming = "gaming"
+    sports = "sports"
 
 
 class GiftType(CaseInsensitiveEnum):
@@ -37,25 +53,93 @@ class GiftType(CaseInsensitiveEnum):
     gift = "Gift"
 
 
+# gift account
+class GiftAccount(db.Model):
+    __tablename__ = "gift_account"
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
+    full_name = db.Column(db.String(150))
+    username = db.Column(db.String(50))
+    niche = db.Column(db.String(50))
+    bio = db.Column(db.Text)
+    profile_image = db.Column(db.Text)
+    cover_image = db.Column(db.Text)
+    website = db.Column(db.Text)
+    created = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated = db.Column(
+        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
+    )
+    social_links = db.relationship("SocialLinks", backref="gift_account", lazy=True)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "full_name": self.full_name,
+            "username": self.username,
+            "bio": self.bio,
+            "profile_image": self.profile_image,
+            "cover_image": self.cover_image,
+            "website": self.website,
+            "niche": self.niche,
+            "created": format_datetime(self.created),
+            "updated": format_datetime(self.updated),
+        }
+
+
+# social links
+class SocialLinks(db.Model):
+    __tablename__ = "social_links"
+    id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
+    gift_account_id = db.Column(
+        db.String(50), db.ForeignKey("gift_account.id"), nullable=False
+    )
+    gift_link_id = db.Column(
+        db.String(50), db.ForeignKey("gift_links.id"), nullable=False
+    )
+    link = db.Column(db.Text)
+    created = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    updated = db.Column(
+        db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
+    )
+
+
 class GiftLinks(db.Model):
     __tablename__ = "gift_links"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
     gift_type = db.Column(db.Enum(GiftType), nullable=False, default=GiftType.gift)
-    niche = db.Column(db.Enum(NicheEnum), nullable=False, default=NicheEnum.blogger)
+    gift_account_id = db.Column(db.String(50), db.ForeignKey("gift_account.id"))
     title = db.Column(db.String(250), nullable=False)
     description = db.Column(db.Text, nullable=True)
+    layout = db.Column(db.String(50))
+    buy_me = db.Column(db.String(50))
+    tip_unit_price = db.Column(db.Float)
+    min_price = db.Column(db.Float)
+    button_option = db.Column(db.String(50))
+    sugg_amounts = db.Column(MutableList.as_mutable(JSON), default=list)
     image = db.Column(db.Text, nullable=True)
     link = db.Column(db.Text, nullable=True)
     active = db.Column(db.Boolean, default=True)
     goal_amount = db.Column(db.Float, default=0)
+    start_amount = db.Column(db.Float, default=0)
     current_amount = db.Column(db.Float, default=0)
     profile_image = db.Column(db.Text, nullable=True)
     cover_image = db.Column(db.Text, nullable=True)
     font_style = db.Column(db.String(50), nullable=True)
     color_theme = db.Column(db.String(50), nullable=True)
-    slug = db.Column(db.String(250), nullable=False, unique=True)
+    thanks_msg = db.Column(db.Text, nullable=True)
+    slug = db.Column(db.String(50), nullable=True, unique=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
+    social_links = db.relationship("SocialLinks", backref="gift_link", lazy=True)
     updated = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
     )
@@ -67,7 +151,6 @@ class GiftLinks(db.Model):
         db.Index("ix_gift_links_active", "active"),
         db.Index("ix_gift_links_created", "created"),
         db.Index("ix_gift_links_updated", "updated"),
-        db.Index("ix_gift_links_niche", "niche"),
         db.Index("ix_gift_links_gift_type", "gift_type"),
     )
 
@@ -83,13 +166,17 @@ class GiftLinks(db.Model):
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "niche": self.niche.value,
-            "gift_type": self.gift_type.value,
+            "layout": self.layout,
+            "buy_me": self.buy_me,
+            "tip_unit_price": self.tip_unit_price,
+            "min_price": self.min_price,
+            "button_option": self.button_option,
+            "sugg_amounts": self.sugg_amounts,
             "image": self.image,
-            "slug": self.slug,
             "link": self.link,
             "active": self.active,
             "goal_amount": self.goal_amount,
+            "start_amount": self.start_amount,
             "current_amount": self.current_amount,
             "profile_image": self.profile_image,
             "cover_image": self.cover_image,
@@ -97,6 +184,7 @@ class GiftLinks(db.Model):
             "color_theme": self.color_theme,
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
+            "social_links": [social_link.link for social_link in self.social_links],
         }
 
     def user_to_dict(self):
