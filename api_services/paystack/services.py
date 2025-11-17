@@ -19,9 +19,8 @@ class PaystackClient(PaystackBase):
             print(self.headers, "header from resolve_account")
             url = f"{self.base_url}/bank/resolve?account_number={account_number}&bank_code={bank_code}"
             response = requests.get(url, headers=self.headers)
-            response.raise_for_status()  # This will raise an HTTPError for bad responses (4xx and 5xx)
+            response.raise_for_status()
 
-            # Debugging statements
             print(response.content.decode(), "response content from resolve_account")
             print(response.json(), "response JSON from resolve_account")
 
