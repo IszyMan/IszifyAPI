@@ -401,7 +401,7 @@ def get_gift_account():
             #     "total_items": giftaccounts.total,
             #     "total_pages": giftaccounts.pages,
             # },
-            data=giftaccount.to_dict(),
+            data=giftaccount.to_dict() if giftaccount else {},
         )
     except Exception as e:
         logger.exception("traceback@giftlink_blp/get_gift_account")
