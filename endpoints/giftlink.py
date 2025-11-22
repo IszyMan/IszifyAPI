@@ -18,6 +18,7 @@ from crud import (
     get_one_gift_account,
     get_all_gift_links,
     update_gift_link,
+    get_current_user_gift_account,
 )
 from utils import return_response
 from extensions import db
@@ -347,6 +348,12 @@ def gift_account():
                 status=StatusRes.FAILED,
                 message="Username already exists",
             )
+        if get_current_user_gift_account(current_user.id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="You already have a gift account",
+            )
         create_gift_account(
             current_user.id,
             full_name,
@@ -378,22 +385,23 @@ def gift_account():
 @jwt_required()
 def get_gift_account():
     try:
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 10))
-        giftaccounts = get_all_gift_account(current_user.id, page, per_page)
+        # page = int(request.args.get("page", 1))
+        # per_page = int(request.args.get("per_page", 10))
+        giftaccount = get_current_user_gift_account(current_user.id)
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Gift account fetched successfully",
-            data={
-                "accounts": [
-                    giftaccount.to_dict() for giftaccount in giftaccounts.items
-                ],
-                "page": page,
-                "per_page": per_page,
-                "total_items": giftaccounts.total,
-                "total_pages": giftaccounts.pages,
-            },
+            # data={
+            #     "accounts": [
+            #         giftaccount.to_dict() for giftaccount in giftaccounts.items
+            #     ],
+            #     "page": page,
+            #     "per_page": per_page,
+            #     "total_items": giftaccounts.total,
+            #     "total_pages": giftaccounts.pages,
+            # },
+            data=giftaccount.to_dict(),
         )
     except Exception as e:
         logger.exception("traceback@giftlink_blp/get_gift_account")
