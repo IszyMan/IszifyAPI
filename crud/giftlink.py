@@ -69,6 +69,16 @@ def get_all_gift_account(user_id, page, per_page):
     return gift_accounts
 
 
+def get_current_user_gift_account(user_id):
+    # get only one, the recent one using the created at
+    gift_accounts = (
+        GiftAccount.query.filter_by(user_id=user_id)
+        .order_by(GiftAccount.created_at.desc())
+        .first()
+    )
+    return gift_accounts
+
+
 def create_gift_account(
     user_id, full_name, username, bio, profile_image, cover_image, website, niche
 ):
