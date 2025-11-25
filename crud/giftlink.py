@@ -149,10 +149,8 @@ def get_user_wallet(user_id):
     return user_wallet
 
 
-def get_gift_links_with_pagination(user_id, page, per_page, niche, gift_type, slug):
+def get_gift_links_with_pagination(user_id, page, per_page, gift_type, slug):
     gift_links = GiftLinks.query.filter_by(user_id=user_id)
-    if niche:
-        gift_links = gift_links.filter_by(niche=niche)
     if gift_type:
         gift_links = gift_links.filter_by(gift_type=gift_type)
     if slug:
