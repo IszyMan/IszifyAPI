@@ -60,7 +60,7 @@ class GiftAccount(db.Model):
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
     full_name = db.Column(db.String(150))
     username = db.Column(db.String(50))
-    niche = db.Column(db.String(50))
+    niche = db.Column(MutableList.as_mutable(JSON), default=list, nullable=True)
     bio = db.Column(db.Text)
     profile_image = db.Column(db.Text)
     cover_image = db.Column(db.Text)
@@ -95,7 +95,7 @@ class GiftAccount(db.Model):
             "profile_image": self.profile_image,
             "cover_image": self.cover_image,
             "website": self.website,
-            "niche": self.niche,
+            "niche": self.niche or [],
             "buy_me": self.buy_me or "",
             "tip_unit_price": self.tip_unit_price,
             "min_price": self.min_price or 0,
