@@ -381,57 +381,57 @@ def gift_account():
 
 
 # edit gift account
-@giftlink_blp.route(f"{GIFT_PREFIX}/edit_account", methods=["PATCH"])
-@jwt_required()
-def edit_gift_account():
-    try:
-        data = request.get_json()
-        full_name = data.get("full_name")
-        username = data.get("username")
-        bio = data.get("bio")
-        profile_image = data.get("profile_image")
-        cover_image = data.get("cover_image")
-        website = data.get("website")
-        niche = data.get("niche")
-
-        giftaccount = get_current_user_gift_account(current_user.id)
-
-        if not giftaccount:
-            return return_response(
-                HttpStatus.BAD_REQUEST,
-                status=StatusRes.FAILED,
-                message="You don't have a gift account",
-            )
-
-        giftaccount.full_name = full_name or giftaccount.full_name
-        if username:
-            if is_username_exist(username) and username != giftaccount.username:
-                return return_response(
-                    HttpStatus.BAD_REQUEST,
-                    status=StatusRes.FAILED,
-                    message="Username already exists",
-                )
-            giftaccount.username = username or giftaccount.username
-        giftaccount.bio = bio or giftaccount.bio
-        giftaccount.profile_image = profile_image or giftaccount.profile_image
-        giftaccount.cover_image = cover_image or giftaccount.cover_image
-        giftaccount.website = website or giftaccount.website
-        giftaccount.niche = niche or giftaccount.niche
-        giftaccount.update()
-        return return_response(
-            HttpStatus.OK,
-            status=StatusRes.SUCCESS,
-            message="Gift account updated successfully",
-        )
-    except Exception as e:
-        logger.exception("traceback@giftlink_blp/edit_gift_account")
-        logger.error(f"{e}: error@giftlink_blp/edit_gift_account")
-        db.session.rollback()
-        return return_response(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            status=StatusRes.FAILED,
-            message="Network Error",
-        )
+# @giftlink_blp.route(f"{GIFT_PREFIX}/edit_account", methods=["PATCH"])
+# @jwt_required()
+# def edit_gift_account():
+#     try:
+#         data = request.get_json()
+#         full_name = data.get("full_name")
+#         username = data.get("username")
+#         bio = data.get("bio")
+#         profile_image = data.get("profile_image")
+#         cover_image = data.get("cover_image")
+#         website = data.get("website")
+#         niche = data.get("niche")
+#
+#         giftaccount = get_current_user_gift_account(current_user.id)
+#
+#         if not giftaccount:
+#             return return_response(
+#                 HttpStatus.BAD_REQUEST,
+#                 status=StatusRes.FAILED,
+#                 message="You don't have a gift account",
+#             )
+#
+#         giftaccount.full_name = full_name or giftaccount.full_name
+#         if username:
+#             if is_username_exist(username) and username != giftaccount.username:
+#                 return return_response(
+#                     HttpStatus.BAD_REQUEST,
+#                     status=StatusRes.FAILED,
+#                     message="Username already exists",
+#                 )
+#             giftaccount.username = username or giftaccount.username
+#         giftaccount.bio = bio or giftaccount.bio
+#         giftaccount.profile_image = profile_image or giftaccount.profile_image
+#         giftaccount.cover_image = cover_image or giftaccount.cover_image
+#         giftaccount.website = website or giftaccount.website
+#         giftaccount.niche = niche or giftaccount.niche
+#         giftaccount.update()
+#         return return_response(
+#             HttpStatus.OK,
+#             status=StatusRes.SUCCESS,
+#             message="Gift account updated successfully",
+#         )
+#     except Exception as e:
+#         logger.exception("traceback@giftlink_blp/edit_gift_account")
+#         logger.error(f"{e}: error@giftlink_blp/edit_gift_account")
+#         db.session.rollback()
+#         return return_response(
+#             HttpStatus.INTERNAL_SERVER_ERROR,
+#             status=StatusRes.FAILED,
+#             message="Network Error",
+#         )
 
 
 # get gift account
