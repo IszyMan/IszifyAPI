@@ -19,6 +19,7 @@ from crud import (
     get_all_gift_links,
     update_gift_link,
     get_current_user_gift_account,
+    get_one_gift_link,
 )
 from utils import return_response
 from extensions import db
@@ -668,16 +669,27 @@ def edit_gift_account(gift_account_id):
         cover_image = data.get("cover_image")
         website = data.get("website")
         niche = data.get("niche")
+        buy_me = data.get("buy_me")
+        tip_unit_price = data.get("tip_unit_price")
+        min_price = data.get("min_price")
+        button_option = data.get("button_option")
+        sugg_amounts = data.get("suggested_amounts", [])
+        social_links = data.get("social_links", [])
 
         # if gift account is valid
-        if not get_one_gift_account(current_user.id, gift_account_id):
+        user_account = get_one_gift_account(current_user.id, gift_account_id)
+        if not user_account:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Gift account not found",
             )
 
-        if username and is_username_exist(username):
+        if (
+            username
+            and is_username_exist(username)
+            and username != user_account.username
+        ):
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
@@ -694,6 +706,12 @@ def edit_gift_account(gift_account_id):
             cover_image,
             website,
             niche,
+            buy_me,
+            tip_unit_price,
+            min_price,
+            button_option,
+            sugg_amounts,
+            social_links,
         )
         return return_response(
             HttpStatus.OK,
