@@ -4,6 +4,7 @@ from extensions import mail
 import os
 from dotenv import load_dotenv
 import requests
+import resend
 from jinja2 import Environment, FileSystemLoader
 
 load_dotenv()
@@ -42,48 +43,82 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "templates")
 
 
+# def send_html_email(
+#     recipients, subject, html_content=None, template_path=None, template_context=None
+# ):
+#     if template_path:
+#         try:
+#             # Setup Jinja2 environment pointing to the templates directory
+#             env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
+#             template = env.get_template(template_path)  # e.g., 'welcome.html'
+#             html_content = template.render(template_context or {})
+#         except Exception as e:
+#             print(e)
+#
+#     url = os.environ.get("ZEPTOMAIL_API_URL")
+#     headers = {
+#         "accept": "application/json",
+#         "content-type": "application/json",
+#         "authorization": os.environ.get("ZEPTOMAIL_API_KEY"),
+#     }
+#
+#     payload = {
+#         "from": {
+#             "address": os.environ.get("ZEPTOMAIL_FROM_ADDRESS"),
+#             "name": os.environ.get("ZEPTOMAIL_FROM_NAME"),
+#         },
+#         "bcc": [
+#             {
+#                 "email_address": {
+#                     "address": recipient["email"],
+#                     "name": recipient["name"],
+#                 }
+#             }
+#             for recipient in recipients
+#         ],
+#         "subject": subject,
+#         "htmlbody": html_content,
+#     }
+#
+#     try:
+#         response = requests.post(url, json=payload, headers=headers)
+#         response.raise_for_status()
+#         print(response.content)
+#         return {"status": "success", "response": response.json()}
+#     except requests.exceptions.RequestException as e:
+#         print(response.content)
+#         return {"status": "error", "message": str(e)}
+
+
+resend.api_key = os.environ["RESEND_API_KEY"]
+
+
 def send_html_email(
     recipients, subject, html_content=None, template_path=None, template_context=None
 ):
+    # Render template (optional)
     if template_path:
         try:
-            # Setup Jinja2 environment pointing to the templates directory
             env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
-            template = env.get_template(template_path)  # e.g., 'welcome.html'
+            template = env.get_template(template_path)
             html_content = template.render(template_context or {})
         except Exception as e:
-            print(e)
+            print("Template Error:", e)
 
-    url = os.environ.get("ZEPTOMAIL_API_URL")
-    headers = {
-        "accept": "application/json",
-        "content-type": "application/json",
-        "authorization": os.environ.get("ZEPTOMAIL_API_KEY"),
-    }
+    # Prepare the TO list (Resend uses list of emails, no name)
+    to_emails = [recipient["email"] for recipient in recipients]
 
-    payload = {
-        "from": {
-            "address": os.environ.get("ZEPTOMAIL_FROM_ADDRESS"),
-            "name": os.environ.get("ZEPTOMAIL_FROM_NAME"),
-        },
-        "bcc": [
-            {
-                "email_address": {
-                    "address": recipient["email"],
-                    "name": recipient["name"],
-                }
-            }
-            for recipient in recipients
-        ],
+    params = {
+        "from": f"{os.environ.get('RESEND_FROM_NAME')} <{os.environ.get('RESEND_FROM_ADDRESS')}>",
+        "to": to_emails,
         "subject": subject,
-        "htmlbody": html_content,
+        "html": html_content,
     }
 
     try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        print(response.content)
-        return {"status": "success", "response": response.json()}
-    except requests.exceptions.RequestException as e:
-        print(response.content)
+        email = resend.Emails.send(params)
+        print(email)
+        return {"status": "success", "response": email}
+    except Exception as e:
+        print("Resend Error:", e)
         return {"status": "error", "message": str(e)}
