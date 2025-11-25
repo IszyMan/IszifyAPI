@@ -350,6 +350,8 @@ def update_gift_account(
     button_option,
     sugg_amounts,
     social_links,
+    layout,
+    thanks_msg
 ):
     gift_account = GiftAccount.query.filter_by(
         id=gift_account_id, user_id=user_id
@@ -368,6 +370,8 @@ def update_gift_account(
     gift_account.min_price = min_price or gift_account.min_price
     gift_account.button_option = button_option or gift_account.button_option
     gift_account.sugg_amounts = sugg_amounts or gift_account.sugg_amounts
+    gift_account.layout = layout or gift_account.layout
+    gift_account.thanks_msg = thanks_msg or gift_account.thanks_msg
     if social_links:
         update_social_links(user_id, gift_account_id, social_links)
     gift_account.update()
