@@ -673,6 +673,8 @@ def edit_gift_account(gift_account_id):
         tip_unit_price = data.get("tip_unit_price")
         min_price = data.get("min_price")
         button_option = data.get("button_option")
+        layout = data.get("layout")
+        thanks_msg = data.get("thanks_msg")
         sugg_amounts = data.get("suggested_amounts", [])
         social_links = data.get("social_links", [])
 
@@ -712,6 +714,8 @@ def edit_gift_account(gift_account_id):
             button_option,
             sugg_amounts,
             social_links,
+            layout,
+            thanks_msg,
         )
         return return_response(
             HttpStatus.OK,
