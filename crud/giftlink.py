@@ -349,7 +349,7 @@ def update_gift_account(
     sugg_amounts,
     social_links,
     layout,
-    thanks_msg
+    thanks_msg,
 ):
     gift_account = GiftAccount.query.filter_by(
         id=gift_account_id, user_id=user_id
