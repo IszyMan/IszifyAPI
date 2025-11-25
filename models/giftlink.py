@@ -65,6 +65,11 @@ class GiftAccount(db.Model):
     profile_image = db.Column(db.Text)
     cover_image = db.Column(db.Text)
     website = db.Column(db.Text)
+    buy_me = db.Column(db.String(50))
+    tip_unit_price = db.Column(db.Float)
+    min_price = db.Column(db.Float)
+    button_option = db.Column(db.String(50))
+    sugg_amounts = db.Column(MutableList.as_mutable(JSON), default=list, nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
@@ -89,8 +94,14 @@ class GiftAccount(db.Model):
             "cover_image": self.cover_image,
             "website": self.website,
             "niche": self.niche,
+            "buy_me": self.buy_me,
+            "tip_unit_price": self.tip_unit_price,
+            "min_price": self.min_price,
+            "button_option": self.button_option,
+            "sugg_amounts": self.sugg_amounts,
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
+            "social_links": [social_link.link for social_link in self.social_links],
         }
 
 
@@ -101,9 +112,6 @@ class SocialLinks(db.Model):
     user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
     gift_account_id = db.Column(
         db.String(50), db.ForeignKey("gift_account.id"), nullable=False
-    )
-    gift_link_id = db.Column(
-        db.String(50), db.ForeignKey("gift_links.id"), nullable=False
     )
     link = db.Column(db.Text)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
@@ -139,7 +147,6 @@ class GiftLinks(db.Model):
     thanks_msg = db.Column(db.Text, nullable=True)
     slug = db.Column(db.String(50), nullable=True, unique=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    social_links = db.relationship("SocialLinks", backref="gift_link", lazy=True)
     updated = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
     )
@@ -184,7 +191,7 @@ class GiftLinks(db.Model):
             "color_theme": self.color_theme,
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
-            "social_links": [social_link.link for social_link in self.social_links],
+            # "social_links": [social_link.link for social_link in self.social_links],
         }
 
     def user_to_dict(self):
