@@ -69,6 +69,8 @@ class GiftAccount(db.Model):
     tip_unit_price = db.Column(db.Float)
     min_price = db.Column(db.Float)
     button_option = db.Column(db.String(50))
+    thanks_msg = db.Column(db.Text, nullable=True)
+    layout = db.Column(db.String(150), nullable=True)
     sugg_amounts = db.Column(MutableList.as_mutable(JSON), default=list, nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated = db.Column(
@@ -99,6 +101,8 @@ class GiftAccount(db.Model):
             "min_price": self.min_price or 0,
             "button_option": self.button_option or "",
             "sugg_amounts": self.sugg_amounts or [],
+            "layout": self.layout or "",
+            "thanks_msg": self.thanks_msg or "",
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
             "social_links": [social_link.link for social_link in self.social_links],
