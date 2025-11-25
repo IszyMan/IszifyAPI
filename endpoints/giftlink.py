@@ -121,7 +121,7 @@ def create_giftlink():
         description = data.get("description")
         image = data.get("image")
         goal_amount = float(data.get("goal_amount", 0))
-        niche = data.get("niche")
+        niche = data.get("niche", [])
         gift_type = data.get("gift_type")
         profile_image = data.get("profile_image")
         cover_image = data.get("cover_image")
@@ -129,11 +129,11 @@ def create_giftlink():
         color_theme = data.get("color_theme")
         slug = data.get("slug")
 
-        if not all([title, description, niche, gift_type, slug]):
+        if not all([title, description, gift_type, slug]):
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
-                message="Title, description, niche, gift type and slug are required",
+                message="Title, description, gift type and slug are required",
             )
 
         if is_slug_exist(slug):
@@ -141,14 +141,6 @@ def create_giftlink():
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="You cannot use this slug",
-            )
-
-        # validate niche from NicheEnum
-        if not is_valid_enum_value(niche, NicheEnum):
-            return return_response(
-                HttpStatus.BAD_REQUEST,
-                status=StatusRes.FAILED,
-                message="Invalid niche",
             )
 
         # validate gift type from GiftType
@@ -240,11 +232,10 @@ def get_ggift_links():
     try:
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 10))
-        niche = request.args.get("niche")
         gift_type = request.args.get("gift_type")
         slug = request.args.get("slug")
         key = (
-            f"gift_links:{current_user.id}:{page}:{per_page}:{niche}:{gift_type}:{slug}"
+            f"gift_links:{current_user.id}:{page}:{per_page}:{gift_type}:{slug}"
         )
 
         cached_data = redis_conn.get(key)
@@ -259,7 +250,7 @@ def get_ggift_links():
                 **gift_dict,
             )
         g_links = get_gift_links_with_pagination(
-            current_user.id, page, per_page, niche, gift_type, slug
+            current_user.id, page, per_page, gift_type, slug
         )
         gift_dict = {
             "gift_links": [gift.to_dict() for gift in g_links.items],
@@ -341,7 +332,7 @@ def gift_account():
         profile_image = data.get("profile_image")
         cover_image = data.get("cover_image")
         website = data.get("website")
-        niche = data.get("niche")
+        niche = data.get("niche", [])
         # username exist
         if username and is_username_exist(username):
             return return_response(
@@ -668,7 +659,7 @@ def edit_gift_account(gift_account_id):
         profile_image = data.get("profile_image")
         cover_image = data.get("cover_image")
         website = data.get("website")
-        niche = data.get("niche")
+        niche = data.get("niche", [])
         buy_me = data.get("buy_me")
         tip_unit_price = data.get("tip_unit_price")
         min_price = data.get("min_price")
