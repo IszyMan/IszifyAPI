@@ -234,9 +234,7 @@ def get_ggift_links():
         per_page = int(request.args.get("per_page", 10))
         gift_type = request.args.get("gift_type")
         slug = request.args.get("slug")
-        key = (
-            f"gift_links:{current_user.id}:{page}:{per_page}:{gift_type}:{slug}"
-        )
+        key = f"gift_links:{current_user.id}:{page}:{per_page}:{gift_type}:{slug}"
 
         cached_data = redis_conn.get(key)
 
