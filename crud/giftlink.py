@@ -229,6 +229,11 @@ def create_fresh_giftlink(
     return gift_link
 
 
+def get_one_gift_link(user_id, gift_link_id):
+    gift_link = GiftLinks.query.filter_by(id=gift_link_id, user_id=user_id).first()
+    return gift_link
+
+
 # update gift links
 def update_gift_link(
     user_id,
@@ -276,19 +281,19 @@ def update_gift_link(
     gift_link.thanks_msg = thanks_msg or new_gift_link.thanks_msg
     gift_link.update()
 
-    if social_links:
-        update_social_links(
-            gift_link_id, user_id, gift_link.gift_account_id, social_links
-        )
+    # if social_links:
+    #     update_social_links(
+    #         gift_link_id, user_id, gift_link.gift_account_id, social_links
+    #     )
     return True
 
 
 # update, add or remove social links
-def update_social_links(
-    gift_link_id, user_id, gift_account_id, new_social_links: list[str]
-):
+def update_social_links(user_id, gift_account_id, new_social_links: list[str]):
     # Get existing social links
-    existing_social_links = SocialLinks.query.filter_by(gift_link_id=gift_link_id).all()
+    existing_social_links = SocialLinks.query.filter_by(
+        gift_account_id=gift_account_id
+    ).all()
 
     existing_links_set = {social_link.link for social_link in existing_social_links}
     new_links_set = set(new_social_links)
@@ -302,7 +307,7 @@ def update_social_links(
     # Delete old links only if there are any to delete
     if links_to_delete:
         SocialLinks.query.filter(
-            SocialLinks.gift_link_id == gift_link_id,
+            SocialLinks.gift_account_id == gift_account_id,
             SocialLinks.link.in_(links_to_delete),
         ).delete(synchronize_session=False)
 
@@ -312,7 +317,6 @@ def update_social_links(
             SocialLinks(
                 user_id=user_id,
                 gift_account_id=gift_account_id,
-                gift_link_id=gift_link_id,
                 link=link,
             )
             for link in links_to_add
@@ -340,6 +344,12 @@ def update_gift_account(
     cover_image,
     website,
     niche,
+    buy_me,
+    tip_unit_price,
+    min_price,
+    button_option,
+    sugg_amounts,
+    social_links,
 ):
     gift_account = GiftAccount.query.filter_by(
         id=gift_account_id, user_id=user_id
@@ -353,5 +363,12 @@ def update_gift_account(
     gift_account.cover_image = cover_image or gift_account.cover_image
     gift_account.website = website or gift_account.website
     gift_account.niche = niche or gift_account.niche
+    gift_account.buy_me = buy_me or gift_account.buy_me
+    gift_account.tip_unit_price = tip_unit_price or gift_account.tip_unit_price
+    gift_account.min_price = min_price or gift_account.min_price
+    gift_account.button_option = button_option or gift_account.button_option
+    gift_account.sugg_amounts = sugg_amounts or gift_account.sugg_amounts
+    if social_links:
+        update_social_links(user_id, gift_account_id, social_links)
     gift_account.update()
     return True
