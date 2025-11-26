@@ -325,11 +325,11 @@ def update_social_links(user_id, gift_account_id, new_social_links: list[str]):
     return True
 
 
-def get_all_gift_links(user_id, gift_account_id):
-    gift_link = GiftLinks.query.filter_by(
+def get_all_gift_links(user_id, gift_account_id, page, per_page):
+    gift_links = GiftLinks.query.filter_by(
         user_id=user_id, gift_account_id=gift_account_id
-    ).first()
-    return gift_link
+    ).paginate(page=page, per_page=per_page, error_out=False)
+    return gift_links
 
 
 def update_gift_account(
