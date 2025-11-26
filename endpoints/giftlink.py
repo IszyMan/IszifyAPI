@@ -536,24 +536,63 @@ def create_fresh_gift_link(gift_account_id):
 @jwt_required()
 def get_gift_links(gift_account_id):
     try:
-        # page = int(request.args.get("page", 1))
-        # per_page = int(request.args.get("per_page", 10))
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
         if not get_one_gift_account(current_user.id, gift_account_id):
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Gift account not found",
             )
-        gift_link = get_all_gift_links(current_user.id, gift_account_id)
+        gift_links = get_all_gift_links(
+            current_user.id, gift_account_id, page, per_page
+        )
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Gift links fetched successfully",
-            data=gift_link.to_dict() if gift_link else {},
+            data={
+                "gift_links": [gift_link.to_dict() for gift_link in gift_links.items],
+                "total_items": gift_links.total,
+                "total_pages": gift_links.pages,
+                "page": page,
+                "per_page": per_page,
+            },
         )
     except Exception as e:
         logger.exception("traceback@giftlink_blp/get_gift_links")
         logger.error(f"{e}: error@giftlink_blp/get_gift_links")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+@giftlink_blp.route(f"{GIFT_PREFIX}/delete_gift_link/<gift_link_id>", methods=["DELETE"])
+@jwt_required()
+def delete_gift_link(gift_link_id):
+    try:
+        git_link = get_one_gift_link(current_user.id, gift_link_id)
+        if not git_link:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift link not found",
+            )
+
+        db.session.delete(git_link)
+        db.session.commit()
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift link deleted successfully",
+        )
+
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/delete_gift_link")
+        logger.error(f"{e}: error@giftlink_blp/delete_gift_link")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
@@ -627,40 +666,6 @@ def edit_gift_link(gift_link_id):
     except Exception as e:
         logger.exception("traceback@giftlink_blp/edit_gift_link")
         logger.error(f"{e}: error@giftlink_blp/edit_gift_link")
-        db.session.rollback()
-        return return_response(
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            status=StatusRes.FAILED,
-            message="Network Error",
-        )
-
-
-# delete gift link
-@giftlink_blp.route(
-    f"{GIFT_PREFIX}/delete_gift_link/<gift_link_id>", methods=["DELETE"]
-)
-@jwt_required()
-def delete_gift_link(gift_link_id):
-    try:
-        git_link = get_one_gift_link(current_user.id, gift_link_id)
-        if not git_link:
-            return return_response(
-                HttpStatus.BAD_REQUEST,
-                status=StatusRes.FAILED,
-                message="Gift link not found",
-            )
-
-        db.session.delete(git_link)
-        db.session.commit()
-        return return_response(
-            HttpStatus.OK,
-            status=StatusRes.SUCCESS,
-            message="Gift link deleted successfully",
-        )
-
-    except Exception as e:
-        logger.exception("traceback@giftlink_blp/delete_gift_link")
-        logger.error(f"{e}: error@giftlink_blp/delete_gift_link")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
