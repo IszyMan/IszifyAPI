@@ -536,28 +536,22 @@ def create_fresh_gift_link(gift_account_id):
 @jwt_required()
 def get_gift_links(gift_account_id):
     try:
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 10))
+        # page = int(request.args.get("page", 1))
+        # per_page = int(request.args.get("per_page", 10))
         if not get_one_gift_account(current_user.id, gift_account_id):
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Gift account not found",
             )
-        gift_links = get_all_gift_links(
-            current_user.id, gift_account_id, page, per_page
+        gift_link = get_all_gift_links(
+            current_user.id, gift_account_id
         )
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
             message="Gift links fetched successfully",
-            data={
-                "gift_links": [gift_link.to_dict() for gift_link in gift_links.items],
-                "total_items": gift_links.total,
-                "total_pages": gift_links.pages,
-                "page": page,
-                "per_page": per_page,
-            },
+            data=gift_link.to_dict() if gift_link else {},
         )
     except Exception as e:
         logger.exception("traceback@giftlink_blp/get_gift_links")
