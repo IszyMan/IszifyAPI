@@ -150,6 +150,7 @@ class GiftLinks(db.Model):
     color_theme = db.Column(db.String(50), nullable=True)
     thanks_msg = db.Column(db.Text, nullable=True)
     slug = db.Column(db.String(50), nullable=True, unique=True)
+    show_target_amount = db.Column(db.Boolean, default=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
@@ -193,6 +194,7 @@ class GiftLinks(db.Model):
             "cover_image": self.cover_image,
             "font_style": self.font_style,
             "color_theme": self.color_theme,
+            "show_target_amount": self.show_target_amount,
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
             # "social_links": [social_link.link for social_link in self.social_links],
