@@ -350,6 +350,8 @@ def update_gift_account(
     social_links,
     layout,
     thanks_msg,
+    color_theme,
+    preset,
 ):
     gift_account = GiftAccount.query.filter_by(
         id=gift_account_id, user_id=user_id
@@ -370,6 +372,8 @@ def update_gift_account(
     gift_account.sugg_amounts = sugg_amounts or gift_account.sugg_amounts
     gift_account.layout = layout or gift_account.layout
     gift_account.thanks_msg = thanks_msg or gift_account.thanks_msg
+    gift_account.color_theme = color_theme or gift_account.color_theme
+    gift_account.preset = preset or gift_account.preset
     if social_links:
         update_social_links(user_id, gift_account_id, social_links)
     gift_account.update()
