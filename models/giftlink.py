@@ -72,6 +72,8 @@ class GiftAccount(db.Model):
     thanks_msg = db.Column(db.Text, nullable=True)
     layout = db.Column(db.String(150), nullable=True)
     sugg_amounts = db.Column(MutableList.as_mutable(JSON), default=list, nullable=True)
+    color_theme = db.Column(db.String(80), nullable=True)
+    preset = db.Column(db.String(80), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
     updated = db.Column(
         db.DateTime, nullable=False, default=db.func.now(), onupdate=db.func.now()
@@ -102,6 +104,8 @@ class GiftAccount(db.Model):
             "button_option": self.button_option or "",
             "sugg_amounts": self.sugg_amounts or [],
             "layout": self.layout or "",
+            "color_theme": self.color_theme or "",
+            "preset": self.preset or "",
             "thanks_msg": self.thanks_msg or "",
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
