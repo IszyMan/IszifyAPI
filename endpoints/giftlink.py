@@ -685,6 +685,8 @@ def edit_gift_account(gift_account_id):
         full_name = data.get("full_name")
         username = data.get("username")
         bio = data.get("bio")
+        color_theme = data.get("color_theme")
+        preset = data.get("preset")
         profile_image = data.get("profile_image")
         cover_image = data.get("cover_image")
         website = data.get("website")
@@ -736,6 +738,8 @@ def edit_gift_account(gift_account_id):
             social_links,
             layout,
             thanks_msg,
+            color_theme,
+            preset,
         )
         return return_response(
             HttpStatus.OK,
