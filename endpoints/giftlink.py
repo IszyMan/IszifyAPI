@@ -14,7 +14,7 @@ from crud import (
     create_gift_account,
     update_gift_account,
     load_gift_link_by_slug,
-    get_all_gift_account,
+    # get_all_gift_account,
     get_one_gift_account,
     get_all_gift_links,
     update_gift_link,
@@ -27,7 +27,7 @@ from logger import logger
 from flask_jwt_extended import current_user, jwt_required
 from connection.redis_connection import redis_conn
 import json
-from models.giftlink import NicheEnum, GiftType
+from models.giftlink import GiftType
 
 GIFT_PREFIX = "giftlink"
 
