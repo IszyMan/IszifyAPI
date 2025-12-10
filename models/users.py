@@ -39,6 +39,11 @@ class Users(db.Model):
         "GiftLinks", backref="user", lazy=True, cascade="all, delete"
     )
 
+    # user wallet
+    user_wallet = db.relationship(
+        "UserWallet", backref="user", lazy=True, uselist=False, cascade="all, delete"
+    )
+
     def __init__(self, email, password, first_name, last_name, username):
         self.email = email.lower()
         self.password = hasher.hash(password)
