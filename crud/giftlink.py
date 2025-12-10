@@ -7,7 +7,10 @@ from models.giftlink import (
     UserWallet,
     GiftAccount,
     SocialLinks,
+    Donation,
 )
+from models.payment import Transactions
+from sqlalchemy import func
 
 
 def save_or_update_bank_details(
@@ -327,7 +330,7 @@ def update_social_links(user_id, gift_account_id, new_social_links: list[str]):
 
 def get_all_gift_links(user_id, gift_account_id, page, per_page):
     gift_links = GiftLinks.query.filter_by(
-        user_id=user_id, gift_account_id=gift_account_id
+        user_id=user_id, gift_account_id=gift_account_id, active=True
     ).paginate(page=page, per_page=per_page, error_out=False)
     return gift_links
 
@@ -378,3 +381,50 @@ def update_gift_account(
         update_social_links(user_id, gift_account_id, social_links)
     gift_account.update()
     return True
+
+
+def get_all_transaction_histories(user_id, page, per_page):
+    # Calculate total earnings in a subquery or CTE
+    total_earnings = (
+        db.session.query(func.sum(Transactions.amount))
+        .filter_by(user_id=user_id, transaction_type="giftlink")
+        .scalar()
+        or 0
+    )
+
+    # Get paginated transactions
+    transactions = (
+        Transactions.query.filter_by(user_id=user_id)
+        .order_by(Transactions.date.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+
+    return transactions, total_earnings
+
+
+# supporters histories and total supporters
+def get_all_supporters_histories(user_id, page, per_page):
+    from sqlalchemy import func
+
+    # Calculate total supporters using filter_by
+    total_supporters = (
+        db.session.query(func.count(Donation.id))
+        .join(GiftLinks)
+        .filter_by(user_id=user_id)  # This assumes GiftLinks has user_id column
+        .scalar()
+        or 0
+    )
+
+    # Get paginated supporters
+    supporters = (
+        Donation.query.join(GiftLinks)
+        .filter_by(user_id=user_id)
+        .order_by(Donation.created_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+
+    return supporters, total_supporters
+
+
+def get_gift_account_by_username(username):
+    return GiftAccount.query.filter_by(username=username).first()
