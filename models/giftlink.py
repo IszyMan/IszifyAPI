@@ -201,6 +201,7 @@ class GiftLinks(db.Model):
             "show_target_amount": self.show_target_amount,
             "created": format_datetime(self.created),
             "updated": format_datetime(self.updated),
+            "percentage_goal": 0,
             # "social_links": [social_link.link for social_link in self.social_links],
         }
 
@@ -298,3 +299,14 @@ class Donation(db.Model):
 
     def update(self):
         db.session.commit()
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "fan_name": self.fan_name,
+            "amount": self.amount,
+            "message": self.message,
+            "donated": self.donated,
+            "payment_reference": self.payment_reference,
+            "created_at": format_datetime(self.created_at),
+        }
