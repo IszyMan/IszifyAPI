@@ -17,9 +17,12 @@ from crud import (
     # get_all_gift_account,
     get_one_gift_account,
     get_all_gift_links,
+    get_gift_account_by_username,
     update_gift_link,
     get_current_user_gift_account,
     get_one_gift_link,
+    get_all_transaction_histories,
+    get_all_supporters_histories,
 )
 from utils import return_response
 from extensions import db
@@ -570,7 +573,90 @@ def get_gift_links(gift_account_id):
         )
 
 
-@giftlink_blp.route(f"{GIFT_PREFIX}/delete_gift_link/<gift_link_id>", methods=["DELETE"])
+# get gitft links for unauthenticated users
+# ======================================================
+@giftlink_blp.route(f"{GIFT_PREFIX}/giftlinks/<username>", methods=["GET"])
+def get_gift_links_unauth(username):
+    try:
+        # get current user by username
+        gift_account = get_gift_account_by_username(username)
+        if not gift_account:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        if not get_one_gift_account(gift_account.user_id, gift_account.id):
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Gift account not found",
+            )
+        gift_links = get_all_gift_links(
+            gift_account.user_id, gift_account.id, page, per_page
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift links fetched successfully",
+            data={
+                "gift_links": [gift_link.to_dict() for gift_link in gift_links.items],
+                "total_items": gift_links.total,
+                "total_pages": gift_links.pages,
+                "page": page,
+                "per_page": per_page,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/get_gift_links")
+        logger.error(f"{e}: error@giftlink_blp/get_gift_links")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+@giftlink_blp.route(f"{GIFT_PREFIX}/giftaccount/<username>", methods=["GET"])
+def get_gift_account_unauth(username):
+    try:
+        # page = int(request.args.get("page", 1))
+        # per_page = int(request.args.get("per_page", 10))
+        gift_account = get_gift_account_by_username(username)
+        if not gift_account:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+        giftaccount = get_current_user_gift_account(gift_account.user_id)
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Gift account fetched successfully",
+            data=giftaccount.to_dict() if giftaccount else {},
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/get_gift_account")
+        logger.error(f"{e}: error@giftlink_blp/get_gift_account")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+#     ============================================================================
+#     ============================================================================
+
+
+@giftlink_blp.route(
+    f"{GIFT_PREFIX}/delete_gift_link/<gift_link_id>", methods=["DELETE"]
+)
 @jwt_required()
 def delete_gift_link(gift_link_id):
     try:
@@ -749,6 +835,77 @@ def edit_gift_account(gift_account_id):
     except Exception as e:
         logger.exception("traceback@giftlink_blp/edit_gift_account")
         logger.error(f"{e}: error@giftlink_blp/edit_gift_account")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# transaction histories along with total earnings and outstanding balance
+@giftlink_blp.route(f"{GIFT_PREFIX}/transaction_histories", methods=["GET"])
+@jwt_required()
+def transaction_histories():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        transaction_hists, total_earnings = get_all_transaction_histories(
+            current_user.id, page, per_page
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Transaction histories fetched successfully",
+            data={
+                "total_earnings": total_earnings,
+                "outstanding_bal": current_user.user_wallet.balance,
+                "transaction_histories": [
+                    transaction_history.to_dict()
+                    for transaction_history in transaction_hists.items
+                ],
+                "total_items": transaction_hists.total,
+                "total_pages": transaction_hists.pages,
+                "page": page,
+                "per_page": per_page,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/transaction_histories")
+        logger.error(f"{e}: error@giftlink_blp/transaction_histories")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+@giftlink_blp.route(f"{GIFT_PREFIX}/supporters_histories", methods=["GET"])
+@jwt_required()
+def supporters_histories():
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        supporters, total_supporters = get_all_supporters_histories(
+            current_user.id, page, per_page
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Supporters histories fetched successfully",
+            data={
+                "total_supporters": total_supporters,
+                "supporters": [supporter.to_dict() for supporter in supporters.items],
+                "total_items": supporters.total,
+                "total_pages": supporters.pages,
+                "page": page,
+                "per_page": per_page,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/supporters_histories")
+        logger.error(f"{e}: error@giftlink_blp/supporters_histories")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
