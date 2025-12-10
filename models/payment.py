@@ -1,5 +1,5 @@
 from extensions import db
-from func import hex_id
+from func import hex_id, format_datetime
 from datetime import datetime, timedelta
 from logger import logger
 
@@ -149,3 +149,21 @@ class Transactions(db.Model):
     currency = db.Column(db.String(50))
     status = db.Column(db.String(50))  # pending/failed/success
     date = db.Column(db.DateTime, nullable=False, default=db.func.now())
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "description": self.description,
+            "amount": self.amount,
+            "method": self.method,
+            "transaction_type": self.transaction_type,
+            "transaction_reference": self.transaction_reference,
+            "bank_code": self.bank_code,
+            "bank_name": self.bank_name,
+            "account_name": self.account_name,
+            "account_number": self.account_number,
+            "currency": self.currency,
+            "status": self.status,
+            "date": format_datetime(self.date),
+        }
