@@ -11,6 +11,7 @@ from models.giftlink import (
 )
 from models.payment import Transactions
 from sqlalchemy import func
+from logger import logger
 
 
 def save_or_update_bank_details(
