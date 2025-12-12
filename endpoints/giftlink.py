@@ -693,6 +693,7 @@ def delete_gift_link(gift_link_id):
 def edit_gift_link(gift_link_id):
     try:
         data = request.get_json()
+        logger.info(f"Data for edit: {data}")
         title = data.get("title")
         description = data.get("description")
         # layout = data.get("layout")
