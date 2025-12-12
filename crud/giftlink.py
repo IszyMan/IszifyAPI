@@ -262,24 +262,24 @@ def update_gift_link(
     gift_link = GiftLinks.query.filter_by(id=gift_link_id, user_id=user_id).first()
     if not gift_link:
         return False
-    gift_link.title = title or new_gift_link.title
-    gift_link.description = description or new_gift_link.description
-    gift_link.layout = layout or new_gift_link.layout
-    gift_link.buy_me = buy_me or new_gift_link.buy_me
-    gift_link.tip_unit_price = tip_unit_price or new_gift_link.tip_unit_price
-    gift_link.min_price = min_price or new_gift_link.min_price
-    gift_link.button_option = button_option or new_gift_link.button_option
-    gift_link.sugg_amounts = sugg_amounts or new_gift_link.sugg_amounts
-    gift_link.image = image or new_gift_link.image
-    gift_link.link = link or new_gift_link.link
-    gift_link.active = active or new_gift_link.active
-    gift_link.goal_amount = goal_amount or new_gift_link.goal_amount
-    gift_link.start_amount = start_amount or new_gift_link.start_amount
-    gift_link.profile_image = profile_image or new_gift_link.profile_image
-    gift_link.cover_image = cover_image or new_gift_link.cover_image
-    gift_link.font_style = font_style or new_gift_link.font_style
-    gift_link.color_theme = color_theme or new_gift_link.color_theme
-    gift_link.thanks_msg = thanks_msg or new_gift_link.thanks_msg
+    gift_link.title = title or gift_link.title
+    gift_link.description = description or gift_link.description
+    gift_link.layout = layout or gift_link.layout
+    gift_link.buy_me = buy_me or gift_link.buy_me
+    gift_link.tip_unit_price = tip_unit_price or gift_link.tip_unit_price
+    gift_link.min_price = min_price or gift_link.min_price
+    gift_link.button_option = button_option or gift_link.button_option
+    gift_link.sugg_amounts = sugg_amounts or gift_link.sugg_amounts
+    gift_link.image = image or gift_link.image
+    gift_link.link = link or gift_link.link
+    gift_link.active = active or gift_link.active
+    gift_link.goal_amount = goal_amount or gift_link.goal_amount
+    gift_link.start_amount = start_amount or gift_link.start_amount
+    gift_link.profile_image = profile_image or gift_link.profile_image
+    gift_link.cover_image = cover_image or gift_link.cover_image
+    gift_link.font_style = font_style or gift_link.font_style
+    gift_link.color_theme = color_theme or gift_link.color_theme
+    gift_link.thanks_msg = thanks_msg or gift_link.thanks_msg
     gift_link.update()
 
     # if social_links:
