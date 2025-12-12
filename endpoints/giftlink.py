@@ -704,7 +704,7 @@ def edit_gift_link(gift_link_id):
         # sugg_amounts = data.get("suggested_amounts", [])
         # image = data.get("image")
         # link = data.get("link")
-        active = data.get("active", True)
+        active = data.get("active")
         goal_amount = data.get("goal_amount")
         start_amount = data.get("start_amount")
         # profile_image = data.get("profile_image")
