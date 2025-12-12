@@ -695,23 +695,23 @@ def edit_gift_link(gift_link_id):
         data = request.get_json()
         title = data.get("title")
         description = data.get("description")
-        layout = data.get("layout")
-        buy_me = data.get("buy_me")
-        tip_unit_price = data.get("tip_unit_price")
-        min_price = data.get("min_price")
-        button_option = data.get("button_option")
-        sugg_amounts = data.get("suggested_amounts", [])
-        image = data.get("image")
-        link = data.get("link")
+        # layout = data.get("layout")
+        # buy_me = data.get("buy_me")
+        # tip_unit_price = data.get("tip_unit_price")
+        # min_price = data.get("min_price")
+        # button_option = data.get("button_option")
+        # sugg_amounts = data.get("suggested_amounts", [])
+        # image = data.get("image")
+        # link = data.get("link")
         active = data.get("active", True)
         goal_amount = data.get("goal_amount")
         start_amount = data.get("start_amount")
-        profile_image = data.get("profile_image")
-        cover_image = data.get("cover_image")
-        font_style = data.get("font_style")
-        color_theme = data.get("color_theme")
-        social_links = data.get("social_links", [])
-        thanks_msg = data.get("thanks_msg")
+        # profile_image = data.get("profile_image")
+        # cover_image = data.get("cover_image")
+        # font_style = data.get("font_style")
+        # color_theme = data.get("color_theme")
+        # social_links = data.get("social_links", [])
+        # thanks_msg = data.get("thanks_msg")
 
         # if gift link is valid
         if not get_one_gift_link(current_user.id, gift_link_id):
@@ -726,23 +726,23 @@ def edit_gift_link(gift_link_id):
             gift_link_id,
             title,
             description,
-            layout,
-            buy_me,
-            tip_unit_price,
-            min_price,
-            button_option,
-            sugg_amounts,
-            image,
-            link,
+            # layout,
+            # buy_me,
+            # tip_unit_price,
+            # min_price,
+            # button_option,
+            # sugg_amounts,
+            # image,
+            # link,
             active,
             goal_amount,
             start_amount,
-            profile_image,
-            cover_image,
-            font_style,
-            color_theme,
-            social_links,
-            thanks_msg,
+            # profile_image,
+            # cover_image,
+            # font_style,
+            # color_theme,
+            # social_links,
+            # thanks_msg,
         )
         return return_response(
             HttpStatus.OK,
