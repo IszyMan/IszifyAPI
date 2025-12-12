@@ -259,6 +259,7 @@ def update_gift_link(
     # social_links,
     # thanks_msg,
 ):
+    logger.info(f"Active: {active}")
     gift_link = GiftLinks.query.filter_by(id=gift_link_id, user_id=user_id).first()
     if not gift_link:
         return False
@@ -272,7 +273,9 @@ def update_gift_link(
     # gift_link.sugg_amounts = sugg_amounts or gift_link.sugg_amounts
     # gift_link.image = image or gift_link.image
     # gift_link.link = link or gift_link.link
-    gift_link.active = active or gift_link.active
+    if isinstance(active, bool):
+        logger.info(f"Changed active from {gift_link.active} to {active}")
+        gift_link.active = active
     gift_link.goal_amount = goal_amount or gift_link.goal_amount
     gift_link.start_amount = start_amount or gift_link.start_amount
     # gift_link.profile_image = profile_image or gift_link.profile_image
