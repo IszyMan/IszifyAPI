@@ -650,6 +650,45 @@ def get_gift_account_unauth(username):
         )
 
 
+@giftlink_blp.route(f"{GIFT_PREFIX}/supporters/<username>", methods=["GET"])
+def my_supporters(username):
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 10))
+        gift_account = get_gift_account_by_username(username)
+        if not gift_account:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="User not found",
+            )
+        supporters, total_supporters = get_all_supporters_histories(
+            gift_account.user_id, page, per_page
+        )
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Supporters histories fetched successfully",
+            data={
+                "total_supporters": total_supporters,
+                "supporters": [supporter.to_dict() for supporter in supporters.items],
+                "total_items": supporters.total,
+                "total_pages": supporters.pages,
+                "page": page,
+                "per_page": per_page,
+            },
+        )
+    except Exception as e:
+        logger.exception("traceback@giftlink_blp/supporters")
+        logger.error(f"{e}: error@giftlink_blp/supporters")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
 #     ============================================================================
 #     ============================================================================
 
