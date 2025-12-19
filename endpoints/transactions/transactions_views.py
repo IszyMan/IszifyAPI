@@ -12,6 +12,8 @@ from crud import (
     subscribe,
     get_transactions,
     get_one_transaction,
+    get_gift_link_by_id,
+    get_gift_account_by_id,
 )
 from datetime import datetime
 
@@ -86,26 +88,82 @@ def resolve_account():
 
 # verify paystack transaction
 @transactions_blp.route(f"{TRANSACT_PREFIX}/verify-transaction", methods=["POST"])
-# @jwt_required()
 def verify_transaction():
     try:
         data = request.get_json()
         reference_number = data.get("reference")
+        amount = data.get("amount")
+        email = data.get("email")
+        goal_id = data.get("goal_id")
+        name = data.get("name")
+        message = data.get("message")
+        account_id = data.get("account_id")
+
+        if not goal_id or account_id:
+            return return_response(
+                HttpStatus.BAD_REQUEST,
+                status=StatusRes.FAILED,
+                message="Goal id or account id is required",
+            )
+
+        if goal_id:
+            gift_link = get_gift_link_by_id(goal_id)
+            if not gift_link:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="Invalid fund goal",
+                )
+            trans_type = "fund raising"
+            user_id = gift_link.user_id
+        else:
+            gift_account = get_gift_account_by_id(account_id)
+            if not gift_account:
+                return return_response(
+                    HttpStatus.BAD_REQUEST,
+                    status=StatusRes.FAILED,
+                    message="Invalid account",
+                )
+            trans_type = "donation"
+            user_id = gift_account.user_id
+
         if not reference_number:
             return return_response(
                 HttpStatus.BAD_REQUEST,
                 status=StatusRes.FAILED,
                 message="Reference number is required",
             )
-        res = pay_stack.verify_transaction(reference_number)
-        logger.info(f"{res}: Result of verify transaction")
+        res, status_code = pay_stack.verify_transaction(reference_number)
+        logger.info(f"{res}: Result of verify transaction, status code: {status_code}")
         if not res:
             return return_response(
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 status=StatusRes.FAILED,
                 message="Failed to verify transaction",
             )
+        if status_code != 200:
+            return return_response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                status=StatusRes.FAILED,
+                message="Transaction failed to verify",
+            )
+
+        from celery_config.utils.celery_works import (
+            save_transaction_from_verify_transaction,
+        )
+
         # Save the transaction to db
+        save_transaction_from_verify_transaction.delay(
+            reference_number,
+            amount,
+            email,
+            goal_id,
+            name,
+            message,
+            res,
+            user_id,
+            trans_type,
+        )
         return return_response(
             HttpStatus.OK,
             status=StatusRes.SUCCESS,
@@ -161,7 +219,7 @@ def subscribe_plan():
 
 # get all payment plans
 @transactions_blp.route(f"{TRANSACT_PREFIX}/plans", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def get_all_payment_plans():
     try:
         res = get_payment_plans()
