@@ -369,8 +369,8 @@ def update_gift_account(
 def get_all_transaction_histories(user_id, page, per_page):
     # Calculate total earnings in a subquery or CTE
     total_earnings = (
-        db.session.query(func.sum(Transactions.amount))
-        .filter_by(user_id=user_id, transaction_type="giftlink")
+        db.session.query(func.sum(Donation.amount))
+        .filter_by(user_id=user_id)
         .scalar()
         or 0
     )
