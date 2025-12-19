@@ -281,9 +281,10 @@ class Donation(db.Model):
     __tablename__ = "donations"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
     gift_link_id = db.Column(
-        db.String(36), db.ForeignKey("gift_links.id"), nullable=False
+        db.String(36), db.ForeignKey("gift_links.id"), nullable=True
     )
     fan_name = db.Column(db.String(100))
+    email = db.Column(db.String(150))
     amount = db.Column(db.Float, nullable=False, default=0)
     message = db.Column(db.Text)
     donated = db.Column(db.Boolean, default=False)
@@ -305,6 +306,7 @@ class Donation(db.Model):
             "id": self.id,
             "fan_name": self.fan_name,
             "amount": self.amount,
+            "email": self.email,
             "message": self.message,
             "donated": self.donated,
             "payment_reference": self.payment_reference,
