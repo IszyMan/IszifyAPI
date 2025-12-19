@@ -58,7 +58,9 @@ def save_transaction_from_verify_transaction(
             "success",
             response_json=res,
         )
-        save_donation(goal_id, name, amount, message, True, reference_number, email)
+        save_donation(
+            goal_id, name, amount, message, True, reference_number, email, user_id
+        )
         update_user_wallet(user_id, amount)
     except Exception as e:
         logger.exception(
