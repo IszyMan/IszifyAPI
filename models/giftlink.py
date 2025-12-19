@@ -280,6 +280,7 @@ class SavedBank(db.Model):
 class Donation(db.Model):
     __tablename__ = "donations"
     id = db.Column(db.String(50), primary_key=True, default=hex_id)
+    user_id = db.Column(db.String(50), db.ForeignKey("users.id"), nullable=False)
     gift_link_id = db.Column(
         db.String(36), db.ForeignKey("gift_links.id"), nullable=True
     )
