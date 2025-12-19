@@ -474,12 +474,29 @@ def save_donation(
 
 
 # update user wallet
+# def update_user_wallet(user_id, amount):
+#     user_wallet = create_user_wallet(user_id)
+#     user_wallet.balance += amount
+#     db.session.commit()
+#     logger.info(f"User Wallet Updated with {amount}")
+#     return True
+
 def update_user_wallet(user_id, amount):
-    user_wallet = create_user_wallet(user_id)
-    user_wallet.balance += amount
-    db.session.commit()
-    logger.info(f"User Wallet Updated with {amount}")
-    return True
+    try:
+        logger.info("Entered the update user wallet function")
+        user_wallet = create_user_wallet(user_id)
+        logger.info(f"Found/created wallet for user {user_id}")
+
+        user_wallet.balance += amount
+        logger.info(f"New balance will be: {user_wallet.balance}")
+
+        db.session.commit()
+        logger.info(f"User Wallet Updated with {amount}")
+        return True
+    except Exception as e:
+        logger.error(f"Error updating wallet for user {user_id}: {str(e)}")
+        db.session.rollback()
+        raise  # Re-raise to see in main function
 
 
 # get donation by reference
