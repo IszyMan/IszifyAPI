@@ -1,7 +1,13 @@
 from celery_config.settings import celery, shared_task
 from models.shorten_url import Urlshort
 from models.qrcode import QRCodeData
-from crud import save_qrcode_clicks, save_url_clicks, save_transactions, save_donation
+from crud import (
+    save_qrcode_clicks,
+    save_url_clicks,
+    save_transactions,
+    save_donation,
+    update_user_wallet,
+)
 from extensions import db
 from logger import logger
 
@@ -53,6 +59,7 @@ def save_transaction_from_verify_transaction(
             response_json=res,
         )
         save_donation(goal_id, name, amount, message, True, reference_number, email)
+        update_user_wallet(user_id, amount)
     except Exception as e:
         logger.exception(
             "traceback@celery_works/save_transaction_from_verify_transaction"
