@@ -484,5 +484,5 @@ def update_user_wallet(user_id, amount):
 
 # get donation by reference
 def get_donation_ref(ref):
-    donation = Donation.query.filter_by(username=username).first()
+    donation = Donation.query.filter_by(payment_reference=ref).first()
     return {"name": donation.fan_name, "email": donation.email} if donation else {}
