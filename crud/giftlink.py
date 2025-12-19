@@ -142,8 +142,9 @@ def create_gift_link(
 
 # create user wallet
 def create_user_wallet(user_id):
-    if UserWallet.query.filter_by(user_id=user_id).first():
-        return
+    user_wallet = UserWallet.query.filter_by(user_id=user_id).first()
+    if user_wallet:
+        return user_wallet
     user_wallet = UserWallet(
         user_id=user_id,
     )
@@ -468,4 +469,13 @@ def save_donation(
     )
     db.session.add(donation)
     db.session.commit()
+    return True
+
+
+# update user wallet
+def update_user_wallet(user_id, amount):
+    user_wallet = create_user_wallet(user_id)
+    user_wallet += amount
+    db.session.commit()
+    logger.info(f"User Wallet Updated with {amount}")
     return True
