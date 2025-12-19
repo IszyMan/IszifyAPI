@@ -63,7 +63,7 @@ def save_transaction_from_verify_transaction(
             goal_id, name, amount, message, True, reference_number, email, user_id
         )
         logger.info("Going ahead to update user wallet")
-        update_user_wallet(user_id, amount)
+        update_user_wallet(user_id, amount, action="add")
         db.session.commit()
         logger.info("All changes committed successfully")
         return True
