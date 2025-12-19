@@ -44,6 +44,7 @@ def save_transaction_from_verify_transaction(
     reference_number, amount, email, goal_id, name, message, res, user_id, trans_type
 ):
     try:
+        amount = float(amount)
         save_transactions(
             user_id,
             "",
