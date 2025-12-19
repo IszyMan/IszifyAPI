@@ -66,6 +66,11 @@ def get_one_gift_account(user_id, gift_account_id):
     return gift_account
 
 
+def get_gift_account_by_id(gift_account_id):
+    gift_account = GiftAccount.query.filter_by(id=gift_account_id).first()
+    return gift_account
+
+
 def get_all_gift_account(user_id, page, per_page):
     gift_accounts = GiftAccount.query.filter_by(user_id=user_id).paginate(
         page=page, per_page=per_page, error_out=False
@@ -236,29 +241,20 @@ def get_one_gift_link(user_id, gift_link_id):
     return gift_link
 
 
+def get_gift_link_by_id(gift_link_id):
+    gift_link = GiftLinks.query.filter_by(id=gift_link_id).first()
+    return gift_link
+
+
 # update gift links
 def update_gift_link(
     user_id,
     gift_link_id,
     title,
     description,
-    # layout,
-    # buy_me,
-    # tip_unit_price,
-    # min_price,
-    # button_option,
-    # sugg_amounts,
-    # image,
-    # link,
     active,
     goal_amount,
     start_amount,
-    # profile_image,
-    # cover_image,
-    # font_style,
-    # color_theme,
-    # social_links,
-    # thanks_msg,
 ):
     logger.info(f"Active: {active}")
     gift_link = GiftLinks.query.filter_by(id=gift_link_id, user_id=user_id).first()
@@ -266,30 +262,12 @@ def update_gift_link(
         return False
     gift_link.title = title or gift_link.title
     gift_link.description = description or gift_link.description
-    # gift_link.layout = layout or gift_link.layout
-    # gift_link.buy_me = buy_me or gift_link.buy_me
-    # gift_link.tip_unit_price = tip_unit_price or gift_link.tip_unit_price
-    # gift_link.min_price = min_price or gift_link.min_price
-    # gift_link.button_option = button_option or gift_link.button_option
-    # gift_link.sugg_amounts = sugg_amounts or gift_link.sugg_amounts
-    # gift_link.image = image or gift_link.image
-    # gift_link.link = link or gift_link.link
     if isinstance(active, bool):
         logger.info(f"Changed active from {gift_link.active} to {active}")
         gift_link.active = active
     gift_link.goal_amount = goal_amount or gift_link.goal_amount
     gift_link.start_amount = start_amount or gift_link.start_amount
-    # gift_link.profile_image = profile_image or gift_link.profile_image
-    # gift_link.cover_image = cover_image or gift_link.cover_image
-    # gift_link.font_style = font_style or gift_link.font_style
-    # gift_link.color_theme = color_theme or gift_link.color_theme
-    # gift_link.thanks_msg = thanks_msg or gift_link.thanks_msg
     gift_link.update()
-
-    # if social_links:
-    #     update_social_links(
-    #         gift_link_id, user_id, gift_link.gift_account_id, social_links
-    #     )
     return True
 
 
@@ -406,6 +384,47 @@ def get_all_transaction_histories(user_id, page, per_page):
     return transactions, total_earnings
 
 
+def save_transactions(
+    user_id,
+    description,
+    amount,
+    method,
+    trans_type,
+    transaction_reference,
+    bank_code,
+    bank_name,
+    account_name,
+    account_number,
+    status,
+    currency="NGN",
+    response_json={},
+):
+    try:
+        trans = Transactions(
+            user_id=user_id,
+            description=description,
+            amount=amount,
+            method=method,
+            transaction_type=trans_type,
+            transaction_reference=transaction_reference,
+            bank_code=bank_code,
+            bank_name=bank_name,
+            account_name=account_name,
+            account_number=account_number,
+            status=status,
+            currency=currency,
+            response_json=response_json,
+        )
+        db.session.add(trans)
+        db.session.commit()
+        return True
+    except Exception as e:
+        logger.exception("traceback@giftlink/save_transactions")
+        logger.error(f"{e}: error@giftlink/save_transactions")
+        db.session.rollback()
+        return False
+
+
 # supporters histories and total supporters
 def get_all_supporters_histories(user_id, page, per_page):
     from sqlalchemy import func
@@ -432,3 +451,21 @@ def get_all_supporters_histories(user_id, page, per_page):
 
 def get_gift_account_by_username(username):
     return GiftAccount.query.filter_by(username=username).first()
+
+
+# save donation
+def save_donation(
+    gift_id, fan_name, amount, message, donated, payment_reference, email
+):
+    donation = Donation(
+        gift_link_id=gift_id,
+        fan_name=fan_name,
+        amount=amount,
+        message=message,
+        donated=donated,
+        payment_reference=payment_reference,
+        email=email,
+    )
+    db.session.add(donation)
+    db.session.commit()
+    return True
