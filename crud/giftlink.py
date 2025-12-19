@@ -369,9 +369,7 @@ def update_gift_account(
 def get_all_transaction_histories(user_id, page, per_page):
     # Calculate total earnings in a subquery or CTE
     total_earnings = (
-        db.session.query(func.sum(Donation.amount))
-        .filter_by(user_id=user_id)
-        .scalar()
+        db.session.query(func.sum(Donation.amount)).filter_by(user_id=user_id).scalar()
         or 0
     )
 
@@ -481,13 +479,17 @@ def save_donation(
 #     logger.info(f"User Wallet Updated with {amount}")
 #     return True
 
-def update_user_wallet(user_id, amount):
+
+def update_user_wallet(user_id, amount, action):
     try:
         logger.info("Entered the update user wallet function")
         user_wallet = create_user_wallet(user_id)
         logger.info(f"Found/created wallet for user {user_id}")
 
-        user_wallet.balance += amount
+        if action == "add":
+            user_wallet.balance += amount
+        elif action == "subtract":
+            user_wallet.balance -= amount
         logger.info(f"New balance will be: {user_wallet.balance}")
 
         db.session.commit()
