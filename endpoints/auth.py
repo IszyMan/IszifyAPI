@@ -224,14 +224,6 @@ def resend_otp():
 
         otp = user_session.otp
         logger.info(f"OTP: {otp}")
-        # implement where to send the user an otp
-        # email_payload = {
-        #     "otp": otp,
-        #     "email": user.email,
-        #     "subject": "(Otp Resend)-Verify your account",
-        #     "template_name": "otp.html",
-        # }
-        # send_mail(email_payload)
 
         send_html_email(
             recipients=[
