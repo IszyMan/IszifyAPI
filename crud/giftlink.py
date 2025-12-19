@@ -480,3 +480,9 @@ def update_user_wallet(user_id, amount):
     db.session.commit()
     logger.info(f"User Wallet Updated with {amount}")
     return True
+
+
+# get donation by reference
+def get_donation_ref(ref):
+    donation = Donation.query.filter_by(username=username).first()
+    return {"name": donation.fan_name, "email": donation.email} if donation else {}
