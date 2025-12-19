@@ -456,7 +456,7 @@ def get_gift_account_by_username(username):
 
 # save donation
 def save_donation(
-    gift_id, fan_name, amount, message, donated, payment_reference, email
+    gift_id, fan_name, amount, message, donated, payment_reference, email, user_id
 ):
     donation = Donation(
         gift_link_id=gift_id,
@@ -466,6 +466,7 @@ def save_donation(
         donated=donated,
         payment_reference=payment_reference,
         email=email,
+        user_id=user_id,
     )
     db.session.add(donation)
     db.session.commit()
