@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from extensions import db
-from utils import return_response
+from utils import return_response, gen_reference_number, naira_to_kobo
 from logger import logger
 from status_res import StatusRes
 from http_status import HttpStatus
@@ -14,6 +14,9 @@ from crud import (
     get_one_transaction,
     get_gift_link_by_id,
     get_gift_account_by_id,
+    get_bank_details,
+    save_transactions,
+    update_user_wallet,
 )
 from datetime import datetime
 
@@ -339,6 +342,110 @@ def get_subscriptions():
     except Exception as e:
         logger.exception("traceback@transactions_blp/get_all_subscriptions")
         logger.error(f"{e}: error@transactions_blp/get_all_subscriptions")
+        db.session.rollback()
+        return return_response(
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            status=StatusRes.FAILED,
+            message="Network Error",
+        )
+
+
+# payout
+@transactions_blp.route(f"{TRANSACT_PREFIX}/payout", methods=["POST"])
+@jwt_required()
+def payout():
+    try:
+        data = request.get_json()
+        logger.info(f"{data}: data from payout")
+        bank_details = get_bank_details(current_user.id)
+        if not bank_details:
+            return return_response(
+                HttpStatus.FORBIDDEN,
+                status=StatusRes.FAILED,
+                message="Please add your bank details",
+            )
+        amount = data.get("amount")
+        reference = gen_reference_number("trans")
+        account_name = bank_details.account_name
+        account_number = bank_details.account_number
+        bank_code = bank_details.bank_code
+        bank_name = bank_details.bank_name
+        transfer_note = data.get("narration")
+
+        if not amount:
+            return return_response(
+                HttpStatus.FORBIDDEN,
+                status=StatusRes.FAILED,
+                message="Amount is required",
+            )
+
+        amount = float(amount)
+
+        my_wallet = get_user_wallet(current_user.id)
+        if my_wallet.balance < amount:
+            return return_response(
+                HttpStatus.FORBIDDEN,
+                status=StatusRes.FAILED,
+                message="Insufficient balance",
+            )
+
+        transfer_receipt, status_code = pay_stack.create_transfer_receipt(
+            account_name,
+            account_number,
+            bank_code,
+        )
+        logger.info(f"{transfer_receipt}: transfer receipt from payout")
+        logger.info(f"{status_code}: status code from payout")
+        if status_code not in [200, 201]:
+            return return_response(
+                HttpStatus.FORBIDDEN,
+                status=StatusRes.FAILED,
+                message="Failed to create transfer",
+            )
+        recipient = transfer_receipt["data"]["recipient_code"]
+        logger.info(f"{recipient}: recipient from payout")
+        initiate_trans_res, i_status_code = pay_stack.initiate_transfer(
+            naira_to_kobo(amount), reference, recipient, transfer_note
+        )
+        logger.info(f"{initiate_trans_res}: response from initiate transfer")
+        logger.info(f"{i_status_code}: status code from initiate transfer")
+
+        if i_status_code not in [200, 201]:
+            return return_response(
+                HttpStatus.FORBIDDEN,
+                status=StatusRes.FAILED,
+                message="Failed to initiate transfer",
+            )
+
+        save_transactions(
+            current_user.id,
+            transfer_note,
+            amount,
+            "",
+            "payout",
+            reference,
+            bank_code,
+            bank_name,
+            account_name,
+            account_number,
+            "success",
+            response_json=initiate_trans_res,
+        )
+
+        logger.info("Going to update user wallet")
+
+        update_user_wallet(user_id, amount, "subtract")
+        logger.info("User wallet updated")
+
+        return return_response(
+            HttpStatus.OK,
+            status=StatusRes.SUCCESS,
+            message="Payout successful",
+        )
+
+    except Exception as e:
+        logger.exception("traceback@transactions_blp/payout")
+        logger.error(f"{e}: error@transactions_blp/payout")
         db.session.rollback()
         return return_response(
             HttpStatus.INTERNAL_SERVER_ERROR,
