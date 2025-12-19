@@ -91,6 +91,7 @@ def resolve_account():
 def verify_transaction():
     try:
         data = request.get_json()
+        logger.info(f"Data@verify_transaction: {data}")
         reference_number = data.get("reference")
         amount = data.get("amount")
         email = data.get("email")
