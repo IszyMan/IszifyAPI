@@ -476,7 +476,7 @@ def save_donation(
 # update user wallet
 def update_user_wallet(user_id, amount):
     user_wallet = create_user_wallet(user_id)
-    user_wallet += amount
+    user_wallet.balance += amount
     db.session.commit()
     logger.info(f"User Wallet Updated with {amount}")
     return True
