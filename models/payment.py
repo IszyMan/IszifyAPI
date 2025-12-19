@@ -151,6 +151,8 @@ class Transactions(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
     def to_dict(self):
+        from crud import get_donation_ref
+
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -166,4 +168,5 @@ class Transactions(db.Model):
             "currency": self.currency,
             "status": self.status,
             "date": format_datetime(self.date),
+            "donator": get_donation_ref(self.transaction_reference),
         }
