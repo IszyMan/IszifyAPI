@@ -223,3 +223,13 @@ def remove_host_url(host_url):
     if host_url.endswith("/"):
         host_url = host_url[:-1]
     return host_url
+
+
+# generate paystack reference number
+def gen_reference_number(prefx):
+    return f"{prefx}_{uuid.uuid4()}"
+
+
+# naira to kobo
+def naira_to_kobo(naira):
+    return float(naira * 100)
