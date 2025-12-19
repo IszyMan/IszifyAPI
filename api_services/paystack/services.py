@@ -47,7 +47,7 @@ class PaystackClient(PaystackBase):
             url = f"{self.base_url}/transaction/verify/{reference}"
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
-            return response.json()
+            return response.json(), response.status_code
         except Exception as e:
             logger.error(f"error {e}")
-            return None
+            return None, 500
