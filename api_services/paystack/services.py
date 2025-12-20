@@ -84,6 +84,8 @@ class PaystackClient(PaystackBase):
             }
             url = f"{self.base_url}/transfer"
             response = requests.post(url, headers=self.headers, json=data)
+            logger.info(f"{response.content}: response content from initiate transfer")
+            logger.info(f"{response.json()}: response from initiate transfer")
             response.raise_for_status()
             return response.json(), response.status_code
         except Exception as e:
