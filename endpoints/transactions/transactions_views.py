@@ -390,33 +390,33 @@ def payout():
                 message="Insufficient balance",
             )
 
-        transfer_receipt, status_code = pay_stack.create_transfer_receipt(
-            account_name,
-            account_number,
-            bank_code,
-        )
-        logger.info(f"{transfer_receipt}: transfer receipt from payout")
-        logger.info(f"{status_code}: status code from payout")
-        if status_code not in [200, 201]:
-            return return_response(
-                HttpStatus.FORBIDDEN,
-                status=StatusRes.FAILED,
-                message="Failed to create transfer",
-            )
-        recipient = transfer_receipt["data"]["recipient_code"]
-        logger.info(f"{recipient}: recipient from payout")
-        initiate_trans_res, i_status_code = pay_stack.initiate_transfer(
-            naira_to_kobo(amount), reference, recipient, transfer_note
-        )
-        logger.info(f"{initiate_trans_res}: response from initiate transfer")
-        logger.info(f"{i_status_code}: status code from initiate transfer")
+        # transfer_receipt, status_code = pay_stack.create_transfer_receipt(
+        #     account_name,
+        #     account_number,
+        #     bank_code,
+        # )
+        # logger.info(f"{transfer_receipt}: transfer receipt from payout")
+        # logger.info(f"{status_code}: status code from payout")
+        # if status_code not in [200, 201]:
+        #     return return_response(
+        #         HttpStatus.FORBIDDEN,
+        #         status=StatusRes.FAILED,
+        #         message="Failed to create transfer",
+        #     )
+        # recipient = transfer_receipt["data"]["recipient_code"]
+        # logger.info(f"{recipient}: recipient from payout")
+        # initiate_trans_res, i_status_code = pay_stack.initiate_transfer(
+        #     naira_to_kobo(amount), reference, recipient, transfer_note
+        # )
+        # logger.info(f"{initiate_trans_res}: response from initiate transfer")
+        # logger.info(f"{i_status_code}: status code from initiate transfer")
 
-        if i_status_code not in [200, 201]:
-            return return_response(
-                HttpStatus.FORBIDDEN,
-                status=StatusRes.FAILED,
-                message="Failed to initiate transfer",
-            )
+        # if i_status_code not in [200, 201]:
+        #     return return_response(
+        #         HttpStatus.FORBIDDEN,
+        #         status=StatusRes.FAILED,
+        #         message="Failed to initiate transfer",
+        #     )
 
         save_transactions(
             current_user.id,
@@ -430,12 +430,13 @@ def payout():
             account_name,
             account_number,
             "success",
-            response_json=initiate_trans_res,
+            # response_json=initiate_trans_res,
+            response_json={},
         )
 
         logger.info("Going to update user wallet")
 
-        update_user_wallet(user_id, amount, "subtract")
+        update_user_wallet(current_user.id, amount, "subtract")
         logger.info("User wallet updated")
 
         return return_response(
