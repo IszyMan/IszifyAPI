@@ -106,6 +106,7 @@ class GiftAccount(db.Model):
             "min_price": self.min_price or 0,
             "button_option": self.button_option or "",
             "sugg_amounts": self.sugg_amounts or [],
+            "standard_amounts": self.standard_amounts or [],
             "layout": self.layout or "",
             "color_theme": self.color_theme or "",
             "preset": self.preset or "",
