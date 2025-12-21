@@ -196,7 +196,6 @@ def create_fresh_giftlink(
     color_theme,
     thanks_msg,
     social_links,
-    standard_amounts,
 ):
     gift_link = GiftLinks(
         user_id=user_id,
@@ -219,7 +218,6 @@ def create_fresh_giftlink(
         font_style=font_style,
         color_theme=color_theme,
         thanks_msg=thanks_msg,
-        standard_amounts=standard_amounts,
     )
     db.session.add(gift_link)
     db.session.flush()
