@@ -411,7 +411,6 @@ def create_fresh_gift_link(gift_account_id):
         min_price = data.get("min_price")
         button_option = data.get("button_option")
         sugg_amounts = data.get("suggested_amounts", [])
-        standard_amounts = data.get("standard_amounts", [])
         image = data.get("image")
         link = data.get("link")
         active = data.get("active", True)
@@ -454,7 +453,6 @@ def create_fresh_gift_link(gift_account_id):
             color_theme,
             thanks_msg,
             social_links,
-            standard_amounts,
         )
         return return_response(
             HttpStatus.OK,
