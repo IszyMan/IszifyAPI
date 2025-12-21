@@ -196,6 +196,7 @@ def create_fresh_giftlink(
     color_theme,
     thanks_msg,
     social_links,
+    standard_amounts,
 ):
     gift_link = GiftLinks(
         user_id=user_id,
@@ -218,6 +219,7 @@ def create_fresh_giftlink(
         font_style=font_style,
         color_theme=color_theme,
         thanks_msg=thanks_msg,
+        standard_amounts=standard_amounts,
     )
     db.session.add(gift_link)
     db.session.flush()
@@ -338,6 +340,7 @@ def update_gift_account(
     thanks_msg,
     color_theme,
     preset,
+    standard_amounts,
 ):
     gift_account = GiftAccount.query.filter_by(
         id=gift_account_id, user_id=user_id
@@ -356,6 +359,7 @@ def update_gift_account(
     gift_account.min_price = min_price or gift_account.min_price
     gift_account.button_option = button_option or gift_account.button_option
     gift_account.sugg_amounts = sugg_amounts or gift_account.sugg_amounts
+    gift_account.standard_amounts = standard_amounts or gift_account.standard_amounts
     gift_account.layout = layout or gift_account.layout
     gift_account.thanks_msg = thanks_msg or gift_account.thanks_msg
     gift_account.color_theme = color_theme or gift_account.color_theme
