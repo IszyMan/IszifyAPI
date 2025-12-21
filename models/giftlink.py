@@ -319,9 +319,9 @@ class Donation(db.Model):
     def support_dict(self):
         if self.gift_link_id:
             support_type = "fund raising"
-            msg = f"{self.fan_name} contributed {round(self.amount, 2)} to the fund raising for {self.gift_link.title}"
+            msg = f"{self.fan_name} contributed {self.amount:,.2f} to the fund raising for {self.gift_link.title}"
         else:
             support_type = "donation"
-            msg = f"{self.fan_name} donated {round(self.amount, 2)}"
+            msg = f"{self.fan_name} donated {self.amount:,.2f}"
 
         return {"support_type": support_type, "action": msg}
