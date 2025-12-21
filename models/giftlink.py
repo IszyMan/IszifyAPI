@@ -72,6 +72,9 @@ class GiftAccount(db.Model):
     thanks_msg = db.Column(db.Text, nullable=True)
     layout = db.Column(db.String(150), nullable=True)
     sugg_amounts = db.Column(MutableList.as_mutable(JSON), default=list, nullable=True)
+    standard_amounts = db.Column(
+        MutableList.as_mutable(JSON), default=list, nullable=True
+    )
     color_theme = db.Column(db.String(80), nullable=True)
     preset = db.Column(db.String(80), nullable=True)
     created = db.Column(db.DateTime, nullable=False, default=db.func.now())
