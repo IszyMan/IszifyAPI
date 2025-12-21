@@ -17,7 +17,7 @@ from crud import (
     get_bank_details,
     save_transactions,
     update_user_wallet,
-    get_user_wallet
+    get_user_wallet,
 )
 from datetime import datetime
 
