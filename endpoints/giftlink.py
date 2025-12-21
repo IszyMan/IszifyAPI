@@ -607,7 +607,9 @@ def my_supporters(username):
             message="Supporters histories fetched successfully",
             data={
                 "total_supporters": total_supporters,
-                "supporters": [supporter.to_dict() for supporter in supporters.items],
+                "supporters": [
+                    supporter.support_dict() for supporter in supporters.items
+                ],
                 "total_items": supporters.total,
                 "total_pages": supporters.pages,
                 "page": page,
