@@ -3,7 +3,12 @@ from datetime import datetime, timedelta
 from passlib.hash import pbkdf2_sha256 as hasher
 
 from models.users import Users, UserSession
-from utils import generate_otp, generate_random_string
+from utils import generate_otp, generate_random_string, validate_password
+from models.shorten_url import Urlshort, UrlShortenerClicks
+from models.qrcode import QRCodeData
+from models.giftlink import Donation
+from logger import logger
+from extensions import db
 
 
 def authenticate(email, password):
@@ -129,3 +134,49 @@ def change_password(current_user, new_password):
 def get_user_by_reset_p(reset_p):
     usersession = UserSession.query.filter_by(reset_p=reset_p).first()
     return usersession.user if usersession else None
+
+
+def user_statistics(user_id):
+    try:
+        """
+        total qr codes
+        total supporters
+        total short links
+        total clicks on short links
+        total donations
+        """
+        total_qr = QRCodeData.query.filter_by(user_id=user_id).count()
+        total_supporters = Donation.filter_by(user_id=user_id).count()
+        total_short_links = Urlshort.filter_by(user_id=user_id).count()
+        total_clicks = (
+            db.session.query(db.func.count(UrlShortenerClicks.id))
+            .join(Urlshort, UrlShortenerClicks.url_id == Urlshort.id)
+            .filter(Urlshort.user_id == user_id)
+            .scalar()
+        )
+        # sum of the donations
+        total_donations = (
+            Donation.query.filter_by(user_id=user_id)
+            .with_entities(db.func.sum(Donation.amount))
+            .scalar()
+            or 0
+        )
+
+        return {
+            "total_qr": total_qr,
+            "total_supporters": total_supporters,
+            "total_short_links": total_short_links,
+            "total_short_url_clicks": total_clicks,
+            "total_supports": total_donations,
+        }
+    except Exception as e:
+        logger.exception("traceback@user_blp/statistics")
+        logger.error(f"{e}: error@user_blp/statistics")
+        db.session.rollback()
+        return {
+            "total_qr": 0,
+            "total_supporters": 0,
+            "total_short_links": 0,
+            "total_short_url_clicks": 0,
+            "total_supports": 0,
+        }
