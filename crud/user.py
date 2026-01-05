@@ -147,7 +147,7 @@ def user_statistics(user_id):
         """
         total_qr = QRCodeData.query.filter_by(user_id=user_id).count()
         total_supporters = Donation.query.filter_by(user_id=user_id).count()
-        total_short_links = Urlshort.filter_by(user_id=user_id).count()
+        total_short_links = Urlshort.query.filter_by(user_id=user_id).count()
         total_clicks = (
             db.session.query(db.func.count(UrlShortenerClicks.id))
             .join(Urlshort, UrlShortenerClicks.url_id == Urlshort.id)
