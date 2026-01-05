@@ -6,6 +6,7 @@ from crud import (
     save_url_clicks,
     get_user_current_subscription,
     get_users_subscriptions,
+    user_statistics,
 )
 from models.shorten_url import Urlshort
 from extensions import db, limiter
@@ -33,9 +34,12 @@ user_blp = Blueprint("user_blp", __name__)
 @limiter.limit("5 per minute", key_func=user_id_limiter)
 def dashboard():
     try:
-        res = current_user_info(current_user)
+        stats = user_statistics(current_user.id)
         return return_response(
-            HttpStatus.OK, message="User Dashboard", status=StatusRes.SUCCESS, data=res
+            HttpStatus.OK,
+            message="User Dashboard",
+            status=StatusRes.SUCCESS,
+            data={"username": current_user.username, **stats},
         )
     except Exception as e:
         logger.exception("traceback@user_blp/dashboard")
